@@ -1,12 +1,12 @@
 import { createAutoIncrementGenerator, isPrimitive } from '@0x-jerry/utils'
 import { CliConf, CliOption, CliProgram } from './types'
 
-const TOKEN_ID_PREFIX = '$x@x$'
+const TOKEN_ID_PREFIX = '__token_id__'
 const nextId = createAutoIncrementGenerator(TOKEN_ID_PREFIX)
 
 const tokenIdReg = new RegExp(`${TOKEN_ID_PREFIX}\\d+$`)
 
-export function defineCli(raw: TemplateStringsArray, ...tokens: any[]): CliProgram {
+export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): CliProgram {
   const tokenMapper = new Map<string, Function>()
   const tokenIdMapper = new Map<Function, string>()
 
@@ -28,10 +28,54 @@ export function defineCli(raw: TemplateStringsArray, ...tokens: any[]): CliProgr
     return pre + cur + (tokenId ? `${tokenId}` : token ?? '')
   }, '')
 
+  const conf = parseCliDescription(finalStr)
+
+  if (!conf) throw new Error('Parse CLI description failed!')
+
+  const program = covertToProgram(conf)
+
+  return program
+
+  function covertToProgram(conf: CliConf): CliProgram {
+    const program: CliProgram = {
+      ...conf,
+    }
+
+    delete program.subCommands
+
+    for (const subCliConf of conf.subCommands || []) {
+      const subProgram = covertToProgram(subCliConf)
+
+      program.subCommands ||= []
+      program.subCommands.push(subProgram)
+    }
+
+    if (!program.description) {
+      return program
+    }
+
+    program.description = program.description.trim()
+
+    const [tokenId] = program.description.match(tokenIdReg) || []
+
+    if (!tokenId) {
+      return program
+    }
+
+    const fn = tokenMapper.get(tokenId)
+
+    program.description = program.description.replace(tokenIdReg, '').trim()
+    program.action = fn
+
+    return program
+  }
+}
+
+function parseCliDescription(finalStr: string) {
   let appCli: CliConf | null = null
   let currentCli: CliConf | null = null
 
-  const lines = finalStr.trim().split('\n+')
+  const lines = finalStr.trim().split(/\n+/)
 
   for (let line of lines) {
     line = line.trim()
@@ -41,18 +85,17 @@ export function defineCli(raw: TemplateStringsArray, ...tokens: any[]): CliProgr
 
     if (line.startsWith('-')) {
       // is an option description
-
       const opt = parseOption(line)
 
       if (!currentCli) {
         throw new Error(`Invalid cli option, please specify a cli name first. ${line}`)
       }
+
       currentCli.options ||= []
       currentCli.options.push(opt)
       // todo, check duplicate name?
     } else {
       // is a cli description
-
       if (!appCli) {
         appCli = parseCli(line)
         currentCli = appCli
@@ -64,42 +107,7 @@ export function defineCli(raw: TemplateStringsArray, ...tokens: any[]): CliProgr
       }
     }
   }
-
-  if (!appCli) throw new Error('Parse CLI description failed!')
-
-  const program = parseAction(appCli)
-
-  return program
-
-  function parseAction(cliConf: CliConf): CliProgram {
-    const program: CliProgram = {
-      ...cliConf,
-      subCommands: undefined,
-    }
-
-    for (const subCliConf of cliConf.subCommands || []) {
-      const subProgram = parseAction(subCliConf)
-
-      program.subCommands ||= []
-      program.subCommands.push(subProgram)
-    }
-
-    if (!cliConf.description) {
-      return program
-    }
-
-    const [tokenId] = cliConf.description.trim().match(tokenIdReg) || []
-
-    if (!tokenId) {
-      return program
-    }
-
-    const fn = tokenMapper.get(tokenId)
-
-    program.action = fn
-
-    return program
-  }
+  return appCli
 }
 
 /**
@@ -155,7 +163,7 @@ function parseOption(description: string): CliOption {
     }
   })
 
-  conf.description = desc
+  conf.description = desc?.trim()
 
   // fix name
   if (conf.alias && !conf.name) {

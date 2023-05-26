@@ -1,0 +1,70 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`silver > should parse cli description 1`] = `
+{
+  "action": [MockFunction spy],
+  "description": "A library for create command line interface quickly.",
+  "name": "commandName",
+  "options": [
+    {
+      "alias": "s",
+      "defaultValue": "cool",
+      "description": "An string option with default value.",
+      "name": "string",
+      "type": "string",
+    },
+    {
+      "alias": "n",
+      "defaultValue": 123.34,
+      "description": "an number option with default value",
+      "flags": [
+        "global",
+      ],
+      "name": "number",
+      "type": "number",
+    },
+    {
+      "alias": "e",
+      "defaultValue": "a2",
+      "description": "an custom option with default value.",
+      "name": "enum",
+      "type": "custom",
+    },
+    {
+      "alias": "b",
+      "defaultValue": false,
+      "description": "an boolean option without default value.",
+      "name": "bool",
+      "type": "bool",
+    },
+    {
+      "alias": "o",
+      "description": "an option without specify a type will be a string.",
+      "name": "other",
+    },
+  ],
+  "subCommands": [
+    {
+      "action": [MockFunction spy],
+      "description": "an sub command.",
+      "name": "subCommandName",
+      "options": [
+        {
+          "alias": "s",
+          "defaultValue": "default",
+          "description": "sub command option.",
+          "name": "string",
+          "type": "string",
+        },
+        {
+          "alias": "sm",
+          "defaultValue": true,
+          "description": "other option.",
+          "name": "small",
+          "type": "bool",
+        },
+      ],
+    },
+  ],
+}
+`;

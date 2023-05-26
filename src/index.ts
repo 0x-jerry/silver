@@ -1,1 +1,1 @@
-export const hello = 'world'
+export { sliver } from './core'

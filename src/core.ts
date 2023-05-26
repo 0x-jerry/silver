@@ -1,55 +1,22 @@
-// export function sliver() {}
+import { parseCliProgram } from './parse'
+import { CliProgram } from './types'
 
-import { defineCli } from './parse'
+export class Sliver {
+  conf?: CliProgram
 
-export class Sliver {}
+  parse(raw: TemplateStringsArray, ...tokens: any[]) {
+    this.conf = parseCliProgram(raw, ...tokens)
+  }
 
-export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
-  const str = defineCli(raw, ...tokens)
-
-  console.log(str)
-
-  // console.log(raw, tokens)
-  // return ''
-
-  return {
-    type(name: string, getType: () => string[]) {},
+  type(name: string, getType: () => string[]) {
+    return this
   }
 }
 
-const defaultCustom = 'a2'
+export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
+  const ins = new Sliver()
 
-const ins = sliver`
-commandName, A library for create command line interface quickly. ${command}
+  ins.parse(raw, ...tokens)
 
--s --string @string:cool, An string option with default value.
--n --number #global @number:123.34, an number option with default value, and it's a global option.
--e --enum @custom:${defaultCustom}, an custom option with default value.
-
--b --bool @bool, an boolean option without default value.
--o --other, an option without specify a type will be a string.
-
-subCommandName, an sub command. ${runGh}
-
--s --string @string:default, sub command option.
--sm --small @bool:true, other option.
-`
-
-ins.type('custom', () => ['a1', 'a2', 'a3'])
-
-interface Option {
-  string: string
-  number: number
-  enum: string
-
-  bool?: boolean
-  other?: string
-}
-
-function command(params: Option) {
-  console.log(params)
-}
-
-function runGh() {
-  console.log('cool gh')
+  return ins
 }
