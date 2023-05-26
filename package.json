@@ -1,11 +1,11 @@
 {
-  "name": "tpl-ts-sdk",
+  "name": "silver",
   "version": "0.0.0",
-  "description": "",
+  "description": "An library help me to create CLI program quickly.",
   "main": "src/index.ts",
   "type": "module",
   "engines": {
-    "node": ">= 14"
+    "node": ">= 18"
   },
   "scripts": {
     "test": "vitest run",
@@ -35,6 +35,6 @@
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
-    "@0x-jerry/utils": "^1.16.3"
+    "@0x-jerry/utils": "^1.17"
   }
 }

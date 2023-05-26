@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@0x-jerry/utils':
-    specifier: ^1.16.3
-    version: 1.16.3
+    specifier: ^1.17
+    version: 1.17.0
 
 devDependencies:
   '@0x-jerry/x-release':
@@ -34,10 +34,10 @@ packages:
     resolution: {integrity: sha512-aV1qnSbezqlm1M4z+ZjL62p3u5q21986c445KDwJH1zgIErBlefXLf3Tv/Cao8DzA5o2P5iGFpeP2JNjhFRbNQ==}
     dev: true
 
-  /@0x-jerry/utils@1.16.3:
-    resolution: {integrity: sha512-h0gw6HAIla+e1KTe2JZkxw6kywLbpsYVJPv/K9BByo4xREcT9UtICB2Iq4reN9fpNxbmx3q/sRwbTpt/JxAqSw==}
+  /@0x-jerry/utils@1.17.0:
+    resolution: {integrity: sha512-oC1/giVrVkhxdgf9C82WVcQsOdQz9lG4Xhd1MrtU+rGPJFc5BLDx80NIFKO+3C4bTO2Yplw/QRXAe29AX0uCkQ==}
     dependencies:
-      fflate: 0.7.4
+      fflate: 0.8.0
       nanoid: 4.0.2
     dev: false
 
@@ -965,8 +965,8 @@ packages:
       reusify: 1.0.4
     dev: true
 
-  /fflate@0.7.4:
-    resolution: {integrity: sha512-5u2V/CDW15QM1XbbgS+0DfPxVB+jUKhWEKuuFuHncbk3tEEqzmoXL+2KyOFuKGqOnmdIy0/davWF1CkuwtibCw==}
+  /fflate@0.8.0:
+    resolution: {integrity: sha512-FAdS4qMuFjsJj6XHbBaZeXOgaypXp8iw/Tpyuq/w3XA41jjLHT8NPA+n7czH/DDhdncq0nAyDZmPeWXh2qmdIg==}
     dev: false
 
   /fill-range@7.0.1:
