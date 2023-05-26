@@ -23,6 +23,7 @@ export interface CliConf {
   subCommands?: CliConf[]
 }
 
-export interface CliProgramConf extends Omit<CliConf, 'subCommands'> {
-  subCommands?: CliProgramConf[]
+export interface CliProgram extends Omit<CliConf, 'subCommands'> {
+  subCommands?: CliProgram[]
+  action?: Function
 }
