@@ -4,6 +4,9 @@ exports[`silver > should parse cli description 1`] = `
 {
   "action": [MockFunction spy],
   "description": "A library for create command line interface quickly.",
+  "flags": [
+    "manual",
+  ],
   "name": "commandName",
   "options": [
     {

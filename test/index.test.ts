@@ -24,4 +24,28 @@ up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
 
     expect(ins.conf).toMatchSnapshot()
   })
+
+  it('should execute by default', () => {
+    const fn = vi.fn()
+
+    sliver`
+x [dir], Test. ${fn}
+`
+
+    expect(fn).toBeCalledTimes(1)
+  })
+
+  it('should execute sub command', () => {
+    const fn = vi.fn()
+
+    const ins = sliver`
+x [dir] #manual, Test.
+
+sub, test command. ${fn}
+`
+
+    ins.execute(['sub', 'test'])
+
+    expect(fn).toBeCalledTimes(1)
+  })
 })
