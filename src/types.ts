@@ -13,12 +13,30 @@ export interface CliOption {
   flags?: string[]
 }
 
+/**
+ * @example [@type:name:defaultValue], not required, single
+ * @example <@type:name:defaultValue>, required, single
+ * @example [...@type:name:defaultValue] array
+ */
+export interface CliParameter {
+  name: string
+  required?: boolean
+  type?: string
+  defaultValue?: string | boolean | number
+  isArray?: boolean
+}
+
 export interface CliConf {
   name: string
+  alias?: string
 
   description?: string
 
   options?: CliOption[]
+
+  flags?: string[]
+
+  parameters?: CliParameter[]
 
   subCommands?: CliConf[]
 }

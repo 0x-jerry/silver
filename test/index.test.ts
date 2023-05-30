@@ -6,7 +6,7 @@ describe('silver', () => {
     const fn = vi.fn()
 
     const ins = sliver`
-commandName, A library for create command line interface quickly. ${fn}
+commandName [dir], A library for create command line interface quickly. ${fn}
 
 -s --string @string:cool, An string option with default value.
 -n --number #global @number:123.34, an number option with default value, and it's a global option.
@@ -15,7 +15,8 @@ commandName, A library for create command line interface quickly. ${fn}
 -b --bool @bool, an boolean option without default value.
 -o --other, an option without specify a type will be a string.
 
-subCommandName, an sub command. ${fn}
+# aliasName/commandName
+up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
 
 -s --string @string:default, sub command option.
 -sm --small @bool:true, other option.

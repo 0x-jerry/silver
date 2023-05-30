@@ -1,5 +1,6 @@
 import { createAutoIncrementGenerator, isPrimitive } from '@0x-jerry/utils'
-import { CliConf, CliOption, CliProgram } from './types'
+import { CliConf, CliOption, CliParameter, CliProgram } from './types'
+import { splitFirst } from './utils'
 
 const TOKEN_ID_PREFIX = '__token_id__'
 const nextId = createAutoIncrementGenerator(TOKEN_ID_PREFIX)
@@ -82,6 +83,8 @@ function parseCliDescription(finalStr: string) {
 
     // skip blank string
     if (!line) continue
+    // ignore comments
+    if (line.startsWith('#')) continue
 
     if (line.startsWith('-')) {
       // is an option description
@@ -124,7 +127,7 @@ function parseOption(description: string): CliOption {
     name: '',
   }
 
-  const [opt, desc] = description.split(',')
+  const [opt, desc] = splitFirst(description, ',')
 
   const segments = opt.split(/\s+/)
 
@@ -145,7 +148,7 @@ function parseOption(description: string): CliOption {
     } else if (segment.startsWith('@')) {
       // is type
 
-      const [type, defaultValue] = segment.split(':')
+      const [type, defaultValue] = splitFirst(segment, ':')
 
       conf.type = type.slice(1)
 
@@ -179,10 +182,12 @@ function parseOption(description: string): CliOption {
 }
 
 /**
- * example:
+ * @example
  *
  * ```txt
- * commandName, A library for create command line interface quickly. ${command}
+ * aliasName/commandName <@file:dir> [...files] #flag, A library for create command line interface quickly. ${command}
+ *
+ * up/upgrade <@pkg:name:defaultPkgName> [version:latest] #flag, Upgrade package to the latest.
  * ```
  *
  */
@@ -191,15 +196,96 @@ function parseCli(description: string): CliConf {
     name: '',
   }
 
-  const [name, desc] = description.split(',')
+  const [name, desc] = splitFirst(description, ',')
 
-  conf.name = name
+  const [nameWithAlias, ...parameters] = name.split(/\s+/g)
 
-  conf.description = desc
+  {
+    // up/upgrade
+    // upgrade
+    const names = splitFirst(nameWithAlias, '/')
+
+    if (names.length === 2) {
+      conf.alias = names[0]
+      conf.name = names[1]
+    } else {
+      conf.name = nameWithAlias
+    }
+  }
+
+  {
+    // parameters
+    parameters.forEach((parameter) => {
+      if (parameter.startsWith('#')) {
+        // is flag
+        conf.flags ||= []
+        conf.flags.push(parameter.slice(1))
+        return
+      }
+
+      const p = parseCliParameter(parameter)
+
+      if (p) {
+        conf.parameters ||= []
+        conf.parameters.push(p)
+      }
+    })
+  }
+
+  conf.description = desc.trim()
 
   if (!name) {
     throw new Error(`Parse cli description failed: ${description}`)
   }
+
+  return conf
+}
+
+/**
+ *
+ * <@pkg:name:defaultPkgName>
+ * [@type:version:latest]
+ * [...@file:files]
+ *
+ * @param description
+ */
+function parseCliParameter(description: string): CliParameter | null {
+  const l = description.slice(0, 1)
+  const r = description.slice(-1)
+
+  const conf: CliParameter = {
+    name: '',
+  }
+
+  if (l === '<' && r === '>') {
+    conf.required = true
+  } else if (l === '[' && r === ']') {
+    conf.required = false
+  } else {
+    // invalid
+    return null
+  }
+
+  let content = description.slice(1, -1)
+
+  if (content.startsWith('...')) {
+    conf.isArray = true
+    content = content.slice(3)
+  }
+
+  const segments = content.split(':')
+
+  const hasType = segments.at(0)?.startsWith('@')
+
+  if (hasType) {
+    conf.type = segments[0].slice(1)
+    segments.splice(0, 1)
+  }
+
+  const [name, defaultValue] = segments
+
+  conf.name = name
+  conf.defaultValue = defaultValue
 
   return conf
 }

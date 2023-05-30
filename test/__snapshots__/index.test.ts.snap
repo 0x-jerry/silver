@@ -16,7 +16,7 @@ exports[`silver > should parse cli description 1`] = `
     {
       "alias": "n",
       "defaultValue": 123.34,
-      "description": "an number option with default value",
+      "description": "an number option with default value, and it's a global option.",
       "flags": [
         "global",
       ],
@@ -43,11 +43,22 @@ exports[`silver > should parse cli description 1`] = `
       "name": "other",
     },
   ],
+  "parameters": [
+    {
+      "defaultValue": undefined,
+      "name": "dir",
+      "required": false,
+    },
+  ],
   "subCommands": [
     {
       "action": [MockFunction spy],
+      "alias": "up",
       "description": "an sub command.",
-      "name": "subCommandName",
+      "flags": [
+        "stopEarly",
+      ],
+      "name": "upgrade",
       "options": [
         {
           "alias": "s",
@@ -62,6 +73,19 @@ exports[`silver > should parse cli description 1`] = `
           "description": "other option.",
           "name": "small",
           "type": "bool",
+        },
+      ],
+      "parameters": [
+        {
+          "defaultValue": undefined,
+          "name": "dir",
+          "required": true,
+        },
+        {
+          "defaultValue": undefined,
+          "isArray": true,
+          "name": "other",
+          "required": false,
         },
       ],
     },
