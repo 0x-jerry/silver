@@ -1,6 +1,6 @@
 import { createAutoIncrementGenerator, isPrimitive } from '@0x-jerry/utils'
-import { CliConf, CliOption, CliParameter, CliProgram } from './types'
-import { splitFirst } from './utils'
+import { CliConfig, CliOption, CliParameter, CliProgram } from './types'
+import { builtinType, isType, splitFirst } from './utils'
 
 const TOKEN_ID_PREFIX = '__token_id__'
 const nextId = createAutoIncrementGenerator(TOKEN_ID_PREFIX)
@@ -8,7 +8,7 @@ const nextId = createAutoIncrementGenerator(TOKEN_ID_PREFIX)
 const tokenIdReg = new RegExp(`${TOKEN_ID_PREFIX}\\d+$`)
 
 export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): CliProgram {
-  const tokenMapper = new Map<string, Function>()
+  const tokenMapper = new Map<string, CliProgram['action']>()
   const tokenIdMapper = new Map<Function, string>()
 
   tokens.forEach((token) => {
@@ -37,7 +37,7 @@ export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): Cl
 
   return program
 
-  function covertToProgram(conf: CliConf): CliProgram {
+  function covertToProgram(conf: CliConfig): CliProgram {
     const program: CliProgram = {
       ...conf,
     }
@@ -73,8 +73,8 @@ export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): Cl
 }
 
 function parseCliDescription(finalStr: string) {
-  let appCli: CliConf | null = null
-  let currentCli: CliConf | null = null
+  let appCli: CliConfig | null = null
+  let currentCli: CliConfig | null = null
 
   const lines = finalStr.trim().split(/\n+/)
 
@@ -152,9 +152,9 @@ function parseOption(description: string): CliOption {
 
       conf.type = type.slice(1)
 
-      if (['bool', 'boolean'].includes(conf.type!)) {
+      if (isType(conf.type!, builtinType.boolean)) {
         conf.defaultValue = defaultValue === 'true'
-      } else if (conf.type === 'number') {
+      } else if (isType(conf.type!, builtinType.number)) {
         const n = parseFloat(defaultValue)
         conf.defaultValue = Number.isNaN(n) ? undefined : n
         // todo, warning ?
@@ -191,8 +191,8 @@ function parseOption(description: string): CliOption {
  * ```
  *
  */
-function parseCli(description: string): CliConf {
-  const conf: CliConf = {
+function parseCli(description: string): CliConfig {
+  const conf: CliConfig = {
     name: '',
   }
 

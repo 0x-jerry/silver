@@ -1,7 +1,8 @@
 import { Value } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
-import { CliProgram, ProgramFlag } from './types'
+import { ActionParsedArgs, CliProgram, ProgramFlag } from './types'
 import minimist from 'minimist'
+import { isType, builtinType } from './utils'
 
 export class Sliver {
   conf?: CliProgram
@@ -40,11 +41,10 @@ export class Sliver {
       argv = argv.slice(1)
     }
 
-    const args = minimist(argv, {
-      stopEarly: !!program.flags?.includes(ProgramFlag.StopEarly),
-    })
+    const args = parseArgv(argv, program)
 
-    // todo, validate required parameters
+    // todo, validate required parameters and options
+
     program.action?.(args)
   }
 }
@@ -60,4 +60,34 @@ export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
   }
 
   return ins
+}
+
+function parseArgv(argv: string[], program: CliProgram) {
+  const config = {
+    alias: {} as Record<string, string>,
+    default: {} as Record<string, any>,
+    boolean: [] as string[],
+    '--': true,
+    stopEarly: !!program.flags?.includes(ProgramFlag.StopEarly),
+  }
+
+  for (const opt of program.options || []) {
+    if (opt.alias) {
+      config.alias[opt.name] = opt.alias
+    }
+
+    if (opt.defaultValue != null) {
+      config.default[opt.name] = opt.defaultValue
+    }
+
+    if (isType(opt.type!, builtinType.boolean)) {
+      config.boolean.push(opt.name)
+    }
+  }
+
+  const args = minimist(argv, config)
+
+  args['--'] ||= []
+
+  return args as ActionParsedArgs
 }

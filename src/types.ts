@@ -26,7 +26,7 @@ export interface CliParameter {
   isArray?: boolean
 }
 
-export interface CliConf {
+export interface CliConfig {
   name: string
   alias?: string
 
@@ -38,16 +38,18 @@ export interface CliConf {
 
   parameters?: CliParameter[]
 
-  subCommands?: CliConf[]
+  subCommands?: CliConfig[]
 }
 
-export interface CliProgram extends Omit<CliConf, 'subCommands'> {
+export interface CliProgram extends Omit<CliConfig, 'subCommands'> {
   subCommands?: CliProgram[]
   action?: <T extends ActionParsedArgs = ActionParsedArgs>(args: T) => any
 }
 
 export interface ActionParsedArgs {
   [arg: string]: any
+
+  '--': string[]
 
   _: string[]
 }
