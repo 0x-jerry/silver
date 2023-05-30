@@ -27,6 +27,7 @@
   ],
   "devDependencies": {
     "@0x-jerry/x-release": "^0.3.6",
+    "@types/minimist": "^1.2.2",
     "@types/node": "^18.16.15",
     "@vitest/coverage-c8": "^0.31.1",
     "tsup": "^6.7.0",
@@ -35,6 +36,7 @@
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
-    "@0x-jerry/utils": "^1.17"
+    "@0x-jerry/utils": "^1.17",
+    "minimist": "^1.2.8"
   }
 }

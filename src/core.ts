@@ -1,6 +1,7 @@
 import { Value } from '@0x-jerry/utils'
-import { parseCliProgram } from './parse'
+import { parseCliProgram } from './parser'
 import { CliProgram } from './types'
+import minimist from 'minimist'
 
 export class Sliver {
   conf?: CliProgram
@@ -15,6 +16,12 @@ export class Sliver {
     this.typeMapper.set(name, getType)
 
     return this
+  }
+
+  execute(argv: string[]) {
+    const args = argv.slice(2)
+
+    minimist(args)
   }
 }
 
