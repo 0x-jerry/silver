@@ -1,6 +1,6 @@
 import { Value } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
-import { CliProgram } from './types'
+import { CliProgram, ProgramFlag } from './types'
 import minimist from 'minimist'
 
 export class Sliver {
@@ -19,9 +19,33 @@ export class Sliver {
   }
 
   execute(argv: string[]) {
-    const args = argv.slice(2)
+    if (!this.conf) return
 
-    minimist(args)
+    // get all sub command names
+    const commandMapper = this.conf.subCommands?.reduce((names, item) => {
+      names.set(item.name, item)
+
+      if (item.alias) {
+        names.set(item.alias, item)
+      }
+
+      return names
+    }, new Map<string, CliProgram>())
+
+    let program = this.conf
+
+    // if is sub command
+    if (commandMapper?.has(argv[0])) {
+      program = commandMapper.get(argv[0])!
+      argv = argv.slice(1)
+    }
+
+    const args = minimist(argv, {
+      stopEarly: !!program.flags?.includes(ProgramFlag.StopEarly),
+    })
+
+    // todo, validate required parameters
+    program.action?.(args)
   }
 }
 
@@ -29,6 +53,11 @@ export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
   const ins = new Sliver()
 
   ins.parse(raw, ...tokens)
+
+  if (!ins.conf?.flags?.includes(ProgramFlag.Manual)) {
+    const argv = process.argv.slice(2)
+    ins.execute(argv)
+  }
 
   return ins
 }

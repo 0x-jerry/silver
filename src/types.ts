@@ -43,5 +43,25 @@ export interface CliConf {
 
 export interface CliProgram extends Omit<CliConf, 'subCommands'> {
   subCommands?: CliProgram[]
-  action?: Function
+  action?: <T extends ActionParsedArgs = ActionParsedArgs>(args: T) => any
 }
+
+export interface ActionParsedArgs {
+  [arg: string]: any
+
+  _: string[]
+}
+
+export enum ProgramFlag {
+  /**
+   * Manual execute
+   */
+  Manual = 'manual',
+
+  /**
+   * stop early when parse argv
+   */
+  StopEarly = 'stopEarly',
+}
+
+export enum OptionFlag {}
