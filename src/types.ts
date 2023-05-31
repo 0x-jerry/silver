@@ -83,6 +83,11 @@ export enum ProgramFlag {
    * Generate help option `-h --help`
    */
   Help = 'help',
+
+  /**
+   * Add `completion` sub command
+   */
+  Autocompletion = 'autocompletion',
 }
 
 export enum OptionFlag {}

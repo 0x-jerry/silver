@@ -11,6 +11,43 @@ export class Sliver {
 
   parse(raw: TemplateStringsArray, ...tokens: any[]) {
     this.conf = parseCliProgram(raw, ...tokens)
+
+    if (this.conf.flags?.includes(ProgramFlag.Help)) {
+      // add help option
+      this.conf.command.options ||= []
+
+      this.conf.command.options.push({
+        name: 'help',
+        alias: 'h',
+        type: 'bool',
+        description: 'Print help messages.',
+      })
+    }
+
+    if (this.conf.flags?.includes(ProgramFlag.Autocompletion)) {
+      this.conf.command.commands ||= []
+      this.conf.command.commands.push({
+        name: 'completion',
+        description: 'Use omelette to support autocompletion.',
+        action: 'completion',
+        options: [
+          {
+            name: 'install',
+            type: 'boolean',
+            description: 'Install autocompletion for zsh/fish/bash.',
+          },
+          {
+            name: 'uninstall',
+            type: 'boolean',
+            description: 'Uninstall autocompletion for zsh/fish/bash.',
+          },
+        ],
+      })
+
+      this.conf.actions ||= new Map()
+      // todo, support autocompletion.
+      this.conf.actions.set('completion', () => {})
+    }
   }
 
   type(name: string, getType: Value<string[]>) {
@@ -42,6 +79,13 @@ export class Sliver {
     }
 
     const args = parseArgv(argv, command)
+
+    if (this.conf.flags?.includes(ProgramFlag.Help) && args.help) {
+      // force to print help message
+      console.log(generateHelpMsg(this.conf))
+
+      return
+    }
 
     // todo, validate required parameters and options
 
@@ -91,4 +135,12 @@ function parseArgv(argv: string[], program: Command) {
   args['--'] ||= []
 
   return args as ActionParsedArgs
+}
+
+function generateHelpMsg(conf: Program) {
+  const msgs: string[] = []
+
+  // todo, generate help message
+
+  return msgs.join('\n')
 }
