@@ -1,11 +1,11 @@
 import { Value } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
-import { ActionParsedArgs, CliProgram, ProgramFlag } from './types'
+import { ActionParsedArgs, Program, CommandFlag, Command, ProgramFlag } from './types'
 import minimist from 'minimist'
 import { isType, builtinType } from './utils'
 
 export class Sliver {
-  conf?: CliProgram
+  conf?: Program
 
   typeMapper = new Map<string, Value<string[]>>()
 
@@ -23,7 +23,7 @@ export class Sliver {
     if (!this.conf) return
 
     // get all sub command names
-    const commandMapper = this.conf.subCommands?.reduce((names, item) => {
+    const commandMapper = this.conf.command.commands?.reduce((names, item) => {
       names.set(item.name, item)
 
       if (item.alias) {
@@ -31,21 +31,22 @@ export class Sliver {
       }
 
       return names
-    }, new Map<string, CliProgram>())
+    }, new Map<string, Command>())
 
-    let program = this.conf
+    let command = this.conf.command
 
     // if is sub command
     if (commandMapper?.has(argv[0])) {
-      program = commandMapper.get(argv[0])!
+      command = commandMapper.get(argv[0])!
       argv = argv.slice(1)
     }
 
-    const args = parseArgv(argv, program)
+    const args = parseArgv(argv, command)
 
     // todo, validate required parameters and options
 
-    program.action?.(args)
+    const action = this.conf.actions?.get(command.action!)
+    action?.(args)
   }
 }
 
@@ -62,13 +63,13 @@ export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
   return ins
 }
 
-function parseArgv(argv: string[], program: CliProgram) {
+function parseArgv(argv: string[], program: Command) {
   const config = {
     alias: {} as Record<string, string>,
     default: {} as Record<string, any>,
     boolean: [] as string[],
     '--': true,
-    stopEarly: !!program.flags?.includes(ProgramFlag.StopEarly),
+    stopEarly: !!program.flags?.includes(CommandFlag.StopEarly),
   }
 
   for (const opt of program.options || []) {

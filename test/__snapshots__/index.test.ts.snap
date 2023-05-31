@@ -2,96 +2,101 @@
 
 exports[`silver > should parse cli description 1`] = `
 {
-  "action": [MockFunction spy],
-  "description": "A library for create command line interface quickly.",
+  "actions": Map {
+    "__token_id__0" => [MockFunction spy],
+  },
+  "command": {
+    "action": "__token_id__0",
+    "commands": [
+      {
+        "action": "__token_id__0",
+        "alias": "up",
+        "description": "an sub command.",
+        "flags": [
+          "stopEarly",
+        ],
+        "name": "upgrade",
+        "options": [
+          {
+            "alias": "s",
+            "defaultValue": "default",
+            "description": "sub command option.",
+            "name": "string",
+            "type": "string",
+          },
+          {
+            "alias": "sm",
+            "defaultValue": true,
+            "description": "other option.",
+            "name": "small",
+            "type": "bool",
+          },
+        ],
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "name": "dir",
+            "required": true,
+          },
+          {
+            "defaultValue": undefined,
+            "isArray": true,
+            "name": "other",
+            "required": false,
+          },
+        ],
+      },
+    ],
+    "description": "A library for create command line interface quickly.",
+    "name": "commandName",
+    "options": [
+      {
+        "alias": "s",
+        "defaultValue": "cool",
+        "description": "An string option with default value.",
+        "name": "string",
+        "type": "string",
+      },
+      {
+        "alias": "n",
+        "defaultValue": 123.34,
+        "description": "an number option with default value, and it's a global option.",
+        "flags": [
+          "global",
+        ],
+        "name": "number",
+        "type": "number",
+      },
+      {
+        "alias": "e",
+        "defaultValue": "a2",
+        "description": "an custom option with default value.",
+        "name": "enum",
+        "type": "custom",
+      },
+      {
+        "alias": "b",
+        "defaultValue": false,
+        "description": "an boolean option without default value.",
+        "name": "bool",
+        "type": "bool",
+      },
+      {
+        "alias": "o",
+        "description": "an option without specify a type will be a string.",
+        "name": "other",
+      },
+    ],
+    "parameters": [
+      {
+        "defaultValue": undefined,
+        "name": "dir",
+        "required": false,
+      },
+    ],
+  },
   "flags": [
     "manual",
-  ],
-  "name": "commandName",
-  "options": [
-    {
-      "alias": "s",
-      "defaultValue": "cool",
-      "description": "An string option with default value.",
-      "name": "string",
-      "type": "string",
-    },
-    {
-      "alias": "n",
-      "defaultValue": 123.34,
-      "description": "an number option with default value, and it's a global option.",
-      "flags": [
-        "global",
-      ],
-      "name": "number",
-      "type": "number",
-    },
-    {
-      "alias": "e",
-      "defaultValue": "a2",
-      "description": "an custom option with default value.",
-      "name": "enum",
-      "type": "custom",
-    },
-    {
-      "alias": "b",
-      "defaultValue": false,
-      "description": "an boolean option without default value.",
-      "name": "bool",
-      "type": "bool",
-    },
-    {
-      "alias": "o",
-      "description": "an option without specify a type will be a string.",
-      "name": "other",
-    },
-  ],
-  "parameters": [
-    {
-      "defaultValue": undefined,
-      "name": "dir",
-      "required": false,
-    },
-  ],
-  "subCommands": [
-    {
-      "action": [MockFunction spy],
-      "alias": "up",
-      "description": "an sub command.",
-      "flags": [
-        "stopEarly",
-      ],
-      "name": "upgrade",
-      "options": [
-        {
-          "alias": "s",
-          "defaultValue": "default",
-          "description": "sub command option.",
-          "name": "string",
-          "type": "string",
-        },
-        {
-          "alias": "sm",
-          "defaultValue": true,
-          "description": "other option.",
-          "name": "small",
-          "type": "bool",
-        },
-      ],
-      "parameters": [
-        {
-          "defaultValue": undefined,
-          "name": "dir",
-          "required": true,
-        },
-        {
-          "defaultValue": undefined,
-          "isArray": true,
-          "name": "other",
-          "required": false,
-        },
-      ],
-    },
   ],
 }
 `;

@@ -1,7 +1,7 @@
 /**
  * @example -o --option #flag @type:defaultValue, description
  */
-export interface CliOption {
+export interface CmdOption {
   name: string
   alias?: string
 
@@ -18,7 +18,7 @@ export interface CliOption {
  * @example <@type:name:defaultValue>, required, single
  * @example [...@type:name:defaultValue] array
  */
-export interface CliParameter {
+export interface CmdParameter {
   name: string
   required?: boolean
   type?: string
@@ -26,24 +26,32 @@ export interface CliParameter {
   isArray?: boolean
 }
 
-export interface CliConfig {
+export interface Command {
   name: string
   alias?: string
 
+  /**
+   * action identifier
+   */
+  action?: string
+
   description?: string
 
-  options?: CliOption[]
+  options?: CmdOption[]
 
   flags?: string[]
 
-  parameters?: CliParameter[]
+  parameters?: CmdParameter[]
 
-  subCommands?: CliConfig[]
+  commands?: Command[]
 }
 
-export interface CliProgram extends Omit<CliConfig, 'subCommands'> {
-  subCommands?: CliProgram[]
-  action?: <T extends ActionParsedArgs = ActionParsedArgs>(args: T) => any
+export interface Program {
+  flags?: string[]
+
+  command: Command
+
+  actions?: Map<string, CmdAction>
 }
 
 export interface ActionParsedArgs {
@@ -54,6 +62,17 @@ export interface ActionParsedArgs {
   _: string[]
 }
 
+export type CmdAction = (opt: ActionParsedArgs) => any
+
+// --- enums
+
+export enum CommandFlag {
+  /**
+   * stop early when parse argv
+   */
+  StopEarly = 'stopEarly',
+}
+
 export enum ProgramFlag {
   /**
    * Manual execute
@@ -61,9 +80,9 @@ export enum ProgramFlag {
   Manual = 'manual',
 
   /**
-   * stop early when parse argv
+   * Generate help option `-h --help`
    */
-  StopEarly = 'stopEarly',
+  Help = 'help',
 }
 
 export enum OptionFlag {}

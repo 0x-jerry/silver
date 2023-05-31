@@ -1,82 +1,63 @@
 import { createAutoIncrementGenerator, isPrimitive } from '@0x-jerry/utils'
-import { CliConfig, CliOption, CliParameter, CliProgram } from './types'
+import { Command, CmdOption, CmdParameter, Program, CmdAction } from './types'
 import { builtinType, isType, splitFirst } from './utils'
 
 const TOKEN_ID_PREFIX = '__token_id__'
 const nextId = createAutoIncrementGenerator(TOKEN_ID_PREFIX)
 
-const tokenIdReg = new RegExp(`${TOKEN_ID_PREFIX}\\d+$`)
+const tokenIdReg = new RegExp(`${TOKEN_ID_PREFIX}\\d+`, 'g')
 
-export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): CliProgram {
-  const tokenMapper = new Map<string, CliProgram['action']>()
-  const tokenIdMapper = new Map<Function, string>()
+export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): Program {
+  const actionMapper = new Map<string, CmdAction>()
+  const actionIdMapper = new Map<Function, string>()
 
   tokens.forEach((token) => {
     if (isPrimitive(token)) {
       return
     }
 
+    // skip if exists
+    if (actionIdMapper.has(token)) {
+      return
+    }
+
     const id = nextId()
-    tokenMapper.set(id, token)
-    tokenIdMapper.set(token, id)
+    actionMapper.set(id, token)
+    actionIdMapper.set(token, id)
   })
 
   const finalStr = raw.reduce((pre, cur, idx) => {
     const token = tokens[idx]
 
-    const tokenId = tokenIdMapper.get(token)
+    const tokenId = actionIdMapper.get(token)
 
-    return pre + cur + (tokenId ? `${tokenId}` : token ?? '')
+    return pre + cur + (tokenId ? ` ${tokenId} ` : token ?? '')
   }, '')
 
-  const conf = parseCliDescription(finalStr)
+  const conf = parseProgram(finalStr)
 
-  if (!conf) throw new Error('Parse CLI description failed!')
+  conf.actions = actionMapper
 
-  const program = covertToProgram(conf)
-
-  return program
-
-  function covertToProgram(conf: CliConfig): CliProgram {
-    const program: CliProgram = {
-      ...conf,
-    }
-
-    delete program.subCommands
-
-    for (const subCliConf of conf.subCommands || []) {
-      const subProgram = covertToProgram(subCliConf)
-
-      program.subCommands ||= []
-      program.subCommands.push(subProgram)
-    }
-
-    if (!program.description) {
-      return program
-    }
-
-    program.description = program.description.trim()
-
-    const [tokenId] = program.description.match(tokenIdReg) || []
-
-    if (!tokenId) {
-      return program
-    }
-
-    const fn = tokenMapper.get(tokenId)
-
-    program.description = program.description.replace(tokenIdReg, '').trim()
-    program.action = fn
-
-    return program
-  }
+  return conf
 }
 
-function parseCliDescription(finalStr: string) {
-  let appCli: CliConfig | null = null
-  let currentCli: CliConfig | null = null
+function parseProgram(finalStr: string): Program {
+  const program: Partial<Program> = {}
+
+  let mainCommand: Command | undefined
+  let currentCommand: Command | undefined
 
   const lines = finalStr.trim().split(/\n+/)
+
+  {
+    // check program flags
+    const flags = parseAppOption(lines[0])
+
+    if (flags) {
+      program.flags = flags
+      lines.splice(0, 1)
+    }
+  }
 
   for (let line of lines) {
     line = line.trim()
@@ -90,27 +71,34 @@ function parseCliDescription(finalStr: string) {
       // is an option description
       const opt = parseOption(line)
 
-      if (!currentCli) {
+      if (!currentCommand) {
         throw new Error(`Invalid cli option, please specify a cli name first. ${line}`)
       }
 
-      currentCli.options ||= []
-      currentCli.options.push(opt)
+      currentCommand.options ||= []
+      currentCommand.options.push(opt)
       // todo, check duplicate name?
     } else {
       // is a cli description
-      if (!appCli) {
-        appCli = parseCli(line)
-        currentCli = appCli
+      if (!mainCommand) {
+        mainCommand = parseCommand(line)
+        currentCommand = mainCommand
       } else {
-        currentCli = parseCli(line)
+        currentCommand = parseCommand(line)
 
-        appCli.subCommands ||= []
-        appCli.subCommands.push(currentCli)
+        mainCommand.commands ||= []
+        mainCommand.commands.push(currentCommand)
       }
     }
   }
-  return appCli
+
+  program.command = mainCommand
+
+  if (!program.command) {
+    throw new Error('Parse CLI description failed!')
+  }
+
+  return program as Program
 }
 
 /**
@@ -122,8 +110,8 @@ function parseCliDescription(finalStr: string) {
  * required    opt-in  opt-in          opt-in
  * ```
  */
-function parseOption(description: string): CliOption {
-  const conf: CliOption = {
+function parseOption(description: string): CmdOption {
+  const conf: CmdOption = {
     name: '',
   }
 
@@ -191,18 +179,24 @@ function parseOption(description: string): CliOption {
  * ```
  *
  */
-function parseCli(description: string): CliConfig {
-  const conf: CliConfig = {
+function parseCommand(description: string): Command {
+  const conf: Command = {
     name: '',
   }
 
-  const [name, desc] = splitFirst(description, ',')
+  // extract action identifier, use the last one if it has multiple.
+  description = description.replace(tokenIdReg, (id) => {
+    conf.action = id
+    return ''
+  })
+
+  const [name, desc = ''] = splitFirst(description, ',')
 
   const [nameWithAlias, ...parameters] = name.split(/\s+/g)
 
+  // up/upgrade
+  // upgrade
   {
-    // up/upgrade
-    // upgrade
     const names = splitFirst(nameWithAlias, '/')
 
     if (names.length === 2) {
@@ -213,8 +207,8 @@ function parseCli(description: string): CliConfig {
     }
   }
 
+  // parameters
   {
-    // parameters
     parameters.forEach((parameter) => {
       if (parameter.startsWith('#')) {
         // is flag
@@ -223,7 +217,7 @@ function parseCli(description: string): CliConfig {
         return
       }
 
-      const p = parseCliParameter(parameter)
+      const p = parseCommandParameter(parameter)
 
       if (p) {
         conf.parameters ||= []
@@ -235,7 +229,7 @@ function parseCli(description: string): CliConfig {
   conf.description = desc.trim()
 
   if (!name) {
-    throw new Error(`Parse cli description failed: ${description}`)
+    throw new Error(`Parse command description failed: ${description}`)
   }
 
   return conf
@@ -249,11 +243,11 @@ function parseCli(description: string): CliConfig {
  *
  * @param description
  */
-function parseCliParameter(description: string): CliParameter | null {
+function parseCommandParameter(description: string): CmdParameter | null {
   const l = description.slice(0, 1)
   const r = description.slice(-1)
 
-  const conf: CliParameter = {
+  const conf: CmdParameter = {
     name: '',
   }
 
@@ -288,4 +282,31 @@ function parseCliParameter(description: string): CliParameter | null {
   conf.defaultValue = defaultValue
 
   return conf
+}
+
+/**
+ *
+ * @param description
+ * @example
+ *
+ * ```txt
+ * @manual @help
+ * ```
+ */
+function parseAppOption(description: string) {
+  if (!description.trim().startsWith('@')) return null
+
+  const flags: string[] = []
+
+  const segments = description.trim().split(/\s+/g)
+
+  segments.forEach((item) => {
+    if (!item.startsWith('@')) {
+      return
+    }
+
+    flags.push(item.slice(1))
+  })
+
+  return flags
 }
