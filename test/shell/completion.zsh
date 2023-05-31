@@ -1,9 +1,10 @@
 #compdef commandName
 
 _commands() {
-  _alternative \
-    upgrade:an sub command. \
-    up:an sub command. 
+  _alternative 'args:custom arg:((\
+    upgrade\:"an sub command." \
+    up\:"an sub command." \
+  ))'
 }
 _commandName_upgrade_option() {
   _arguments -s \
@@ -18,10 +19,10 @@ _commandName() {
   zstyle ':completion:*:*:bun-grouped:*' group-name ''
   zstyle ':completion:*:*:bun::descriptions' format '%F{green}-- %d --%f'
   zstyle ':completion:*:*:bun-grouped:*' format '%F{green}-- %d --%f'
-  
+
   typeset -A opt_args
   local curcontext="$curcontext" state line context
-  
+
   _arguments -s \
     '1: :->cmd' \
     '*: :->args' &&

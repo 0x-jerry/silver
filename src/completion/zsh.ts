@@ -98,20 +98,17 @@ export function generateZshAutoCompletion(conf: Command) {
     }
 
     for (const cmd of commands) {
-      codes.push(`${cmd.name}:${cmd.description} \\`)
+      codes.push(`${cmd.name}\\:${JSON.stringify(cmd.description)} \\`)
 
       if (cmd.alias && cmd.alias !== cmd.name) {
-        codes.push(`${cmd.alias}:${cmd.description} \\`)
+        codes.push(`${cmd.alias}\\:${JSON.stringify(cmd.description)} \\`)
       }
     }
 
     const fnName = generateFnName(['commands'])
 
-    if (codes.at(-1)?.endsWith('\\')) {
-      codes[codes.length - 1] = codes.at(-1)!.slice(0, -1)
-    }
-
-    createFn(fnName, [`_alternative \\`, codes])
+    // args:custom arg:((a\:"description a" b\:"description b" c\:"description c"))
+    createFn(fnName, [`_alternative 'args:custom arg:((\\`, codes, `))'`])
 
     return [fnName]
   }
