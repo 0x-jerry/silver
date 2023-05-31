@@ -5,7 +5,9 @@ describe('silver', () => {
     const defaultCustom = 'a2'
     const fn = vi.fn()
 
-    const ins = sliver`@manual
+    const ins = sliver`
+@manual
+
 commandName [dir], A library for create command line interface quickly. ${fn}
 
 -s --string @string:cool, An string option with default value.
@@ -39,7 +41,7 @@ x [dir], Test. ${fn}
     const fn = vi.fn()
 
     const ins = sliver`
-x [dir] #manual, Test.
+x [dir], Test.
 
 sub, test command. ${fn}
 `
