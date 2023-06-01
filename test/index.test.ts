@@ -72,7 +72,7 @@ commandName [dir], A library for create command line interface quickly. ${fn}
 up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
 
 -s --string @string:default, sub command option.
--sm --small @bool:true, other option.
+-sm --small @bool, other option.
 `
 
     const code = generateZshAutoCompletion(ins.conf!.command)

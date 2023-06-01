@@ -148,11 +148,20 @@ function generateOptions(options?: CmdOption[]): CodeLine[] {
     codes.push(`'--${opt.name}${desc}' \\`)
 
     if (opt.alias && opt.alias !== opt.name) {
-      codes.push(`'--${opt.alias}${desc}' \\`)
+      codes.push(`'-${opt.alias}${desc}' \\`)
     }
   }
 
-  return [`_arguments -s \\`, [...codes, '&& ret=0']]
+  return [
+    `_arguments -s -C \\`,
+    [
+      //
+      `'1: :->null' \\`,
+      `'*: :->null' \\`,
+      ...codes,
+      '&& ret=0',
+    ],
+  ]
 }
 
 function generateFnName(tokens: string[]) {

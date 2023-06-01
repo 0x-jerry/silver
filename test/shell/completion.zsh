@@ -7,11 +7,13 @@ _commands() {
   ))'
 }
 _commandName_upgrade_option() {
-  _arguments -s \
+  _arguments -s -C \
+    '1: :->null' \
+    '*: :->null' \
     '--string[sub command option. @default is default]' \
-    '--s[sub command option. @default is default]' \
-    '--small[other option. @default is true]' \
-    '--sm[other option. @default is true]' \
+    '-s[sub command option. @default is default]' \
+    '--small[other option. @default is false]' \
+    '-sm[other option. @default is false]' \
     && ret=0
 }
 _commandName() {
@@ -19,10 +21,10 @@ _commandName() {
   zstyle ':completion:*:*:bun-grouped:*' group-name ''
   zstyle ':completion:*:*:bun::descriptions' format '%F{green}-- %d --%f'
   zstyle ':completion:*:*:bun-grouped:*' format '%F{green}-- %d --%f'
-
+  
   typeset -A opt_args
   local curcontext="$curcontext" state line context
-
+  
   _arguments -s \
     '1: :->cmd' \
     '*: :->args' &&
