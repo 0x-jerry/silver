@@ -62,7 +62,10 @@ export interface ActionParsedArgs {
   _: string[]
 }
 
-export type CmdAction = (opt: ActionParsedArgs) => any
+export interface CmdAction {
+  <T extends ActionParsedArgs>(params: string[], opt: T): any
+  (params: string[], opt: any): any
+}
 
 // --- enums
 

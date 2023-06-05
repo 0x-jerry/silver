@@ -51,7 +51,7 @@ completion [type], Generate autocompletion for zsh.
       action,
     }
 
-    function action() {
+    function action(params: string[], opt: { install?: boolean; uninstall?: boolean }) {
       // todo, handle completion
     }
   }
@@ -106,7 +106,7 @@ completion [type], Generate autocompletion for zsh.
     // todo, validate required parameters and options
 
     const action = this.conf.actions?.get(command.action!)
-    action?.(args)
+    action?.(args._, args)
   }
 }
 
