@@ -25,55 +25,38 @@ export class Sliver {
     }
 
     if (this.conf.flags?.includes(ProgramFlag.Autocompletion)) {
+      const { cmd, action } = this._createCompletionCommand()
+
       this.conf.command.commands ||= []
-      this.conf.command.commands.push({
-        name: 'completion',
-        parameters: [
-          {
-            name: 'type',
-          },
-        ],
-        description: 'Use omelette to support autocompletion.',
-        action: 'completion',
-        options: [
-          {
-            name: 'install',
-            type: 'boolean',
-            description: 'Install autocompletion for zsh/fish/bash.',
-          },
-          {
-            name: 'uninstall',
-            type: 'boolean',
-            description: 'Uninstall autocompletion for zsh/fish/bash.',
-          },
-        ],
-      })
+      this.conf.command.commands.push(cmd)
 
       this.conf.actions ||= new Map()
 
-      // todo, support autocompletion.
-      this.conf.actions.set('completion', (opt) => {
-        const [type] = opt._
-
-        if (type) {
-          const values = this._getType(type)
-
-          // todo, format values
-          console.log(values)
-
-          return
-        }
-
-        if (opt.install) {
-          // todo, install
-        } else if (opt.uninstall) {
-          // todo, uninstall
-        }
-      })
+      this.conf.actions.set(cmd.action!, action)
     }
   }
 
-  _getType(type: string) {
+  _createCompletionCommand() {
+    const conf = parseCliProgram`
+completion [type], Generate autocompletion for zsh.
+
+--install, Install autocompletion for zsh.
+--uninstall, Uninstall autocompletion for zsh.
+  `
+
+    conf.command.action = 'completion'
+
+    return {
+      cmd: conf.command,
+      action,
+    }
+
+    function action() {
+      // todo, handle completion
+    }
+  }
+
+  getCompletion(type: string) {
     const value = this.typeMapper.get(type)
 
     if (typeof value === 'function') {
