@@ -28,6 +28,11 @@ export class Sliver {
       this.conf.command.commands ||= []
       this.conf.command.commands.push({
         name: 'completion',
+        parameters: [
+          {
+            name: 'type',
+          },
+        ],
         description: 'Use omelette to support autocompletion.',
         action: 'completion',
         options: [
@@ -45,9 +50,37 @@ export class Sliver {
       })
 
       this.conf.actions ||= new Map()
+
       // todo, support autocompletion.
-      this.conf.actions.set('completion', () => {})
+      this.conf.actions.set('completion', (opt) => {
+        const [type] = opt._
+
+        if (type) {
+          const values = this._getType(type)
+
+          // todo, format values
+          console.log(values)
+
+          return
+        }
+
+        if (opt.install) {
+          // todo, install
+        } else if (opt.uninstall) {
+          // todo, uninstall
+        }
+      })
     }
+  }
+
+  _getType(type: string) {
+    const value = this.typeMapper.get(type)
+
+    if (typeof value === 'function') {
+      return value()
+    }
+
+    return value || []
   }
 
   type(name: string, getType: Value<string[]>) {
