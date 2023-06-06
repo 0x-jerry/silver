@@ -1,4 +1,4 @@
-import { Value } from '@0x-jerry/utils'
+import { Value, textTableToString } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
 import { ActionParsedArgs, Program, CommandFlag, Command, ProgramFlag } from './types'
 import minimist from 'minimist'
@@ -98,7 +98,7 @@ completion [type], Generate autocompletion for zsh.
 
     if (this.conf.flags?.includes(ProgramFlag.Help) && args.help) {
       // force to print help message
-      console.log(generateHelpMsg(this.conf))
+      console.log(generateHelpMsg(this.conf.command))
 
       return
     }
@@ -153,10 +153,30 @@ function parseArgv(argv: string[], program: Command) {
   return args as ActionParsedArgs
 }
 
-function generateHelpMsg(conf: Program) {
+function generateHelpMsg(conf: Command) {
   const msgs: string[] = []
 
-  // todo, generate help message
+  const usageDescription = conf.commands?.length ? `[COMMAND] [OPTIONS]` : `[OPTIONS]`
+
+  const usage = `${conf.name} ${usageDescription}`
+  msgs.push(usage, '')
+
+  if (conf.commands?.length) {
+    const commands = conf.commands.map((item) => [item.name, item.description])
+    const s = textTableToString(commands)
+    msgs.push(s, '')
+  }
+
+  if (conf.options?.length) {
+    const options = conf.options.map((item) => {
+      const name =
+        item.alias && item.alias !== item.name ? `--${item.name} -${item.alias}` : `--${item.name}`
+      return [name, item.description]
+    })
+
+    const s = textTableToString(options)
+    msgs.push(s, '')
+  }
 
   return msgs.join('\n')
 }
