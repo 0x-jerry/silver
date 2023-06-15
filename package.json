@@ -1,7 +1,7 @@
 {
   "name": "silver",
   "version": "0.0.0",
-  "description": "An library help me to create CLI program quickly.",
+  "description": "An library that help me to create CLI program quickly.",
   "main": "src/index.ts",
   "type": "module",
   "engines": {

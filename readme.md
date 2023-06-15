@@ -1,7 +1,3 @@
-# TS SDK Template
+# Silver
 
-## TODO
-
-- [ ] run `npm init --yes`
-- [ ] change package metadata
-- [ ] rewrite this docs.
+An library that help me to create CLI program quickly.
