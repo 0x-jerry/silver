@@ -1,4 +1,4 @@
-#compdef commandName
+#compdef xx
 
 _commands() {
   _alternative 'args:custom arg:((\
@@ -6,7 +6,7 @@ _commands() {
     up\:"an sub command." \
   ))'
 }
-_commandName_upgrade_option() {
+_xx_upgrade_option() {
   _arguments -s -C \
     '1: :->null' \
     '*: :->null' \
@@ -16,7 +16,7 @@ _commandName_upgrade_option() {
     '-sm[other option. @default is false]' \
     && ret=0
 }
-_commandName() {
+_xx() {
   zstyle ':completion:*:*:bun:*' group-name ''
   zstyle ':completion:*:*:bun-grouped:*' group-name ''
   zstyle ':completion:*:*:bun::descriptions' format '%F{green}-- %d --%f'
@@ -36,7 +36,7 @@ _commandName() {
   args)
     case $line[1] in
     up|upgrade)
-      _commandName_upgrade_option
+      _xx_upgrade_option
       ;;
     esac
     ;;
@@ -47,4 +47,4 @@ if ! command -v compinit >/dev/null; then
   autoload -U compinit && compinit
 fi
 
-compdef _commandName commandName
+compdef _xx xx
