@@ -2,7 +2,7 @@
  * @example -o --option #flag @type:defaultValue, description
  */
 export interface CmdOption {
-  name: string
+  name?: string
   alias?: string
 
   type?: string

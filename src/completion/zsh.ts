@@ -1,3 +1,4 @@
+import { Arrayable, toArray } from '@0x-jerry/utils'
 import { CmdOption, Command } from '../types'
 
 /**
@@ -11,22 +12,9 @@ export function generateZshAutoCompletion(conf: Command) {
 
   const functions = new Map<string, CodeLine[]>()
 
-  const mainCodes: CodeLine[] = [
-    `zstyle ':completion:*:*:bun:*' group-name ''`,
-    `zstyle ':completion:*:*:bun-grouped:*' group-name ''`,
-    `zstyle ':completion:*:*:bun::descriptions' format '%F{green}-- %d --%f'`,
-    `zstyle ':completion:*:*:bun-grouped:*' format '%F{green}-- %d --%f'`,
-    '',
-    `typeset -A opt_args`,
-    `local curcontext="$curcontext" state line context`,
-    '',
-    // todo, generate commands and options
-    ...generateCommands(conf),
-  ]
+  const mainCodes: CodeLine[] = genMainProgram()
 
-  const mainFnName = generateFnName([program])
-
-  createFn(mainFnName, mainCodes)
+  const mainFnName = createFn(program, mainCodes)
 
   const lines: CodeLine[] = [
     //
@@ -43,97 +31,107 @@ export function generateZshAutoCompletion(conf: Command) {
 
   return generateCode(lines)
 
-  function createFn(name: string, codes: CodeLine[]) {
-    functions.set(name, [
-      //
-      `${name}() {`,
-      codes,
-      `}`,
-    ])
-    //
+  function createFn(name: Arrayable<string>, codes: CodeLine[]) {
+    const fnName = generateFnName(toArray(name))
+
+    functions.set(fnName, [`${fnName}() {`, codes, `}`])
+
+    return fnName
   }
 
-  function generateCommands(conf: Command): CodeLine[] {
-    // sub commands
-    const names = conf.commands?.map((item) => item.name) || []
-
-    if (!names.length) {
-      return generateOptions(conf.options)
-    }
-
-    return [
+  function genMainProgram() {
+    const codes = [
       `_arguments -s \\`,
       [
         //
         `'1: :->cmd' \\`,
-        `'*: :->args' &&`,
-        `ret=0`,
+        `'*: :->args'`,
       ],
       `case $state in`,
       `cmd)`,
       [
         //
-        ...generateAllCommandNames(conf.commands),
+        genCommands(),
         `;;`,
       ],
       `args)`,
       [
-        `case $line[1] in`,
-        ...(conf.commands || [])
-          //
-          ?.map((command) => generateSubCommand(conf.name, command))
-          .flat(),
-        `esac`,
+        //
+        genSubCommands(),
         `;;`,
       ],
       `esac`,
     ]
+
+    return codes
   }
 
-  function generateAllCommandNames(commands?: Command[]) {
-    const codes: string[] = []
+  function genCommands() {
+    const options = genGlobalOptions()
 
-    if (!commands?.length) {
-      return codes
-    }
+    const names = (conf.commands || [])
+      .map((cmd) => {
+        const codes: string[] = []
+        const d = `${cmd.name}\\:${JSON.stringify(cmd.description || '')}`
+        codes.push(d)
 
-    for (const cmd of commands) {
-      codes.push(`${cmd.name}\\:${JSON.stringify(cmd.description)} \\`)
+        if (cmd.alias) {
+          const d = `${cmd.alias}\\:${JSON.stringify(cmd.description || '')}`
+          codes.push(d)
+        }
 
-      if (cmd.alias && cmd.alias !== cmd.name) {
-        codes.push(`${cmd.alias}\\:${JSON.stringify(cmd.description)} \\`)
-      }
-    }
+        return codes
+      })
+      .flat()
 
-    const fnName = generateFnName(['commands'])
-
-    // args:custom arg:((a\:"description a" b\:"description b" c\:"description c"))
-    createFn(fnName, [`_alternative 'args:custom arg:((\\`, codes, `))'`])
-
-    return [fnName]
-  }
-
-  function generateSubCommand(parentName: string, command: Command) {
-    const codes = generateOptions(command.options)
-
-    const fnName = generateFnName([parentName, command.name, 'option'])
-
-    createFn(fnName, codes)
-
-    const nameWithAlias = [
-      command.alias && command.alias !== command.name ? command.alias : '',
-      command.name,
-    ]
-
-    return [
-      `${nameWithAlias.filter(Boolean).join('|')})`,
+    const codes = [
       //
-      [fnName, `;;`],
+      `_arguments -s`,
+      `'1: :((${names.join(' ')}))'`,
+      // todo, custom type
+      `'*: :->_files'`,
+      ...options,
+    ].join(' ')
+
+    return createFn(['_', conf.name, 'commands'], [codes])
+  }
+
+  function genSubCommands() {
+    const mainCodes = [
+      `case $line[1] in`,
+      ...(conf.commands || [])
+        //
+        ?.map((command) => _genSubCommand(conf.name, command))
+        .flat(),
+      `esac`,
     ]
+
+    return createFn(['_', conf.name, 'sub_commands'], mainCodes)
+
+    function _genSubCommand(parentName: string, command: Command) {
+      const codes = generateOptions(command.options)
+
+      const fnName = createFn([parentName, command.name, 'option'], codes)
+
+      const nameWithAlias = [
+        command.alias && command.alias !== command.name ? command.alias : '',
+        command.name,
+      ]
+
+      return [
+        `${nameWithAlias.filter(Boolean).join('|')})`,
+        //
+        [fnName, `;;`],
+      ]
+    }
+  }
+
+  function genGlobalOptions() {
+    return generateOptions(conf.options)
   }
 }
 
-function generateOptions(options?: CmdOption[]): CodeLine[] {
+function generateOptions(options?: CmdOption[]): string[] {
   const codes: string[] = []
 
   if (!options) {
@@ -141,31 +139,33 @@ function generateOptions(options?: CmdOption[]): CodeLine[] {
   }
 
   for (const opt of options) {
-    const defaultValue = opt.defaultValue != null ? ` @default is ${opt.defaultValue}` : ''
+    const defaultValueDescription =
+      opt.defaultValue != null ? ` @default is ${opt.defaultValue}` : ''
 
-    const desc = `[${opt.description}${defaultValue}]`
+    const desc = `[${opt.description}${defaultValueDescription}]`
 
-    codes.push(`'--${opt.name}${desc}' \\`)
+    const hasAlias = opt.name && opt.alias
 
-    if (opt.alias && opt.alias !== opt.name) {
-      codes.push(`'-${opt.alias}${desc}' \\`)
+    const type = opt.type ? `: :${opt.type}` : ''
+
+    const name = hasAlias
+      ? `{-${opt.alias},--${opt.name}}`
+      : opt.name
+      ? `--${opt.name}`
+      : `-${opt.alias}`
+
+    if (hasAlias) {
+      codes.push(`${name}'${desc}'${type}`)
+    } else {
+      codes.push(`'${name}${desc}'${type}`)
     }
   }
 
-  return [
-    `_arguments -s -C \\`,
-    [
-      //
-      `'1: :->null' \\`,
-      `'*: :->null' \\`,
-      ...codes,
-      '&& ret=0',
-    ],
-  ]
+  return codes
 }
 
 function generateFnName(tokens: string[]) {
-  return '_' + [...tokens].join('_')
+  return '_' + tokens.join('_')
 }
 
 function generateCode(lines: CodeLine[], indent = 0): string {

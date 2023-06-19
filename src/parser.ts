@@ -156,13 +156,8 @@ function parseOption(description: string): CmdOption {
 
   conf.description = desc?.trim()
 
-  // fix name
-  if (conf.alias && !conf.name) {
-    conf.name = conf.alias
-  }
-
   // check name
-  if (!conf.name) {
+  if (!conf.name && !conf.alias) {
     throw new Error(`Parse cli option failed: ${description}`)
   }
 
