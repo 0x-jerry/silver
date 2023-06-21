@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
     "outDir": "dist",
     "types": ["vitest/globals"]
   },

@@ -1,5 +1,5 @@
 import { createAutoIncrementGenerator, isPrimitive } from '@0x-jerry/utils'
-import { Command, CmdOption, CmdParameter, Program, CmdAction } from './types'
+import type { Command, CmdOption, CmdParameter, Program, CmdAction } from './types'
 import { builtinType, isType, splitFirst } from './utils'
 
 const TOKEN_ID_PREFIX = '__token_id__'

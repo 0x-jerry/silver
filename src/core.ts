@@ -1,6 +1,13 @@
-import { Value, sleep, textTableToString } from '@0x-jerry/utils'
+import { type Value, sleep, textTableToString, isString } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
-import { ActionParsedArgs, Program, CommandFlag, Command, ProgramFlag, CmdAction } from './types'
+import {
+  type ActionParsedArgs,
+  type Program,
+  CommandFlag,
+  type Command,
+  ProgramFlag,
+  type CompletionType,
+} from './types'
 import minimist from 'minimist'
 import { isType, builtinType } from './utils'
 import { generateZshAutoCompletion } from './completion/zsh'
@@ -8,7 +15,7 @@ import { generateZshAutoCompletion } from './completion/zsh'
 export class Sliver {
   conf?: Program
 
-  typeMapper = new Map<string, Value<string[]>>()
+  typeMapper = new Map<string, Value<CompletionType>>()
 
   parse(raw: TemplateStringsArray, ...tokens: any[]) {
     this.conf = parseCliProgram(raw, ...tokens)
@@ -47,7 +54,7 @@ export class Sliver {
     return value || []
   }
 
-  type(name: string, getType: Value<string[]>) {
+  type(name: string, getType: Value<CompletionType>) {
     this.typeMapper.set(name, getType)
 
     return this
@@ -189,8 +196,16 @@ completion [type], Generate autocompletion for zsh.
     const [type] = params
 
     if (type) {
-      const types = ins.getCompletion(type)
-      const s = types.join('\n')
+      const completions = ins.getCompletion(type)
+      if (isString(completions)) {
+        return
+      }
+
+      const s = completions
+        .map((item) =>
+          isString(item) ? item : item.desc ? `${item.label}\\:${item.desc}` : item.label
+        )
+        .join('\n')
       process.stdout.write(s)
       return
     }

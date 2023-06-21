@@ -1,5 +1,5 @@
-import { Arrayable, toArray } from '@0x-jerry/utils'
-import { CmdOption, Command } from '../types'
+import { type Arrayable, toArray } from '@0x-jerry/utils'
+import type { CmdOption, CmdParameter, Command } from '../types'
 import { isBuiltinType } from '../utils'
 
 /**
@@ -202,6 +202,20 @@ function generateOptions(options?: CmdOption[]): string[] {
       codes.push(`'${name}${desc}${type}'`)
     }
   }
+
+  return codes
+}
+
+function generateParams(params: CmdParameter[]): string[] {
+  const codes: string[] = []
+
+  params.forEach((item) => {
+    if (!item.type) {
+      return '_file'
+    }
+
+    item.type
+  })
 
   return codes
 }

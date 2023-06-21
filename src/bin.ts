@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
 import { sliver } from '.'
-import { ActionParsedArgs } from './types'
+import type { ActionParsedArgs } from './types'
 
 const ins = sliver`
 @help @autocompletion
