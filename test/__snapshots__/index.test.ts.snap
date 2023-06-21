@@ -40,7 +40,7 @@ exports[`silver > should parse cli description 1`] = `
           },
           {
             "defaultValue": undefined,
-            "isArray": true,
+            "handleRestAll": true,
             "name": "other",
             "required": false,
           },

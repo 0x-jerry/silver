@@ -9,17 +9,21 @@ _get_type() {
 
 ___xx_commands() {
   _arguments -s \
-  '1: :((upgrade\:"an sub command." up\:"an sub command."))' \
+  ': :_files' \
   '*: :_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
   {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
   {-b,--bool}'[an boolean option without default value. @default is false]' \
   {-o,--other}'[an option without specify a type will be a string.]'
+  _alternative \
+  'commands:commands:((upgrade\:"an sub command." up\:"an sub command."))'
 }
 _xx_upgrade_option() {
   _arguments -s \
   '1: :->null' \
+   \
+  ': :_files' \
   '*: :_files' \
   {-s,--string}'[sub command option. @default is default]' \
   {-sm,--small}'[other option. @default is false]' \
