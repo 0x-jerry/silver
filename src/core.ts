@@ -197,9 +197,6 @@ completion [type], Generate autocompletion for zsh.
 
     if (type) {
       const completions = ins.getCompletion(type)
-      if (isString(completions)) {
-        return
-      }
 
       const s = completions
         .map((item) =>
