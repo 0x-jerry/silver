@@ -11,6 +11,6 @@ export default defineConfig({
       exclude: ['src/**/*.d.ts', 'src/**/*.test.ts'],
       reporter: ['clover', 'html-spa'],
     },
-    reporters: process.env.GITHUB_ACTIONS ? new GithubActionsReporter() : 'default',
+    reporters: process.env.GITHUB_ACTIONS ? ['default', new GithubActionsReporter()] : 'default',
   },
 })
