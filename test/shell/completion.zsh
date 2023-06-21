@@ -1,44 +1,43 @@
 #compdef xx
 
-_commands() {
-  _alternative 'args:custom arg:((\
-    upgrade\:"an sub command." \
-    up\:"an sub command." \
-  ))'
+___xx_commands() {
+  _arguments -s \
+  '1: :((upgrade\:"an sub command." up\:"an sub command."))' \
+  '*: :_files' \
+  {-s,--string}'[An string option with default value. @default is cool]' \
+  {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
+  {-e,--enum}'[an custom option with default value. @default is a2]' \
+  {-b,--bool}'[an boolean option without default value. @default is false]' \
+  {-o,--other}'[an option without specify a type will be a string.]'
 }
 _xx_upgrade_option() {
-  _arguments -s -C \
-    '1: :->null' \
-    '*: :->null' \
-    '--string[sub command option. @default is default]' \
-    '-s[sub command option. @default is default]' \
-    '--small[other option. @default is false]' \
-    '-sm[other option. @default is false]' \
-    && ret=0
+  _arguments -s \
+  '1: :->null' \
+  '*: :_files' \
+  {-s,--string}'[sub command option. @default is default]' \
+  {-sm,--small}'[other option. @default is false]' \
+  {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
+  {-e,--enum}'[an custom option with default value. @default is a2]' \
+  {-b,--bool}'[an boolean option without default value. @default is false]' \
+  {-o,--other}'[an option without specify a type will be a string.]'
+}
+___xx_sub_commands() {
+  case $line[1] in
+  up|upgrade)
+    _xx_upgrade_option
+    ;;
+  esac
 }
 _xx() {
-  zstyle ':completion:*:*:bun:*' group-name ''
-  zstyle ':completion:*:*:bun-grouped:*' group-name ''
-  zstyle ':completion:*:*:bun::descriptions' format '%F{green}-- %d --%f'
-  zstyle ':completion:*:*:bun-grouped:*' format '%F{green}-- %d --%f'
-  
-  typeset -A opt_args
-  local curcontext="$curcontext" state line context
-  
   _arguments -s \
     '1: :->cmd' \
-    '*: :->args' &&
-    ret=0
+    '*: :->args'
   case $state in
   cmd)
-    _commands
+    ___xx_commands
     ;;
   args)
-    case $line[1] in
-    up|upgrade)
-      _xx_upgrade_option
-      ;;
-    esac
+    ___xx_sub_commands
     ;;
   esac
 }

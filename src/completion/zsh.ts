@@ -84,16 +84,16 @@ export function generateZshAutoCompletion(conf: Command) {
       })
       .flat()
 
-    const codes = [
+    const codes = warpLines([
       //
       `_arguments -s`,
       `'1: :((${names.join(' ')}))'`,
       // todo, custom type
-      `'*: :->_files'`,
+      `'*: :_files'`,
       ...options,
-    ].join(' ')
+    ])
 
-    return createFn(['_', conf.name, 'commands'], [codes])
+    return createFn(['_', conf.name, 'commands'], codes)
   }
 
   function genSubCommands() {
@@ -109,7 +109,30 @@ export function generateZshAutoCompletion(conf: Command) {
     return createFn(['_', conf.name, 'sub_commands'], mainCodes)
 
     function _genSubCommand(parentName: string, command: Command) {
-      const codes = generateOptions(command.options)
+      const filteredOptions: CmdOption[] = command.options || []
+
+      conf.options?.forEach((opt) => {
+        const hit = filteredOptions.find((item) => {
+          const sameName = item.name && item.name === opt.name
+          const sameAlias = item.alias && item.alias === opt.alias
+
+          return sameAlias || sameName
+        })
+
+        if (!hit) {
+          filteredOptions.push(opt)
+        }
+      })
+
+      const options = generateOptions(filteredOptions)
+
+      const codes = warpLines([
+        //
+        `_arguments -s`,
+        `'1: :->null'`,
+        `'*: :_files'`,
+        ...options,
+      ])
 
       const fnName = createFn([parentName, command.name, 'option'], codes)
 
@@ -146,7 +169,9 @@ function generateOptions(options?: CmdOption[]): string[] {
 
     const hasAlias = opt.name && opt.alias
 
-    const type = opt.type ? `: :${opt.type}` : ''
+    // const type = opt.type ? `: :${opt.type}` : ''
+    // todo
+    const type = ''
 
     const name = hasAlias
       ? `{-${opt.alias},--${opt.name}}`
@@ -181,6 +206,12 @@ function generateCode(lines: CodeLine[], indent = 0): string {
   }
 
   return codes.join('\n')
+}
+
+function warpLines(codes: string[]) {
+  return codes.map((line, idx) => {
+    return idx === codes.length - 1 ? line : `${line} \\`
+  })
 }
 
 type CodeLine = string | CodeLine[]
