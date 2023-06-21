@@ -26,7 +26,7 @@ export class Sliver {
     }
 
     if (this.conf.flags?.includes(ProgramFlag.Autocompletion)) {
-      const { cmd, action } = createCompletionCommand(this.conf.command)
+      const { cmd, action } = createCompletionCommand(this)
 
       this.conf.command.commands ||= []
       this.conf.command.commands.push(cmd)
@@ -170,7 +170,7 @@ function generateHelpMsg(conf: Command) {
   return msgs.join('\n')
 }
 
-function createCompletionCommand(command: Command) {
+function createCompletionCommand(ins: Sliver) {
   const conf = parseCliProgram`
 completion [type], Generate autocompletion for zsh.
 
@@ -189,6 +189,9 @@ completion [type], Generate autocompletion for zsh.
     const [type] = params
 
     if (type) {
+      const types = ins.getCompletion(type)
+      const s = types.join('\n')
+      process.stdout.write(s)
       return
     }
 
@@ -200,8 +203,10 @@ completion [type], Generate autocompletion for zsh.
       return
     }
 
-    const zshCode = generateZshAutoCompletion(command)
+    if (ins.conf?.command) {
+      const zshCode = generateZshAutoCompletion(ins.conf?.command)
 
-    console.log(zshCode)
+      console.log(zshCode)
+    }
   }
 }

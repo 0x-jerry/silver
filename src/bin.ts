@@ -1,3 +1,5 @@
+#!/usr/bin/env tsx
+
 import { sliver } from '.'
 import { ActionParsedArgs } from './types'
 
@@ -24,5 +26,5 @@ ins.type('type', () => [...ins.typeMapper.keys()])
  * @param opt
  */
 function fn(_params: string[], opt: ActionParsedArgs) {
-  console.log(JSON.stringify(opt))
+  console.log(JSON.stringify(opt, null, 2))
 }

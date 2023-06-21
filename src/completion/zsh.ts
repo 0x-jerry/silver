@@ -187,9 +187,9 @@ function generateOptions(options?: CmdOption[]): string[] {
       : `-${opt.alias}`
 
     if (hasAlias) {
-      codes.push(`${name}'${desc}'${type}`)
+      codes.push(`${name}'${desc}${type}'`)
     } else {
-      codes.push(`'${name}${desc}'${type}`)
+      codes.push(`'${name}${desc}${type}'`)
     }
   }
 
@@ -201,7 +201,7 @@ function getOptionType(opt: CmdOption) {
 
   if (opt.type.startsWith('_')) return opt.type
 
-  return `: :_get_type ${opt.type}`
+  return `: :{_get_type ${opt.type}}`
 }
 
 function generateFnName(tokens: string[]) {

@@ -1,3 +1,4 @@
+import { sleep } from '@0x-jerry/utils'
 import { generateZshAutoCompletion } from '../src/completion/zsh'
 import { sliver } from '../src/core'
 
@@ -28,17 +29,18 @@ up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
     expect(ins.conf).toMatchSnapshot()
   })
 
-  it('should execute by default', () => {
+  it('should execute by default', async () => {
     const fn = vi.fn()
 
     sliver`
 x [dir], Test. ${fn}
 `
 
+    await sleep()
     expect(fn).toBeCalledTimes(1)
   })
 
-  it('should execute sub command', () => {
+  it('should execute sub command', async () => {
     const fn = vi.fn()
 
     const ins = sliver`
