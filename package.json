@@ -7,15 +7,11 @@
   "engines": {
     "node": ">= 18"
   },
-  "bin": {
-    "xx": "./dist/bin.js"
-  },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "build": "tsup src/index.ts --format esm --dts --clean",
-    "build:bin": "tsup src/bin.ts --format esm",
     "release": "x-release"
   },
   "license": "MIT",
