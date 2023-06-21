@@ -258,7 +258,7 @@ function parseCommandParameter(description: string): CmdParameter | null {
   let content = description.slice(1, -1)
 
   if (content.startsWith('...')) {
-    conf.isArray = true
+    conf.handleRestAll = true
     content = content.slice(3)
   }
 

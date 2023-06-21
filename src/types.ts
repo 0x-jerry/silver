@@ -23,7 +23,7 @@ export interface CmdParameter {
   required?: boolean
   type?: string
   defaultValue?: string | boolean | number
-  isArray?: boolean
+  handleRestAll?: boolean
 }
 
 export interface Command {

@@ -6,10 +6,10 @@ import { isBuiltinType } from '../utils'
  *
  * refer: https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org#writing-your-own-completion-functions
  *
- * @param conf
+ * @param globalConf
  */
-export function generateZshAutoCompletion(conf: Command) {
-  const program = conf.name
+export function generateZshAutoCompletion(globalConf: Command) {
+  const program = globalConf.name
 
   const functions = new Map<string, CodeLine[]>()
 
@@ -82,7 +82,7 @@ export function generateZshAutoCompletion(conf: Command) {
   function genCommands() {
     const options = genGlobalOptions()
 
-    const names = (conf.commands || [])
+    const names = (globalConf.commands || [])
       .map((cmd) => {
         const codes: string[] = []
         const d = `${cmd.name}\\:${JSON.stringify(cmd.description || '')}`
@@ -97,24 +97,33 @@ export function generateZshAutoCompletion(conf: Command) {
       })
       .flat()
 
+    const params = generateParams(globalConf.parameters)
+
+    const handleRest = params.some((item) => item.startsWith("'*")) ? '' : `'*: :_files'`
+
     const codes = warpLines([
       //
       `_arguments -s`,
-      `'1: :((${names.join(' ')}))'`,
-      // todo, custom type
-      `'*: :_files'`,
+      ...params,
+      handleRest,
       ...options,
     ])
 
-    return createFn(['_', conf.name, 'commands'], codes)
+    const commandsCode = warpLines([
+      //
+      '_alternative',
+      `'commands:commands:((${names.join(' ')}))'`,
+    ])
+
+    return createFn(['_', globalConf.name, 'commands'], [...codes, ...commandsCode])
   }
 
   function genSubCommands() {
     const mainCodes = [
       `case $line[1] in`,
-      ...(conf.commands || [])
+      ...(globalConf.commands || [])
         //
-        ?.map((command) => _genSubCommand(conf.name, command))
+        ?.map((command) => _genSubCommand(globalConf.name, command))
         .flat(),
       '*)',
       [
@@ -125,12 +134,12 @@ export function generateZshAutoCompletion(conf: Command) {
       `esac`,
     ]
 
-    return createFn(['_', conf.name, 'sub_commands'], mainCodes)
+    return createFn(['_', globalConf.name, 'sub_commands'], mainCodes)
 
     function _genSubCommand(parentName: string, command: Command) {
       const filteredOptions: CmdOption[] = command.options || []
 
-      conf.options?.forEach((opt) => {
+      globalConf.options?.forEach((opt) => {
         const hit = filteredOptions.find((item) => {
           const sameName = item.name && item.name === opt.name
           const sameAlias = item.alias && item.alias === opt.alias
@@ -145,11 +154,16 @@ export function generateZshAutoCompletion(conf: Command) {
 
       const options = generateOptions(filteredOptions)
 
+      const params = generateParams(command.parameters)
+
+      const handleRest = params.some((item) => item.startsWith("'*")) ? '' : `'*: :_files'`
+
       const codes = warpLines([
         //
         `_arguments -s`,
         `'1: :->null'`,
-        `'*: :_files'`,
+        handleRest,
+        ...params,
         ...options,
       ])
 
@@ -169,7 +183,7 @@ export function generateZshAutoCompletion(conf: Command) {
   }
 
   function genGlobalOptions() {
-    return generateOptions(conf.options)
+    return generateOptions(globalConf.options)
   }
 }
 
@@ -188,7 +202,8 @@ function generateOptions(options?: CmdOption[]): string[] {
 
     const hasAlias = opt.name && opt.alias
 
-    const type = getOptionType(opt)
+    let type = getOptionType(opt.type)
+    type = type ? `: :${type}` : ''
 
     const name = hasAlias
       ? `{-${opt.alias},--${opt.name}}`
@@ -206,26 +221,22 @@ function generateOptions(options?: CmdOption[]): string[] {
   return codes
 }
 
-function generateParams(params: CmdParameter[]): string[] {
-  const codes: string[] = []
+function generateParams(params: CmdParameter[] = []): string[] {
+  const codes = params.map((item) => {
+    const type = getOptionType(item.type) || '_files'
 
-  params.forEach((item) => {
-    if (!item.type) {
-      return '_file'
-    }
-
-    item.type
+    return `'${item.handleRestAll ? '*' : ''}: :${type}'`
   })
 
   return codes
 }
 
-function getOptionType(opt: CmdOption) {
-  if (!opt.type || isBuiltinType(opt.type)) return ''
+function getOptionType(type?: string) {
+  if (!type || isBuiltinType(type)) return ''
 
-  if (opt.type.startsWith('_')) return opt.type
+  if (type.startsWith('_')) return type
 
-  return `: :{_get_type ${opt.type}}`
+  return `{_get_type ${type}}`
 }
 
 function generateFnName(tokens: string[]) {

@@ -6,12 +6,12 @@ import type { ActionParsedArgs } from './types'
 const ins = sliver`
 @help @autocompletion
 
-xx [type:type], A library for create command line interface quickly. ${fn}
+xx [@type:type], A library for create command line interface quickly. ${fn}
 
 -t --test @test:t1, Test autocompletion.
 
 # aliasName/commandName
-up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
+up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${fn}
 
 -s --string @string:default, sub command option.
 -sm --small @bool, other option.
