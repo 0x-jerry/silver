@@ -156,13 +156,13 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
       const params = generateParams(command.parameters)
 
-      const handleRest = params.some((item) => item.startsWith("'*")) ? '' : `'*: :_files'`
+      const handleRest = params.some((item) => item.startsWith("'*")) ? [] : [`'*: :_files'`]
 
       const codes = warpLines([
         //
         `_arguments -s`,
         `'1: :->null'`,
-        handleRest,
+        ...handleRest,
         ...params,
         ...options,
       ])

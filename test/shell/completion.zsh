@@ -22,7 +22,6 @@ ___xx_commands() {
 _xx_upgrade_option() {
   _arguments -s \
   '1: :->null' \
-   \
   ': :_files' \
   '*: :_files' \
   {-s,--string}'[sub command option. @default is default]' \
