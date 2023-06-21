@@ -9,8 +9,13 @@ export function splitFirst(text: string, separator: string) {
 export const builtinType = {
   boolean: ['bool', 'boolean'],
   number: ['number'],
+  string: ['string'],
 }
 
-export function isType(targetType: string, type: string | string[]) {
-  return toArray(type).includes(targetType)
+export function isType(targetType: string | undefined, type: string | string[]) {
+  return toArray(type).includes(targetType!)
+}
+
+export function isBuiltinType(type?: string) {
+  return Object.values(builtinType).flat().includes(type!)
 }

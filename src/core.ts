@@ -1,8 +1,9 @@
-import { Value, textTableToString } from '@0x-jerry/utils'
+import { Value, sleep, textTableToString } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
-import { ActionParsedArgs, Program, CommandFlag, Command, ProgramFlag } from './types'
+import { ActionParsedArgs, Program, CommandFlag, Command, ProgramFlag, CmdAction } from './types'
 import minimist from 'minimist'
 import { isType, builtinType } from './utils'
+import { generateZshAutoCompletion } from './completion/zsh'
 
 export class Sliver {
   conf?: Program
@@ -25,7 +26,7 @@ export class Sliver {
     }
 
     if (this.conf.flags?.includes(ProgramFlag.Autocompletion)) {
-      const { cmd, action } = this._createCompletionCommand()
+      const { cmd, action } = createCompletionCommand(this.conf.command)
 
       this.conf.command.commands ||= []
       this.conf.command.commands.push(cmd)
@@ -33,26 +34,6 @@ export class Sliver {
       this.conf.actions ||= new Map()
 
       this.conf.actions.set(cmd.action!, action)
-    }
-  }
-
-  _createCompletionCommand() {
-    const conf = parseCliProgram`
-completion [type], Generate autocompletion for zsh.
-
---install, Install autocompletion for zsh.
---uninstall, Uninstall autocompletion for zsh.
-  `
-
-    conf.command.action = 'completion'
-
-    return {
-      cmd: conf.command,
-      action,
-    }
-
-    function action(params: string[], opt: { install?: boolean; uninstall?: boolean }) {
-      // todo, handle completion
     }
   }
 
@@ -116,8 +97,10 @@ export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
   ins.parse(raw, ...tokens)
 
   if (!ins.conf?.flags?.includes(ProgramFlag.Manual)) {
-    const argv = process.argv.slice(2)
-    ins.execute(argv)
+    sleep().then(() => {
+      const argv = process.argv.slice(2)
+      ins.execute(argv)
+    })
   }
 
   return ins
@@ -133,16 +116,22 @@ function parseArgv(argv: string[], program: Command) {
   }
 
   for (const opt of program.options || []) {
-    if (opt.alias) {
+    if (opt.alias && opt.name) {
       config.alias[opt.name] = opt.alias
     }
 
     if (opt.defaultValue != null) {
-      config.default[opt.name] = opt.defaultValue
+      const nameOrAlias = opt.name || opt.alias
+      if (nameOrAlias) {
+        config.default[nameOrAlias] = opt.defaultValue
+      }
     }
 
     if (isType(opt.type!, builtinType.boolean)) {
-      config.boolean.push(opt.name)
+      const nameOrAlias = opt.name || opt.alias
+      if (nameOrAlias) {
+        config.boolean.push(nameOrAlias)
+      }
     }
   }
 
@@ -179,4 +168,40 @@ function generateHelpMsg(conf: Command) {
   }
 
   return msgs.join('\n')
+}
+
+function createCompletionCommand(command: Command) {
+  const conf = parseCliProgram`
+completion [type], Generate autocompletion for zsh.
+
+--install, Install autocompletion for zsh.
+--uninstall, Uninstall autocompletion for zsh.
+  `
+
+  conf.command.action = 'completion'
+
+  return {
+    cmd: conf.command,
+    action,
+  }
+
+  function action(params: string[], opt: { install?: boolean; uninstall?: boolean }) {
+    const [type] = params
+
+    if (type) {
+      return
+    }
+
+    if (opt.install) {
+      return
+    }
+
+    if (opt.uninstall) {
+      return
+    }
+
+    const zshCode = generateZshAutoCompletion(command)
+
+    console.log(zshCode)
+  }
 }

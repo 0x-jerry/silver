@@ -1,5 +1,6 @@
 import { Arrayable, toArray } from '@0x-jerry/utils'
 import { CmdOption, Command } from '../types'
+import { isBuiltinType } from '../utils'
 
 /**
  *
@@ -19,6 +20,14 @@ export function generateZshAutoCompletion(conf: Command) {
   const lines: CodeLine[] = [
     //
     `#compdef ${program}`,
+    '',
+    `_get_type() {
+      local scripts_list
+      IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion "$1"))
+      scripts="scripts:scripts:(($scripts_list))"
+
+      _alternative "$scripts"
+    }`,
     '',
     ...[...functions.values()].flat(),
     '',
@@ -169,9 +178,7 @@ function generateOptions(options?: CmdOption[]): string[] {
 
     const hasAlias = opt.name && opt.alias
 
-    // const type = opt.type ? `: :${opt.type}` : ''
-    // todo
-    const type = ''
+    const type = getOptionType(opt)
 
     const name = hasAlias
       ? `{-${opt.alias},--${opt.name}}`
@@ -187,6 +194,14 @@ function generateOptions(options?: CmdOption[]): string[] {
   }
 
   return codes
+}
+
+function getOptionType(opt: CmdOption) {
+  if (!opt.type || isBuiltinType(opt.type)) return ''
+
+  if (opt.type.startsWith('_')) return opt.type
+
+  return `: :_get_type ${opt.type}`
 }
 
 function generateFnName(tokens: string[]) {

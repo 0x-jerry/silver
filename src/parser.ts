@@ -140,9 +140,9 @@ function parseOption(description: string): CmdOption {
 
       conf.type = type.slice(1)
 
-      if (isType(conf.type!, builtinType.boolean)) {
+      if (isType(conf.type, builtinType.boolean)) {
         conf.defaultValue = defaultValue === 'true'
-      } else if (isType(conf.type!, builtinType.number)) {
+      } else if (isType(conf.type, builtinType.number)) {
         const n = parseFloat(defaultValue)
         conf.defaultValue = Number.isNaN(n) ? undefined : n
         // todo, warning ?
