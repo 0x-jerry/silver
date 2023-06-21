@@ -1,12 +1,11 @@
 #compdef xx
 
 _get_type() {
-      local scripts_list
-      IFS=$'\n' scripts_list=($(SHELL=zsh xx completion "$1"))
-      scripts="scripts:scripts:(($scripts_list))"
-
-      _alternative "$scripts"
-    }
+  local scripts_list
+  IFS=$'\n' scripts_list=($(SHELL=zsh xx completion "$1"))
+  scripts="scripts:scripts:(($scripts_list))"
+  _alternative "$scripts"
+}
 
 ___xx_commands() {
   _arguments -s \
@@ -14,7 +13,7 @@ ___xx_commands() {
   '*: :_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
-  {-e,--enum}'[an custom option with default value. @default is a2]: :_get_type "custom"' \
+  {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
   {-b,--bool}'[an boolean option without default value. @default is false]' \
   {-o,--other}'[an option without specify a type will be a string.]'
 }
@@ -25,7 +24,7 @@ _xx_upgrade_option() {
   {-s,--string}'[sub command option. @default is default]' \
   {-sm,--small}'[other option. @default is false]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
-  {-e,--enum}'[an custom option with default value. @default is a2]: :_get_type "custom"' \
+  {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
   {-b,--bool}'[an boolean option without default value. @default is false]' \
   {-o,--other}'[an option without specify a type will be a string.]'
 }
@@ -34,12 +33,16 @@ ___xx_sub_commands() {
   up|upgrade)
     _xx_upgrade_option
     ;;
+  *)
+    ___xx_commands
+    ;;
   esac
 }
 _xx() {
   _arguments -s \
-    '1: :->cmd' \
-    '*: :->args'
+  '1: :->cmd' \
+  '*: :->args'
+  
   case $state in
   cmd)
     ___xx_commands

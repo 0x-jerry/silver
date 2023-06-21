@@ -21,13 +21,14 @@ export function generateZshAutoCompletion(conf: Command) {
     //
     `#compdef ${program}`,
     '',
-    `_get_type() {
-      local scripts_list
-      IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion "$1"))
-      scripts="scripts:scripts:(($scripts_list))"
-
-      _alternative "$scripts"
-    }`,
+    `_get_type() {`,
+    [
+      `local scripts_list`,
+      `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion "$1"))`,
+      `scripts="scripts:scripts:(($scripts_list))"`,
+      `_alternative "$scripts"`,
+    ],
+    `}`,
     '',
     ...[...functions.values()].flat(),
     '',
