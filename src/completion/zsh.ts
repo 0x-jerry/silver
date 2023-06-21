@@ -49,13 +49,16 @@ export function generateZshAutoCompletion(conf: Command) {
   }
 
   function genMainProgram() {
+    const argumentsCode = warpLines([
+      `_arguments -s`,
+      //
+      `'1: :->cmd'`,
+      `'*: :->args'`,
+    ])
+
     const codes = [
-      `_arguments -s \\`,
-      [
-        //
-        `'1: :->cmd' \\`,
-        `'*: :->args'`,
-      ],
+      ...argumentsCode,
+      '',
       `case $state in`,
       `cmd)`,
       [
@@ -112,6 +115,12 @@ export function generateZshAutoCompletion(conf: Command) {
         //
         ?.map((command) => _genSubCommand(conf.name, command))
         .flat(),
+      '*)',
+      [
+        //
+        genCommands(),
+        ';;',
+      ],
       `esac`,
     ]
 
