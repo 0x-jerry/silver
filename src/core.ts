@@ -1,4 +1,4 @@
-import { type Value, sleep, textTableToString, isString } from '@0x-jerry/utils'
+import { type Value, sleep, textTableToString, isString, toValue } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
 import {
   type ActionParsedArgs,
@@ -15,7 +15,7 @@ import { generateZshAutoCompletion } from './completion/zsh'
 export class Sliver {
   conf?: Program
 
-  typeMapper = new Map<string, Value<CompletionType>>()
+  typeMapper = new Map<string, Value<CompletionType | Promise<CompletionType>>>()
 
   parse(raw: TemplateStringsArray, ...tokens: any[]) {
     this.conf = parseCliProgram(raw, ...tokens)
@@ -44,17 +44,13 @@ export class Sliver {
     }
   }
 
-  getCompletion(type: string) {
+  async getCompletion(type: string) {
     const value = this.typeMapper.get(type)
 
-    if (typeof value === 'function') {
-      return value()
-    }
-
-    return value || []
+    return (await toValue(value)) || []
   }
 
-  type(name: string, getType: Value<CompletionType>) {
+  type(name: string, getType: Value<CompletionType | Promise<CompletionType>>) {
     this.typeMapper.set(name, getType)
 
     return this
@@ -192,11 +188,11 @@ completion [type], Generate autocompletion for zsh.
     action,
   }
 
-  function action(params: string[], opt: { install?: boolean; uninstall?: boolean }) {
+  async function action(params: string[], opt: { install?: boolean; uninstall?: boolean }) {
     const [type] = params
 
     if (type) {
-      const completions = ins.getCompletion(type)
+      const completions = await ins.getCompletion(type)
 
       const s = completions
         .map((item) =>

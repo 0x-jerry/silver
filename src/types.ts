@@ -95,7 +95,9 @@ export enum ProgramFlag {
 
 export enum OptionFlag {}
 
-export type CompletionType = Array<string | { label: string; desc?: string }>
+export type CompletionValue = string | { label: string; desc?: string }
+
+export type CompletionType = Array<CompletionValue>
 
 export enum BuiltinType {
   File = '_files',
