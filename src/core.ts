@@ -10,7 +10,7 @@ import {
 } from './types'
 import minimist from 'minimist'
 import { isType, builtinType } from './utils'
-import { generateZshAutoCompletion } from './completion/zsh'
+import { generateZshAutoCompletion, normalizeStr } from './completion/zsh'
 
 export class Sliver {
   conf?: Program
@@ -195,9 +195,13 @@ completion [type], Generate autocompletion for zsh.
       const completions = await ins.getCompletion(type)
 
       const s = completions
-        .map((item) =>
-          isString(item) ? item : item.desc ? `${item.label}\\:${item.desc}` : item.label
-        )
+        .map((item) => {
+          return isString(item)
+            ? normalizeStr(item)
+            : item.desc
+            ? `${normalizeStr(item.label)}\\:${item.desc}`
+            : normalizeStr(item.label)
+        })
         .join('\n')
       process.stdout.write(s)
       return

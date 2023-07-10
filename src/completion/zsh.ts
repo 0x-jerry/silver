@@ -85,11 +85,11 @@ export function generateZshAutoCompletion(globalConf: Command) {
     const names = (globalConf.commands || [])
       .map((cmd) => {
         const codes: string[] = []
-        const d = `${cmd.name}\\:${JSON.stringify(cmd.description || '')}`
+        const d = `${normalizeStr(cmd.name)}\\:${JSON.stringify(cmd.description || '')}`
         codes.push(d)
 
         if (cmd.alias) {
-          const d = `${cmd.alias}\\:${JSON.stringify(cmd.description || '')}`
+          const d = `${normalizeStr(cmd.alias)}\\:${JSON.stringify(cmd.description || '')}`
           codes.push(d)
         }
 
@@ -265,3 +265,7 @@ function warpLines(codes: string[]) {
 }
 
 type CodeLine = string | CodeLine[]
+
+export function normalizeStr(item: string) {
+  return item.replaceAll(':', '\\\\:')
+}

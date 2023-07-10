@@ -71,7 +71,7 @@ xx [dir], A library for create command line interface quickly. ${fn}
 -o --other, an option without specify a type will be a string.
 
 # aliasName/commandName
-up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
+up:dev/upgrade <dir> [...other] #stopEarly, an sub : command. ${fn}
 
 -s --string @string:default, sub command option.
 -sm --small @bool, other option.

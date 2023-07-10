@@ -16,7 +16,7 @@ up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${fn}
 -sm --small @bool, other option.
 `
 
-ins.type('test', ['t1', 't2', 't3'])
+ins.type('test', ['t1', 't2', 't3:dev'])
 
 ins.type('type', () => [...ins.typeMapper.keys()])
 

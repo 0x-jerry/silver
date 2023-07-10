@@ -17,7 +17,7 @@ ___xx_commands() {
   {-b,--bool}'[an boolean option without default value. @default is false]' \
   {-o,--other}'[an option without specify a type will be a string.]'
   _alternative \
-  'commands:commands:((upgrade\:"an sub command." up\:"an sub command."))'
+  'commands:commands:((upgrade\:"an sub : command." up\\:dev\:"an sub : command."))'
 }
 _xx_upgrade_option() {
   _arguments -s \
@@ -33,7 +33,7 @@ _xx_upgrade_option() {
 }
 ___xx_sub_commands() {
   case $line[1] in
-  up|upgrade)
+  up:dev|upgrade)
     _xx_upgrade_option
     ;;
   *)
