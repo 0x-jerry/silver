@@ -94,6 +94,26 @@ export class Sliver {
   }
 }
 
+/**
+ *
+ * @example
+ *
+ * ```ts
+ * const ins = sliver`@help @autocompletion
+ *
+ * const ins = silver [...dir], Read file like \`cat\` command.
+ *
+ * -o, --option, Global option.
+ *
+ * run [@scripts:scriptName], Run some script.
+ *
+ * -p --pattern, Use glob pattern to run multiple scripts.
+ * `
+ *
+ * ins.type('scripts', ['script1', 'script2']) // register auto completion for shell
+ * ```
+ *
+ */
 export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
   const ins = new Sliver()
 
