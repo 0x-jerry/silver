@@ -1,5 +1,12 @@
 import { createAutoIncrementGenerator, isPrimitive } from '@0x-jerry/utils'
-import type { Command, CmdOption, CmdParameter, Program, CmdAction } from './types'
+import {
+  type Command,
+  type CmdOption,
+  type CmdParameter,
+  type Program,
+  type CmdAction,
+  ProgramFlag,
+} from './types'
 import { builtinType, isType, splitFirst } from './utils'
 
 const TOKEN_ID_PREFIX = '__token_id__'
@@ -51,10 +58,10 @@ function parseProgram(finalStr: string): Program {
 
   {
     // check program flags
-    const flags = parseAppOption(lines[0])
+    const result = parseProgramFlags(lines[0])
+    program.flags = [...result.flags]
 
-    if (flags) {
-      program.flags = flags
+    if (result.matched) {
       lines.splice(0, 1)
     }
   }
@@ -288,10 +295,20 @@ function parseCommandParameter(description: string): CmdParameter | null {
  * @manual @help
  * ```
  */
-function parseAppOption(description: string) {
-  if (!description.trim().startsWith('@')) return null
+function parseProgramFlags(description: string) {
+  const result = {
+    flags: new Set<string>([ProgramFlag.Help, ProgramFlag.Autocompletion]),
+    /**
+     * Whether the description is matched
+     */
+    matched: false,
+  }
 
-  const flags: string[] = []
+  if (!description.trim().startsWith('@')) {
+    return result
+  }
+
+  result.matched = true
 
   const segments = description.trim().split(/\s+/g)
 
@@ -300,8 +317,8 @@ function parseAppOption(description: string) {
       return
     }
 
-    flags.push(item.slice(1))
+    result.flags.add(item.slice(1))
   })
 
-  return flags
+  return result
 }
