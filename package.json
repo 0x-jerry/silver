@@ -26,14 +26,13 @@
     "dist"
   ],
   "devDependencies": {
-    "@0x-jerry/x-release": "^0.3.6",
+    "@0x-jerry/x-release": "^0.3.8",
     "@types/minimist": "^1.2.2",
-    "@types/node": "^18.16.15",
-    "@vitest/coverage-c8": "^0.31.1",
-    "tsup": "^6.7.0",
-    "typescript": "^5.0.4",
-    "vitest": "^0.31.1",
-    "vitest-github-actions-reporter": "^0.10.0"
+    "@types/node": "^20.5.0",
+    "@vitest/coverage-v8": "^0.34.1",
+    "tsup": "^7.2.0",
+    "typescript": "^5.1.6",
+    "vitest": "^0.34.1"
   },
   "dependencies": {
     "@0x-jerry/utils": "^1.18.0",
