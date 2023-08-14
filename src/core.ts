@@ -72,7 +72,7 @@ export class Sliver {
 
     let command = this.conf.command
 
-    // if is sub command
+    // if it is a sub command
     if (commandMapper?.has(argv[0])) {
       command = commandMapper.get(argv[0])!
       argv = argv.slice(1)
@@ -197,8 +197,8 @@ function createCompletionCommand(ins: Sliver) {
   const conf = parseCliProgram`
 completion [type], Generate autocompletion for zsh.
 
---install, Install autocompletion for zsh.
---uninstall, Uninstall autocompletion for zsh.
+--install, Install autocompletion for zsh, not implement yet.
+--uninstall, Uninstall autocompletion for zsh, not implement yet.
   `
 
   conf.command.action = 'completion'
