@@ -4,6 +4,7 @@ exports[`silver > should parse cli description 1`] = `
 {
   "actions": Map {
     "__token_id__0" => [MockFunction spy],
+    "completion" => [Function],
   },
   "command": {
     "action": "__token_id__0",
@@ -42,6 +43,28 @@ exports[`silver > should parse cli description 1`] = `
             "defaultValue": undefined,
             "handleRestAll": true,
             "name": "other",
+            "required": false,
+          },
+        ],
+      },
+      {
+        "action": "completion",
+        "description": "Generate autocompletion for zsh.",
+        "name": "completion",
+        "options": [
+          {
+            "description": "Install autocompletion for zsh, not implement yet.",
+            "name": "install",
+          },
+          {
+            "description": "Uninstall autocompletion for zsh, not implement yet.",
+            "name": "uninstall",
+          },
+        ],
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "name": "type",
             "required": false,
           },
         ],
@@ -86,6 +109,12 @@ exports[`silver > should parse cli description 1`] = `
         "description": "an option without specify a type will be a string.",
         "name": "other",
       },
+      {
+        "alias": "h",
+        "description": "Print help messages.",
+        "name": "help",
+        "type": "bool",
+      },
     ],
     "parameters": [
       {
@@ -96,6 +125,8 @@ exports[`silver > should parse cli description 1`] = `
     ],
   },
   "flags": [
+    "help",
+    "autocompletion",
     "manual",
   ],
 }
