@@ -3,14 +3,14 @@
 exports[`silver > should parse cli description 1`] = `
 {
   "actions": Map {
-    "__token_id__0" => [MockFunction spy],
+    "__token_id__1" => [MockFunction spy],
     "completion" => [Function],
   },
   "command": {
-    "action": "__token_id__0",
+    "action": "__token_id__1",
     "commands": [
       {
-        "action": "__token_id__0",
+        "action": "__token_id__1",
         "alias": "up",
         "description": "an sub command.",
         "flags": [

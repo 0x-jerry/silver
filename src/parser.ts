@@ -1,4 +1,4 @@
-import { createAutoIncrementGenerator, isPrimitive } from '@0x-jerry/utils'
+import { isPrimitive } from '@0x-jerry/utils'
 import {
   type Command,
   type CmdOption,
@@ -8,9 +8,10 @@ import {
   ProgramFlag,
 } from './types'
 import { builtinType, isType, splitFirst } from './utils'
+import { uniqueId } from 'lodash-es'
 
 const TOKEN_ID_PREFIX = '__token_id__'
-const nextId = createAutoIncrementGenerator(TOKEN_ID_PREFIX)
+const nextId = () => uniqueId(TOKEN_ID_PREFIX)
 
 const tokenIdReg = new RegExp(`${TOKEN_ID_PREFIX}\\d+`, 'g')
 
