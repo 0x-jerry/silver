@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`test help message > should print main help message 1`] = `
+[
+  "xx [COMMAND] [OPTIONS] A library for create command line interface quickly.
+
+up/upgrade an sub command.                 
+completion Generate autocompletion for zsh.
+
+--test -t Test autocompletion.
+--help -h Print help messages.
+",
+]
+`;
+
+exports[`test help message > should print sub command help message 1`] = `
+[
+  "up/upgrade [OPTIONS] an sub command.
+
+--string -s sub command option.
+--small -sm other option.      
+",
+]
+`;

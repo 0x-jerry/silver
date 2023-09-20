@@ -80,9 +80,9 @@ export class Sliver {
 
     const args = parseArgv(argv, command)
 
-    if (this.conf.flags?.includes(ProgramFlag.Help) && args.help) {
+    if (this.conf.flags?.includes(ProgramFlag.Help) && (args.help || args.h)) {
       // force to print help message
-      console.log(generateHelpMsg(this.conf.command))
+      console.log(generateHelpMsg(command))
 
       return
     }
@@ -170,11 +170,14 @@ function generateHelpMsg(conf: Command) {
 
   const usageDescription = conf.commands?.length ? `[COMMAND] [OPTIONS]` : `[OPTIONS]`
 
-  const usage = `${conf.name} ${usageDescription}`
+  const composeAlias = (cmd: Command) => [cmd.alias, cmd.name].filter(Boolean).join('/')
+  const usage = `${composeAlias(conf)} ${usageDescription} ${conf.description}`
+
   msgs.push(usage, '')
 
   if (conf.commands?.length) {
-    const commands = conf.commands.map((item) => [item.name, item.description])
+    const commands = conf.commands.map((item) => [composeAlias(item), item.description])
+
     const s = textTableToString(commands)
     msgs.push(s, '')
   }
