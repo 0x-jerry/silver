@@ -1,5 +1,5 @@
 import { type Arrayable, toArray } from '@0x-jerry/utils'
-import type { CmdOption, CmdParameter, Command } from '../types'
+import { BuiltinType, type CmdOption, type CmdParameter, type Command } from '../types'
 import { isBuiltinType } from '../utils'
 
 /**
@@ -97,25 +97,36 @@ export function generateZshAutoCompletion(globalConf: Command) {
       })
       .flat()
 
-    const params = generateParams(globalConf.parameters)
-
-    const handleRest = params.some((item) => item.startsWith("'*")) ? '' : `'*: :_files'`
-
-    const codes = warpLines([
-      //
-      `_arguments -s`,
-      ...params,
-      handleRest,
-      ...options,
-    ])
+    const firstType = getOptionType(globalConf.parameters?.at(0)?.type)
 
     const commandsCode = warpLines([
       //
       '_alternative',
       `'commands:commands:((${names.join(' ')}))'`,
+      `': :${firstType}'`,
     ])
 
-    return createFn(['_', globalConf.name, 'commands'], [...codes, ...commandsCode])
+    const firstCompletion = createFn(
+      ['_', globalConf.name, 'commands_or_params'],
+      [...commandsCode]
+    )
+
+    const params = generateParams(globalConf.parameters?.slice(1))
+
+    const handleRest = params.some((item) => item.startsWith("'*"))
+      ? ''
+      : `'*: :${BuiltinType.File}'`
+
+    const codes = warpLines([
+      //
+      `_arguments -s`,
+      `': :{${firstCompletion}}'`,
+      ...params,
+      handleRest,
+      ...options,
+    ])
+
+    return createFn(['_', globalConf.name, 'commands'], codes)
   }
 
   function genSubCommands() {
@@ -156,7 +167,9 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
       const params = generateParams(command.parameters)
 
-      const handleRest = params.some((item) => item.startsWith("'*")) ? [] : [`'*: :_files'`]
+      const handleRest = params.some((item) => item.startsWith("'*"))
+        ? []
+        : [`'*: :${BuiltinType.File}'`]
 
       const codes = warpLines([
         //
@@ -223,7 +236,7 @@ function generateOptions(options?: CmdOption[]): string[] {
 
 function generateParams(params: CmdParameter[] = []): string[] {
   const codes = params.map((item) => {
-    const type = getOptionType(item.type) || '_files'
+    const type = getOptionType(item.type)
 
     return `'${item.handleRestAll ? '*' : ''}: :${type}'`
   })
@@ -232,7 +245,9 @@ function generateParams(params: CmdParameter[] = []): string[] {
 }
 
 function getOptionType(type?: string) {
-  if (!type || isBuiltinType(type)) return ''
+  if (!type) return BuiltinType.File
+
+  if (isBuiltinType(type)) return ''
 
   if (type.startsWith('_')) return type
 

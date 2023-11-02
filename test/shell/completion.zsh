@@ -7,18 +7,21 @@ _get_type() {
   _alternative "$scripts"
 }
 
+___xx_commands_or_params() {
+  _alternative \
+  'commands:commands:((upgrade\:"an sub : command." up\\:dev\:"an sub : command." completion\:"Generate autocompletion for zsh."))' \
+  ': :_files'
+}
 ___xx_commands() {
   _arguments -s \
-  ': :_files' \
+  ': :{___xx_commands_or_params}' \
   '*: :_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
   {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
   {-b,--bool}'[an boolean option without default value. @default is false]' \
-  {-o,--other}'[an option without specify a type will be a string.]' \
+  {-o,--other}'[an option without specify a type will be a string.]: :_files' \
   {-h,--help}'[Print help messages.]'
-  _alternative \
-  'commands:commands:((upgrade\:"an sub : command." up\\:dev\:"an sub : command." completion\:"Generate autocompletion for zsh."))'
 }
 _xx_upgrade_option() {
   _arguments -s \
@@ -30,7 +33,7 @@ _xx_upgrade_option() {
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
   {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
   {-b,--bool}'[an boolean option without default value. @default is false]' \
-  {-o,--other}'[an option without specify a type will be a string.]' \
+  {-o,--other}'[an option without specify a type will be a string.]: :_files' \
   {-h,--help}'[Print help messages.]'
 }
 _xx_completion_option() {
@@ -38,13 +41,13 @@ _xx_completion_option() {
   '1: :->null' \
   '*: :_files' \
   ': :_files' \
-  '--install[Install autocompletion for zsh, not implement yet.]' \
-  '--uninstall[Uninstall autocompletion for zsh, not implement yet.]' \
+  '--install[Install autocompletion for zsh, not implement yet.]: :_files' \
+  '--uninstall[Uninstall autocompletion for zsh, not implement yet.]: :_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
   {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
   {-b,--bool}'[an boolean option without default value. @default is false]' \
-  {-o,--other}'[an option without specify a type will be a string.]' \
+  {-o,--other}'[an option without specify a type will be a string.]: :_files' \
   {-h,--help}'[Print help messages.]'
 }
 ___xx_sub_commands() {
