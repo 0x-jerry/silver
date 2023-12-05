@@ -1,7 +1,7 @@
 {
   "name": "@0x-jerry/silver",
   "version": "0.1.5",
-  "description": "An library that help me to create CLI program quickly.",
+  "description": "Let writing CLI like writing document.",
   "main": "src/index.ts",
   "type": "module",
   "engines": {

@@ -1,4 +1,4 @@
-import type { SpyInstance } from 'vitest'
+import type { MockInstance } from 'vitest'
 import { sliver } from '../src'
 
 describe('test help message', () => {
@@ -18,7 +18,7 @@ up/upgrade <@test:dir> [...other] #stopEarly, an sub command.
 
   const ctx = {
     logs: [] as any[],
-    log: null as null | SpyInstance<any[], void>,
+    log: null as null | MockInstance<any[], void>,
   }
 
   beforeEach(() => {
