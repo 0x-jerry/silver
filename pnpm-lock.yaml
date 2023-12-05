@@ -8,9 +8,6 @@ dependencies:
   '@0x-jerry/utils':
     specifier: ^2.0.0
     version: 2.0.0
-  lodash-es:
-    specifier: ^4.17.21
-    version: 4.17.21
   minimist:
     specifier: ^1.2.8
     version: 1.2.8
@@ -19,9 +16,6 @@ devDependencies:
   '@0x-jerry/x-release':
     specifier: ^0.4.0
     version: 0.4.0
-  '@types/lodash-es':
-    specifier: ^4.17.9
-    version: 4.17.9
   '@types/minimist':
     specifier: ^1.2.2
     version: 1.2.2
@@ -476,16 +470,6 @@ packages:
 
   /@types/istanbul-lib-coverage@2.0.4:
     resolution: {integrity: sha512-z/QT1XN4K4KYuslS23k62yDIDLwLFkzxOuMplDtObz0+y7VqJCaO2o+SPwHCvLFZh7xazvvoor2tA/hPz9ee7g==}
-    dev: true
-
-  /@types/lodash-es@4.17.9:
-    resolution: {integrity: sha512-ZTcmhiI3NNU7dEvWLZJkzG6ao49zOIjEgIE0RgV7wbPxU0f2xT3VSAHw2gmst8swH6V0YkLRGp4qPlX/6I90MQ==}
-    dependencies:
-      '@types/lodash': 4.14.198
-    dev: true
-
-  /@types/lodash@4.14.198:
-    resolution: {integrity: sha512-trNJ/vtMZYMLhfN45uLq4ShQSw0/S7xCTLLVM+WM1rmFpba/VS42jVUgaO3w/NOLiWR/09lnYk0yMaA/atdIsg==}
     dev: true
 
   /@types/minimist@1.2.2:
@@ -1044,10 +1028,6 @@ packages:
       mlly: 1.4.2
       pkg-types: 1.0.3
     dev: true
-
-  /lodash-es@4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
-    dev: false
 
   /lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}

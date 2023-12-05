@@ -19,3 +19,8 @@ export function isType(targetType: string | undefined, type: string | string[]) 
 export function isBuiltinType(type?: string) {
   return Object.values(builtinType).flat().includes(type!)
 }
+
+export function autoIncrement(prefix = 'i') {
+  let i = 1;
+  return () => `${prefix}${i++}`
+}

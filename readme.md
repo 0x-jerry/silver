@@ -53,5 +53,4 @@ TODO
 
 - [vitest](https://vitest.dev/)
 - [minimist](https://github.com/minimistjs/minimist)
-- [lodash](https://lodash.com)
 - [tsup](https://tsup.egoist.dev)

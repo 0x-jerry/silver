@@ -7,11 +7,10 @@ import {
   type CmdAction,
   ProgramFlag,
 } from './types'
-import { builtinType, isType, splitFirst } from './utils'
-import { uniqueId } from 'lodash-es'
+import { autoIncrement, builtinType, isType, splitFirst } from './utils'
 
 const TOKEN_ID_PREFIX = '__token_id__'
-const nextId = () => uniqueId(TOKEN_ID_PREFIX)
+const nextId = autoIncrement(TOKEN_ID_PREFIX)
 
 const tokenIdReg = new RegExp(`${TOKEN_ID_PREFIX}\\d+`, 'g')
 
