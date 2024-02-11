@@ -27,15 +27,15 @@
   ],
   "devDependencies": {
     "@0x-jerry/x-release": "^0.4.0",
-    "@types/minimist": "^1.2.2",
-    "@types/node": "^20.6.2",
-    "@vitest/coverage-v8": "^1.0.0",
-    "tsup": "^8.0.0",
-    "typescript": "^5.2.2",
-    "vitest": "^1.0.0"
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^20.11.17",
+    "@vitest/coverage-v8": "^1.2.2",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
   },
   "dependencies": {
-    "@0x-jerry/utils": "^2.0.0",
+    "@0x-jerry/utils": "^2.1.1",
     "minimist": "^1.2.8"
   }
 }
