@@ -10,7 +10,7 @@ pnpm i @0x-jerry/silver
 
 ## Usage
 
-Default behaviour:
+Default behavior:
 
 ```ts
 import { silver } from '@0x-jerry/silver'
@@ -22,7 +22,7 @@ const ins = sliver`
 silver [@type:type], Let writing CLI like writing document. ${defaultAction}
 
 # -t/--test is a global option
--t --test @test:defultValue, Test autocompletion.
+-t --test @test:defaultValue, Test autocompletion.
 
 # A comment is start with a # symbol.
 # aliasName/commandName, \`up\` is a sub command.
@@ -33,16 +33,15 @@ up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${upgradeAction}
 `
 
 // register autocomplete
-ins.type('type', () => ['t1', 't2', 't3' ])
+ins.type('type', () => ['t1', 't2', 't3'])
 
 function defaultAction([type], options) {
-    console.log(type, options)
+  console.log(type, options)
 }
 
 function upgradeAction([dir], options) {
-    console.log(dir, options)
+  console.log(dir, options)
 }
-
 ```
 
 ## Syntax Detail
