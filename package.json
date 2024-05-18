@@ -2,8 +2,18 @@
   "name": "@0x-jerry/silver",
   "version": "0.1.6",
   "description": "Let writing CLI like writing document.",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "type": "module",
+  "license": "MIT",
+  "author": "0x-jerry <x.jerry.wang@gmail.com>",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">= 18"
   },
@@ -15,17 +25,6 @@
     "prepublishOnly": "npm run build",
     "release": "x-release"
   },
-  "license": "MIT",
-  "author": "0x-jerry <x.jerry.wang@gmail.com>",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts"
-  },
-  "files": [
-    "dist"
-  ],
   "devDependencies": {
     "@0x-jerry/x-release": "^2.0.2",
     "@types/minimist": "^1.2.5",
