@@ -95,24 +95,33 @@ export class Sliver {
 }
 
 /**
- *
- * @example
- *
- * ```ts
- * const ins = sliver`@help @autocompletion
- *
- * xcat [...dir], Read file like \`cat\` command.
- *
- * -o --option \@bool, Global option.
- *
- * run [@scripts:scriptName], Run some script.
- *
- * -p --pattern \@string, Use glob pattern to run multiple scripts.
- * `
- *
- * ins.type('scripts', ['script1', 'script2']) // register auto completion for shell
- * ```
- *
+@example
+
+```ts
+import { sliver, type ActionParsedArgs } from '@0x-jerry/sliver'
+
+const ins = sliver`
+\@help \@autocompletion
+
+xx [@type:type], A library for create command line interface quickly. ${fn}
+
+-t --test \@test:t1, Test autocompletion.
+
+# aliasName/commandName
+up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${fn}
+
+-s --string \@string:default, sub command option.
+-sm --small \@bool, other option.
+`
+
+ins.type('test', ['t1', 't2', 't3:dev'])
+
+ins.type('type', () => [...ins.typeMapper.keys()])
+
+function fn(_params: string[], opt: ActionParsedArgs) {
+  console.log(JSON.stringify(opt, null, 2))
+}
+```
  */
 export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
   const ins = new Sliver()
