@@ -28,14 +28,14 @@
   "devDependencies": {
     "@0x-jerry/x-release": "^2.2.2",
     "@types/minimist": "^1.2.5",
-    "@types/node": "^20.12.12",
-    "@vitest/coverage-v8": "^1.6.0",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "@types/node": "^20.14.11",
+    "@vitest/coverage-v8": "^2.0.3",
+    "tsup": "^8.1.2",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.3"
   },
   "dependencies": {
-    "@0x-jerry/utils": "^2.2.7",
+    "@0x-jerry/utils": "^2.4.2",
     "minimist": "^1.2.8"
   }
 }

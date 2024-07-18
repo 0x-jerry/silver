@@ -1,4 +1,4 @@
-import { type Arrayable, toArray } from '@0x-jerry/utils'
+import { type Arrayable, ensureArray } from '@0x-jerry/utils'
 import { BuiltinType, type CmdOption, type CmdParameter, type Command } from '../types'
 import { isBuiltinType } from '../utils'
 
@@ -42,7 +42,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
   return generateCode(lines)
 
   function createFn(name: Arrayable<string>, codes: CodeLine[]) {
-    const fnName = generateFnName(toArray(name))
+    const fnName = generateFnName(ensureArray(name))
 
     functions.set(fnName, [`${fnName}() {`, codes, `}`])
 

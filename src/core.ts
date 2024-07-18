@@ -1,16 +1,16 @@
-import { type Value, sleep, textTableToString, isString, toValue } from '@0x-jerry/utils'
 import { parseCliProgram } from './parser'
 import {
   type ActionParsedArgs,
   type Program,
-  CommandFlag,
   type Command,
-  ProgramFlag,
   type CompletionType,
+  CommandFlag,
+  ProgramFlag,
 } from './types'
 import minimist from 'minimist'
 import { isType, builtinType } from './utils'
 import { generateZshAutoCompletion, normalizeStr } from './completion/zsh'
+import { isString, sleep, textTableToString, toValue, type Value } from '@0x-jerry/utils'
 
 export class Sliver {
   conf?: Program
