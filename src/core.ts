@@ -101,13 +101,13 @@ export class Sliver {
  * ```ts
  * const ins = sliver`@help @autocompletion
  *
- * const ins = silver [...dir], Read file like \`cat\` command.
+ * xcat [...dir], Read file like \`cat\` command.
  *
- * -o --option @bool, Global option.
+ * -o --option \@bool, Global option.
  *
  * run [@scripts:scriptName], Run some script.
  *
- * -p --pattern @string, Use glob pattern to run multiple scripts.
+ * -p --pattern \@string, Use glob pattern to run multiple scripts.
  * `
  *
  * ins.type('scripts', ['script1', 'script2']) // register auto completion for shell
