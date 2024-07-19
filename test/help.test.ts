@@ -18,7 +18,7 @@ up/upgrade <@test:dir> [...other] #stopEarly, an sub command.
 
   const ctx = {
     logs: [] as any[],
-    log: null as null | MockInstance<any[], void>,
+    log: null as null | MockInstance<(...args: any[]) => void>,
   }
 
   beforeEach(() => {
