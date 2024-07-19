@@ -12,12 +12,13 @@ semantics.addOperation<any>('e', {
   _iter(...children) {
     return children.map((child) => child.e())
   },
-  Program(programFlags, commands) {
+  Program(version, programFlags, commands) {
     const [mainCommand, ...subCommands] = commands.e() as Command[]
 
     mainCommand.commands = subCommands
 
     const program: Program = {
+      version: version.e().at(0),
       flags: programFlags.e(),
       command: mainCommand,
     }
@@ -142,6 +143,9 @@ semantics.addOperation<any>('e', {
   },
   atFlag(_, name) {
     return name.sourceString
+  },
+  version(arg0, arg1, arg2, arg3, arg4, arg5) {
+    return this.sourceString
   },
 })
 

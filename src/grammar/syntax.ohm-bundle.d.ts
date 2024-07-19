@@ -12,7 +12,8 @@ import {
 } from 'ohm-js';
 
 export interface SilverActionDict<T> extends BaseActionDict<T> {
-  Program?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode) => T;
+  Program?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode) => T;
+  version?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode) => T;
   Option?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   optionShortName?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   optionName?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode) => T;

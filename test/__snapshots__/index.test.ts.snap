@@ -140,5 +140,6 @@ exports[`silver > should parse cli description 1`] = `
     "manual",
     "autocompletion",
   ],
+  "version": undefined,
 }
 `;

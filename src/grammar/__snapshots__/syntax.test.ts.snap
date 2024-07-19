@@ -69,5 +69,6 @@ exports[`syntax > parse program 1`] = `
     "help",
     "autocompletion",
   ],
+  "version": "v1.0.0",
 }
 `;

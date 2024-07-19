@@ -64,6 +64,7 @@ export interface Program {
    * {@link ProgramFlag}
    */
   flags?: string[]
+  version?: string
 
   command: Command
 

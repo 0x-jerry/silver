@@ -1,5 +1,7 @@
 Silver {
-  Program = atFlag* Command*
+  Program = version? atFlag* Command*
+
+  version = "v" digit+ "." digit+ "." digit+
 
   Option = optionShortName? optionName OptionType? "," description
 

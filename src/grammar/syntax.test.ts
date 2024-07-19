@@ -3,7 +3,7 @@ import { parseProgram } from './semantics'
 describe('syntax', () => {
   it('parse program', () => {
     const content = `
-    @help @autocompletion
+v1.0.0 @help @autocompletion
 
 xx [@type:type:t1], A library for create command line interface quickly.
 
