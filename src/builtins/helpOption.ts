@@ -1,33 +1,51 @@
 import { textTableToString } from '@0x-jerry/utils'
 import type { Command } from '../types'
+import pc from 'picocolors'
 
 export function generateHelpMsg(conf: Command) {
   const msgs: string[] = []
 
-  const usageDescription = conf.commands?.length ? `[COMMAND] [OPTIONS]` : `[OPTIONS]`
+  const commandName = getCommandName(conf)
 
-  const composeAlias = (cmd: Command) => [cmd.alias, cmd.name].filter(Boolean).join('/')
-  const usage = `${composeAlias(conf)} ${usageDescription} ${conf.description}`
+  const description = `${pc.bold(pc.cyan(commandName))} ${conf.description}`
+  msgs.push(description, '')
 
-  msgs.push(usage, '')
+  const hasCommand = conf.commands?.length ? '<command>' : ''
+  const usage = `Usage: ${commandName} ${hasCommand} [...flags] [...args]`
+
+  msgs.push(pc.bold(usage), '')
 
   if (conf.commands?.length) {
-    const commands = conf.commands.map((item) => [composeAlias(item), item.description])
+    msgs.push(pc.bold('Commands:'), '')
+
+    const commands = conf.commands.map((item) => [getCommandName(item, 10), '  ', item.description])
 
     const s = textTableToString(commands)
     msgs.push(s, '')
   }
 
   if (conf.options?.length) {
+    msgs.push(pc.bold('Options:'), '')
+
     const options = conf.options.map((item) => {
-      const name =
-        item.alias && item.alias !== item.name ? `--${item.name} -${item.alias}` : `--${item.name}`
-      return [name, item.description]
+      const names = [`--${item.name}`]
+      if (item.alias) {
+        names.push(`-${item.alias}`)
+      }
+
+      return [...names, '    ', item.description]
     })
 
     const s = textTableToString(options)
+
     msgs.push(s, '')
   }
 
   return msgs.join('\n')
+}
+
+function getCommandName(cmd: Command, min_width?: number) {
+  const str = [cmd.alias, cmd.name].filter(Boolean).join('/')
+
+  return min_width ? str.padEnd(min_width, ' ') : str
 }
