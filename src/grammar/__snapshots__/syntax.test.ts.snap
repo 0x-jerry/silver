@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`syntax > parse program 1`] = `
+{
+  "command": {
+    "commands": [
+      {
+        "alias": "up",
+        "description": "an sub command.",
+        "flags": [
+          "stopEarly",
+        ],
+        "name": "upgrade",
+        "options": [
+          {
+            "alias": "s",
+            "defaultValue": "default",
+            "description": "sub command option.",
+            "name": "string",
+            "type": "string",
+          },
+          {
+            "alias": "m",
+            "defaultValue": undefined,
+            "description": "other option.",
+            "name": "small",
+            "type": "bool",
+          },
+        ],
+        "parameters": [
+          {
+            "defaultValue": undefined,
+            "handleRestAll": false,
+            "name": "dir",
+            "required": true,
+            "type": "test",
+          },
+          {
+            "defaultValue": undefined,
+            "handleRestAll": true,
+            "name": "other",
+            "type": undefined,
+          },
+        ],
+      },
+    ],
+    "description": "A library for create command line interface quickly.",
+    "flags": [],
+    "name": "xx",
+    "options": [
+      {
+        "alias": "t",
+        "defaultValue": "t1",
+        "description": "Test autocompletion.",
+        "name": "test",
+        "type": "test",
+      },
+    ],
+    "parameters": [
+      {
+        "defaultValue": "t1",
+        "handleRestAll": false,
+        "name": "type",
+        "type": "type",
+      },
+    ],
+  },
+  "flags": [
+    "help",
+    "autocompletion",
+  ],
+}
+`;

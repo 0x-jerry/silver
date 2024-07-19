@@ -1,0 +1,37 @@
+Silver {
+  Program = atFlag* Command*
+
+  Option = optionShortName? optionName OptionType? "," description
+
+  optionShortName = "-" letter
+
+  optionName = "--" letter+
+
+  OptionType
+    = atFlag ":" defaultValue  -- default
+    | atFlag                   -- optional
+
+  defaultValue = (letter | digit)+
+
+  Command = CommandDefinition Option*
+
+  CommandDefinition
+    = CommandShortName "/" CommandName CommandParameter* hashFlag* "," description  -- shortcut
+    | CommandName CommandParameter* hashFlag* "," description                       -- normal
+  CommandShortName = word
+  CommandName = word
+
+  CommandParameter
+    = "[" "..."? CommandParameterType? CommandParameterName CommandParameterDefaultValue? "]"  -- optional
+    | "<" "..."? CommandParameterType? CommandParameterName CommandParameterDefaultValue? ">"  -- required
+
+  CommandParameterDefaultValue = ":" defaultValue
+
+  CommandParameterType = atFlag ":"
+  CommandParameterName = word
+
+  atFlag = "@" word
+  hashFlag = "#" word
+  description = (~"\n" any)+
+  word = letter+
+}
