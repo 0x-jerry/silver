@@ -1,5 +1,8 @@
 /**
- * @example -o --option #flag @type:defaultValue, description
+ *
+ * `#flag` syntax is not support yet.
+ *
+ * @example -o --option @type:defaultValue #flag, description
  */
 export interface CmdOption {
   name?: string
@@ -10,13 +13,20 @@ export interface CmdOption {
 
   description?: string
 
+  /**
+   * Not support
+   *
+   * @todo implement it
+   *
+   * {@link OptionFlag}
+   */
   flags?: string[]
 }
 
 /**
- * @example [@type:name:defaultValue], not required, single
- * @example <@type:name:defaultValue>, required, single
- * @example [...@type:name:defaultValue] array
+ * @example [@type:name:defaultValue]        // optional parameter
+ * @example <@type:name:defaultValue>        // required parameter
+ * @example [...@type:name]                  // array parameters
  */
 export interface CmdParameter {
   name: string
@@ -39,6 +49,9 @@ export interface Command {
 
   options?: CmdOption[]
 
+  /**
+   * {@link CommandFlag}
+   */
   flags?: string[]
 
   parameters?: CmdParameter[]
@@ -47,6 +60,9 @@ export interface Command {
 }
 
 export interface Program {
+  /**
+   * {@link ProgramFlag}
+   */
   flags?: string[]
 
   command: Command
