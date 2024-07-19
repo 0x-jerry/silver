@@ -152,5 +152,7 @@ export function parseProgram(content: string) {
     throw new Error(result.message)
   }
 
-  return semantics(result).e()
+  const p: Program = semantics(result).e()
+
+  return p
 }

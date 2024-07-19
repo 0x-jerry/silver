@@ -1,0 +1,1 @@
+export { parseProgram } from './semantics'

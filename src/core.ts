@@ -9,8 +9,9 @@ import {
 } from './types'
 import minimist from 'minimist'
 import { isType, builtinType } from './utils'
-import { generateZshAutoCompletion, normalizeStr } from './completion/zsh'
-import { isString, sleep, textTableToString, toValue, type Value } from '@0x-jerry/utils'
+import { sleep, toValue, type Value } from '@0x-jerry/utils'
+import { generateHelpMsg } from './builtins/helpOption'
+import { createCompletionCommand } from './builtins/completionCommand'
 
 export class Sliver {
   conf?: Program
@@ -172,85 +173,4 @@ function parseArgv(argv: string[], program: Command) {
   args['--'] ||= []
 
   return args as ActionParsedArgs
-}
-
-function generateHelpMsg(conf: Command) {
-  const msgs: string[] = []
-
-  const usageDescription = conf.commands?.length ? `[COMMAND] [OPTIONS]` : `[OPTIONS]`
-
-  const composeAlias = (cmd: Command) => [cmd.alias, cmd.name].filter(Boolean).join('/')
-  const usage = `${composeAlias(conf)} ${usageDescription} ${conf.description}`
-
-  msgs.push(usage, '')
-
-  if (conf.commands?.length) {
-    const commands = conf.commands.map((item) => [composeAlias(item), item.description])
-
-    const s = textTableToString(commands)
-    msgs.push(s, '')
-  }
-
-  if (conf.options?.length) {
-    const options = conf.options.map((item) => {
-      const name =
-        item.alias && item.alias !== item.name ? `--${item.name} -${item.alias}` : `--${item.name}`
-      return [name, item.description]
-    })
-
-    const s = textTableToString(options)
-    msgs.push(s, '')
-  }
-
-  return msgs.join('\n')
-}
-
-function createCompletionCommand(ins: Sliver) {
-  const conf = parseCliProgram`
-completion [type], Generate autocompletion for zsh.
-
---install, Install autocompletion for zsh, not implement yet.
---uninstall, Uninstall autocompletion for zsh, not implement yet.
-  `
-
-  conf.command.action = 'completion'
-
-  return {
-    cmd: conf.command,
-    action,
-  }
-
-  async function action(params: string[], opt: { install?: boolean; uninstall?: boolean }) {
-    const [type] = params
-
-    if (type) {
-      const completions = await ins.getCompletion(type)
-
-      const s = completions
-        .map((item) => {
-          return isString(item)
-            ? normalizeStr(item)
-            : item.desc
-            ? `${normalizeStr(item.label)}\\:${item.desc}`
-            : normalizeStr(item.label)
-        })
-        .join('\n')
-      process.stdout.write(s)
-      return
-    }
-
-    if (opt.install) {
-      return
-    }
-
-    if (opt.uninstall) {
-      return
-    }
-
-    if (ins.conf?.command) {
-      const zshCode = generateZshAutoCompletion(ins.conf?.command)
-
-      console.log(zshCode)
-    }
-  }
 }
