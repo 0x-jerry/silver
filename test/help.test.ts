@@ -9,11 +9,10 @@ xx [@type:type], A library for create command line interface quickly.
 
 -t --test @test:t1, Test autocompletion.
 
-# aliasName/commandName
 up/upgrade <@test:dir> [...other] #stopEarly, an sub command.
 
 -s --string @string:default, sub command option.
--sm --small @bool, other option.
+--small @bool, other option.
 `
 
   const ctx = {

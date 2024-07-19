@@ -2,23 +2,33 @@
 
 exports[`test help message > should print main help message 1`] = `
 [
-  "xx [COMMAND] [OPTIONS] A library for create command line interface quickly.
+  "[1m[36mxx[39m[22m A library for create command line interface quickly.
 
-up/upgrade an sub command.                 
-completion Generate autocompletion for zsh.
+[1mUsage: xx <command> [...flags] [...args][22m
 
---test -t Test autocompletion.
---help -h Print help messages.
+[1mCommands:[22m
+
+up/upgrade      an sub command.                 
+completion      Generate autocompletion for zsh.
+
+[1mOptions:[22m
+
+--test -t      Test autocompletion.        
+--help -h      Print help text for command.
 ",
 ]
 `;
 
 exports[`test help message > should print sub command help message 1`] = `
 [
-  "up/upgrade [OPTIONS] an sub command.
+  "[1m[36mup/upgrade[39m[22m an sub command.
 
---string -s sub command option.
---small -sm other option.      
+[1mUsage: up/upgrade  [...flags] [...args][22m
+
+[1mOptions:[22m
+
+--string -s      sub command option.
+--small          other option.      
 ",
 ]
 `;
