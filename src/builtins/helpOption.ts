@@ -18,7 +18,7 @@ export function generateHelpMsg(conf: Command) {
   if (conf.commands?.length) {
     msgs.push(pc.bold('Commands:'), '')
 
-    const commands = conf.commands.map((item) => [getCommandName(item, 10), '  ', item.description])
+    const commands = conf.commands.map((item) => [getCommandName(item), '    ', item.description])
 
     const s = textTableToString(commands)
     msgs.push(s, '')
@@ -28,10 +28,7 @@ export function generateHelpMsg(conf: Command) {
     msgs.push(pc.bold('Options:'), '')
 
     const options = conf.options.map((item) => {
-      const names = [`--${item.name}`]
-      if (item.alias) {
-        names.push(`-${item.alias}`)
-      }
+      const names = [`--${item.name}`, item.alias ? `-${item.alias}` : '']
 
       return [...names, '    ', item.description]
     })
