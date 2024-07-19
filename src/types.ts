@@ -83,11 +83,6 @@ export enum ProgramFlag {
   Manual = 'manual',
 
   /**
-   * Generate help option `-h --help`
-   */
-  Help = 'help',
-
-  /**
    * Add `completion` sub command
    */
   Autocompletion = 'autocompletion',

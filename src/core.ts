@@ -21,7 +21,7 @@ export class Sliver {
   parse(raw: TemplateStringsArray, ...tokens: any[]) {
     this.conf = parseCliProgram(raw, ...tokens)
 
-    if (this.conf.flags?.includes(ProgramFlag.Help)) {
+    {
       // add help option
       this.conf.command.options ||= []
 
@@ -29,7 +29,7 @@ export class Sliver {
         name: 'help',
         alias: 'h',
         type: 'bool',
-        description: 'Print help messages.',
+        description: 'Print help text for command.',
       })
     }
 
@@ -81,7 +81,7 @@ export class Sliver {
 
     const args = parseArgv(argv, command)
 
-    if (this.conf.flags?.includes(ProgramFlag.Help) && (args.help || args.h)) {
+    if (args.help || args.h) {
       // force to print help message
       console.log(generateHelpMsg(command))
 
