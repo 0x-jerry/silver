@@ -16,9 +16,9 @@ Default behavior:
 import { silver } from '@0x-jerry/silver'
 // @autocompletion will enable completion subcommand to generate autocomplete script
 const ins = sliver`
-@autocompletion
+v1.0.0 @autocompletion
 
-silver [@type:type], Let writing CLI like writing document. ${defaultAction}
+Silver, let you writing CLI like writing document. ${defaultAction}
 
 -t --test @test:defaultValue, Test autocompletion.
 

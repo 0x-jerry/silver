@@ -83,7 +83,7 @@ export class Sliver {
 
     if (args.help || args.h) {
       // force to print help message
-      console.log(generateHelpMsg(command))
+      console.log(generateHelpMsg(command, this.conf))
 
       return
     }
@@ -101,9 +101,9 @@ export class Sliver {
 import { silver } from '@0x-jerry/silver'
 // \@autocompletion will enable completion subcommand to generate autocomplete script
 const ins = sliver`
-\@autocompletion
+v1.0.0 \@autocompletion
 
-silver [@type:type], Let writing CLI like writing document. ${defaultAction}
+Silver [@type:type], let you writing CLI like writing document. ${defaultAction}
 
 -t --test \@test:defaultValue, Test autocompletion.
 

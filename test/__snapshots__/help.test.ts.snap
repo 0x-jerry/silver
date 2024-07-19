@@ -2,7 +2,7 @@
 
 exports[`test help message > should print main help message 1`] = `
 [
-  "[1m[36mxx[39m[22m A library for create command line interface quickly.
+  "[1m[36mxx/v1.0.0[39m[22m A library for create command line interface quickly.
 
 [1mUsage: xx <command> [...flags] [...args][22m
 
@@ -21,7 +21,7 @@ completion      Generate autocompletion for zsh.
 
 exports[`test help message > should print sub command help message 1`] = `
 [
-  "[1m[36mup/upgrade[39m[22m an sub command.
+  "[1m[36mup/upgrade/v1.0.0[39m[22m an sub command.
 
 [1mUsage: up/upgrade  [...flags] [...args][22m
 

@@ -3,7 +3,7 @@ import { sliver } from '../src'
 
 describe('test help message', () => {
   const ins = sliver`
-@help @autocompletion @manual
+v1.0.0 @autocompletion @manual
 
 xx [@type:type], A library for create command line interface quickly.
 

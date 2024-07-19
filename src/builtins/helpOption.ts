@@ -1,14 +1,15 @@
 import { textTableToString } from '@0x-jerry/utils'
-import type { Command } from '../types'
+import type { Command, Program } from '../types'
 import pc from 'picocolors'
 
-export function generateHelpMsg(conf: Command) {
+export function generateHelpMsg(conf: Command, program: Program) {
   const msgs: string[] = []
 
   const commandName = getCommandName(conf)
 
-  const description = `${pc.bold(pc.cyan(commandName))} ${conf.description}`
-  msgs.push(description, '')
+  const commandVersion = program.version ? `/${program.version}` : ''
+  const commandDescription = `${pc.bold(pc.cyan(commandName + commandVersion))} ${conf.description}`
+  msgs.push(commandDescription, '')
 
   const hasCommand = conf.commands?.length ? '<command>' : ''
   const usage = `Usage: ${commandName} ${hasCommand} [...flags] [...args]`
