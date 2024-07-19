@@ -9,7 +9,7 @@ _get_type() {
 
 ___xx_commands_or_params() {
   _alternative \
-  'commands:commands:((upgrade\:"an sub : command." up\\:dev\:"an sub : command." completion\:"Generate autocompletion for zsh."))' \
+  'commands:commands:((upgrade\:"an sub : command. " up\:"an sub : command. " completion\:"Generate autocompletion for zsh."))' \
   ': :_files'
 }
 ___xx_commands() {
@@ -17,11 +17,11 @@ ___xx_commands() {
   ': :{___xx_commands_or_params}' \
   '*: :_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
-  {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
+  {-n,--number}'[an number option with default value, and it is a global option. @default is 123]' \
   {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
-  {-b,--bool}'[an boolean option without default value. @default is false]' \
+  {-b,--bool}'[an boolean option without default value.]' \
   {-o,--other}'[an option without specify a type will be a string.]: :_files' \
-  {-h,--help}'[Print help messages.]'
+  {-h,--help}'[Print help text for command.]'
 }
 _xx_upgrade_option() {
   _arguments -s \
@@ -29,12 +29,12 @@ _xx_upgrade_option() {
   ': :_files' \
   '*: :_files' \
   {-s,--string}'[sub command option. @default is default]' \
-  {-sm,--small}'[other option. @default is false]' \
-  {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
+  '--small[other option.]' \
+  {-n,--number}'[an number option with default value, and it is a global option. @default is 123]' \
   {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
-  {-b,--bool}'[an boolean option without default value. @default is false]' \
+  {-b,--bool}'[an boolean option without default value.]' \
   {-o,--other}'[an option without specify a type will be a string.]: :_files' \
-  {-h,--help}'[Print help messages.]'
+  {-h,--help}'[Print help text for command.]'
 }
 _xx_completion_option() {
   _arguments -s \
@@ -44,15 +44,15 @@ _xx_completion_option() {
   '--install[Install autocompletion for zsh, not implement yet.]: :_files' \
   '--uninstall[Uninstall autocompletion for zsh, not implement yet.]: :_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
-  {-n,--number}'[an number option with default value, and it is a global option. @default is 123.34]' \
+  {-n,--number}'[an number option with default value, and it is a global option. @default is 123]' \
   {-e,--enum}'[an custom option with default value. @default is a2]: :{_get_type custom}' \
-  {-b,--bool}'[an boolean option without default value. @default is false]' \
+  {-b,--bool}'[an boolean option without default value.]' \
   {-o,--other}'[an option without specify a type will be a string.]: :_files' \
-  {-h,--help}'[Print help messages.]'
+  {-h,--help}'[Print help text for command.]'
 }
 ___xx_sub_commands() {
   case $line[1] in
-  up:dev|upgrade)
+  up|upgrade)
     _xx_upgrade_option
     ;;
   completion)

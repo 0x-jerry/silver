@@ -3,16 +3,16 @@
 exports[`silver > should parse cli description 1`] = `
 {
   "actions": Map {
-    "__token_id__1" => [MockFunction spy],
+    "__#0#__" => [MockFunction spy],
     "completion" => [Function],
   },
   "command": {
-    "action": "__token_id__1",
+    "action": "__#0#__",
     "commands": [
       {
-        "action": "__token_id__1",
+        "action": "__#0#__",
         "alias": "up",
-        "description": "an sub command.",
+        "description": "an sub command. ",
         "flags": [
           "stopEarly",
         ],
@@ -26,8 +26,8 @@ exports[`silver > should parse cli description 1`] = `
             "type": "string",
           },
           {
-            "alias": "sm",
-            "defaultValue": true,
+            "alias": "",
+            "defaultValue": "true",
             "description": "other option.",
             "name": "small",
             "type": "bool",
@@ -36,41 +36,53 @@ exports[`silver > should parse cli description 1`] = `
         "parameters": [
           {
             "defaultValue": undefined,
+            "handleRestAll": false,
             "name": "dir",
             "required": true,
+            "type": undefined,
           },
           {
             "defaultValue": undefined,
             "handleRestAll": true,
             "name": "other",
-            "required": false,
+            "type": undefined,
           },
         ],
       },
       {
         "action": "completion",
+        "commands": [],
         "description": "Generate autocompletion for zsh.",
+        "flags": [],
         "name": "completion",
         "options": [
           {
+            "alias": "",
+            "defaultValue": undefined,
             "description": "Install autocompletion for zsh, not implement yet.",
             "name": "install",
+            "type": undefined,
           },
           {
+            "alias": "",
+            "defaultValue": undefined,
             "description": "Uninstall autocompletion for zsh, not implement yet.",
             "name": "uninstall",
+            "type": undefined,
           },
         ],
         "parameters": [
           {
             "defaultValue": undefined,
+            "handleRestAll": false,
             "name": "type",
-            "required": false,
+            "type": undefined,
           },
         ],
       },
     ],
-    "description": "A library for create command line interface quickly.",
+    "description": "A library for create command line interface quickly. ",
+    "flags": [],
     "name": "commandName",
     "options": [
       {
@@ -82,11 +94,8 @@ exports[`silver > should parse cli description 1`] = `
       },
       {
         "alias": "n",
-        "defaultValue": 123.34,
+        "defaultValue": "123",
         "description": "an number option with default value, and it's a global option.",
-        "flags": [
-          "global",
-        ],
         "name": "number",
         "type": "number",
       },
@@ -99,19 +108,21 @@ exports[`silver > should parse cli description 1`] = `
       },
       {
         "alias": "b",
-        "defaultValue": false,
+        "defaultValue": undefined,
         "description": "an boolean option without default value.",
         "name": "bool",
         "type": "bool",
       },
       {
         "alias": "o",
+        "defaultValue": undefined,
         "description": "an option without specify a type will be a string.",
         "name": "other",
+        "type": undefined,
       },
       {
         "alias": "h",
-        "description": "Print help messages.",
+        "description": "Print help text for command.",
         "name": "help",
         "type": "bool",
       },
@@ -119,15 +130,15 @@ exports[`silver > should parse cli description 1`] = `
     "parameters": [
       {
         "defaultValue": undefined,
+        "handleRestAll": false,
         "name": "dir",
-        "required": false,
+        "type": undefined,
       },
     ],
   },
   "flags": [
-    "help",
-    "autocompletion",
     "manual",
+    "autocompletion",
   ],
 }
 `;

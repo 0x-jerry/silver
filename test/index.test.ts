@@ -8,7 +8,7 @@ describe('silver', () => {
     const fn = vi.fn()
 
     const ins = sliver`
-@manual
+@manual @autocompletion
 
 commandName [dir], A library for create command line interface quickly. ${fn}
 
@@ -58,7 +58,7 @@ sub, test command. ${fn}
     const fn = vi.fn()
 
     const ins = sliver`
-@manual
+@manual @autocompletion
 
 xx [dir], A library for create command line interface quickly. ${fn}
 
