@@ -14,22 +14,18 @@ Default behavior:
 
 ```ts
 import { silver } from '@0x-jerry/silver'
-// @help will enable -h option
 // @autocompletion will enable completion subcommand to generate autocomplete script
 const ins = sliver`
-@help @autocompletion
+@autocompletion
 
 silver [@type:type], Let writing CLI like writing document. ${defaultAction}
 
-# -t/--test is a global option
 -t --test @test:defaultValue, Test autocompletion.
 
-# A comment is start with a # symbol.
-# aliasName/commandName, \`up\` is a sub command.
 up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${upgradeAction}
 
 -s --string @string:default, sub command option.
--sm --small @bool, other option.
+--small @bool, other option.
 `
 
 // register autocomplete
@@ -46,7 +42,7 @@ function upgradeAction([dir], options) {
 
 ## Syntax Detail
 
-TODO
+Please see [syntax.ohm](./src/grammar//syntax.ohm).
 
 ## Thanks
 

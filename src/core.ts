@@ -97,30 +97,31 @@ export class Sliver {
 
 /**
 @example
-
 ```ts
-import { sliver, type ActionParsedArgs } from '@0x-jerry/sliver'
-
+import { silver } from '@0x-jerry/silver'
+// \@autocompletion will enable completion subcommand to generate autocomplete script
 const ins = sliver`
-\@help \@autocompletion
+\@autocompletion
 
-xx [@type:type], A library for create command line interface quickly. ${fn}
+silver [@type:type], Let writing CLI like writing document. ${defaultAction}
 
--t --test \@test:t1, Test autocompletion.
+-t --test \@test:defaultValue, Test autocompletion.
 
-# aliasName/commandName
-up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${fn}
+up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${upgradeAction}
 
 -s --string \@string:default, sub command option.
--sm --small \@bool, other option.
+--small \@bool, other option.
 `
 
-ins.type('test', ['t1', 't2', 't3:dev'])
+// register autocomplete
+ins.type('type', () => ['t1', 't2', 't3'])
 
-ins.type('type', () => [...ins.typeMapper.keys()])
+function defaultAction([type], options) {
+  console.log(type, options)
+}
 
-function fn(_params: string[], opt: ActionParsedArgs) {
-  console.log(JSON.stringify(opt, null, 2))
+function upgradeAction([dir], options) {
+  console.log(dir, options)
 }
 ```
  */
