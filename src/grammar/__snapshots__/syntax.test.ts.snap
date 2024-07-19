@@ -20,7 +20,7 @@ exports[`syntax > parse program 1`] = `
             "type": "string",
           },
           {
-            "alias": "m",
+            "alias": "",
             "defaultValue": undefined,
             "description": "other option.",
             "name": "small",

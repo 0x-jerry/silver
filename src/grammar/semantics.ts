@@ -109,13 +109,13 @@ semantics.addOperation<any>('e', {
    * @returns
    */
   Option(shortName, name, type, _, description) {
-    const _type: OptionType = type.e().at(0)
+    const _type: OptionType | undefined = type.e().at(0)
 
     const option: CmdOption = {
       name: name.sourceString.slice(2),
       alias: shortName.sourceString.slice(1),
-      type: _type.name,
-      defaultValue: _type.defaultValue,
+      type: _type?.name,
+      defaultValue: _type?.defaultValue,
       description: description.sourceString,
     }
 
