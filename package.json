@@ -37,7 +37,7 @@
     "vitest": "^2.0.3"
   },
   "dependencies": {
-    "@0x-jerry/utils": "^2.4.2",
+    "@0x-jerry/utils": "^2.4.3",
     "minimist": "^1.2.8",
     "ohm-js": "^17.1.0",
     "picocolors": "^1.0.1"

@@ -8,11 +8,13 @@ export function generateHelpMsg(conf: Command, program: Program) {
   const commandName = getCommandName(conf)
 
   const commandVersion = program.version ? `/${program.version}` : ''
-  const commandDescription = `${pc.bold(pc.cyan(commandName + commandVersion))} ${conf.description}`
+  const commandDescription = `${commandName}${pc.dim(commandVersion)} ${conf.description}`
   msgs.push(commandDescription, '')
 
   const hasCommand = conf.commands?.length ? '<command>' : ''
-  const usage = `Usage: ${commandName} ${hasCommand} [...flags] [...args]`
+  const programCommandName =
+    program.command === conf ? commandName : `${program.command.name} ${commandName}`
+  const usage = `Usage: ${programCommandName} ${hasCommand} [...flags] [...args]`
 
   msgs.push(pc.bold(usage), '')
 
@@ -29,7 +31,7 @@ export function generateHelpMsg(conf: Command, program: Program) {
     msgs.push(pc.bold('Options:'), '')
 
     const options = conf.options.map((item) => {
-      const names = [`--${item.name}`, item.alias ? `-${item.alias}` : '']
+      const names = [pc.dim(item.alias ? `-${item.alias}` : ''), pc.cyan(`--${item.name}`)]
 
       return [...names, '    ', item.description]
     })
@@ -42,8 +44,8 @@ export function generateHelpMsg(conf: Command, program: Program) {
   return msgs.join('\n')
 }
 
-function getCommandName(cmd: Command, min_width?: number) {
-  const str = [cmd.alias, cmd.name].filter(Boolean).join('/')
+function getCommandName(cmd: Command) {
+  const str = pc.magenta(cmd.name) + (cmd.alias ? pc.dim(`(${cmd.alias})`) : '')
 
-  return min_width ? str.padEnd(min_width, ' ') : str
+  return str
 }
