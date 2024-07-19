@@ -34,7 +34,7 @@ export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): Pr
 
     const tokenId = actionIdMapper.get(token)
 
-    return pre + cur + (tokenId ? ` ${tokenId} ` : token ?? '')
+    return pre + cur + (tokenId ? `${tokenId}` : token ?? '')
   }, '')
 
   const conf = parseProgram(finalStr)
