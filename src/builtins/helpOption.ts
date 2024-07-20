@@ -1,5 +1,5 @@
 import { textTableToString } from '@0x-jerry/utils'
-import type { Command, Program } from '../types'
+import type { CmdParameter, Command, Program } from '../types'
 import pc from 'picocolors'
 
 export function generateHelpMsg(conf: Command, program: Program) {
@@ -14,14 +14,20 @@ export function generateHelpMsg(conf: Command, program: Program) {
   const hasCommand = conf.commands?.length ? '<command>' : ''
   const programCommandName =
     program.command === conf ? commandName : `${program.command.name} ${commandName}`
-  const usage = `Usage: ${programCommandName} ${hasCommand} [...flags] [...args]`
+  const argsHelpMsg = conf.parameters?.map((n) => parameterDescription(n)).join(' ')
+  const usage = `Usage: ${programCommandName} ${hasCommand} [...flags] ${argsHelpMsg}`.trim()
 
   msgs.push(pc.bold(usage), '')
 
   if (conf.commands?.length) {
     msgs.push(pc.bold('Commands:'), '')
 
-    const commands = conf.commands.map((item) => [getCommandName(item), '    ', item.description])
+    const cmdArgsHelpMsg = conf.parameters?.map((n) => parameterDescription(n)).join(' ') || '  '
+    const commands = conf.commands.map((item) => [
+      getCommandName(item),
+      pc.dim(` ${cmdArgsHelpMsg} `),
+      item.description,
+    ])
 
     const s = textTableToString(commands)
     msgs.push(s, '')
@@ -33,7 +39,10 @@ export function generateHelpMsg(conf: Command, program: Program) {
     const options = conf.options.map((item) => {
       const names = [pc.dim(item.alias ? `-${item.alias}` : ''), pc.cyan(`--${item.name}`)]
 
-      return [...names, '    ', item.description]
+      const optType =
+        [item.type && `@${item.type}`, item.defaultValue].filter(Boolean).join(':') || '  '
+
+      return [...names, pc.dim(` ${optType} `), item.description]
     })
 
     const s = textTableToString(options)
@@ -42,6 +51,18 @@ export function generateHelpMsg(conf: Command, program: Program) {
   }
 
   return msgs.join('\n')
+}
+
+function parameterDescription(parameter: CmdParameter) {
+  const { required = false, handleRestAll, name, type, defaultValue } = parameter
+
+  const _name = [type ? `@${type}` : '', name, defaultValue].filter(Boolean).join(':')
+
+  if (required) {
+    return handleRestAll ? `<...${_name}>` : `<${_name}>`
+  }
+
+  return handleRestAll ? `[...${_name}]` : `[${_name}]`
 }
 
 function getCommandName(cmd: Command) {
