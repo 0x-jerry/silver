@@ -10,11 +10,13 @@ pnpm i @0x-jerry/silver
 
 ## Usage
 
-Default behavior:
+Example:
 
 ```ts
 import { silver } from '@0x-jerry/silver'
-// @autocompletion will enable completion subcommand to generate autocomplete script
+// @autocompletion will enable `completion` subcommand to generate autocomplete script
+// Autocompletion only support zsh for now, and need to install manually
+// Manual install: you need to append `source <(silver completion)` to `.zshrc`
 const ins = sliver`
 v1.0.0 @autocompletion
 
@@ -49,3 +51,4 @@ Please see [syntax.ohm](./src/grammar//syntax.ohm).
 - [vitest](https://vitest.dev/)
 - [minimist](https://github.com/minimistjs/minimist)
 - [tsup](https://tsup.egoist.dev)
+- [ohm-js](https://ohmjs.org/)
