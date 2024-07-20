@@ -22,12 +22,11 @@ export function generateHelpMsg(conf: Command, program: Program) {
   if (conf.commands?.length) {
     msgs.push(pc.bold('Commands:'), '')
 
-    const cmdArgsHelpMsg = conf.parameters?.map((n) => parameterDescription(n)).join(' ') || '  '
-    const commands = conf.commands.map((item) => [
-      getCommandName(item),
-      pc.dim(` ${cmdArgsHelpMsg} `),
-      item.description,
-    ])
+    const commands = conf.commands.map((item) => {
+      const cmdArgsHelpMsg = item.parameters?.map((n) => parameterDescription(n)).join(' ') || '  '
+
+      return [getCommandName(item), pc.dim(` ${cmdArgsHelpMsg} `), item.description]
+    })
 
     const s = textTableToString(commands)
     msgs.push(s, '')
