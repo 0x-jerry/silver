@@ -10,7 +10,7 @@ describe('silver', () => {
     const ins = sliver`
 @manual @autocompletion
 
-command2Name [dir], A library for create command line interface quickly. ${fn}
+commandName [dir], A library for create command line interface quickly. ${fn}
 
 -s --string @string:cool, An string option with default value.
 -n --number @number:123, an number option with default value, and it's a global option.
@@ -78,5 +78,29 @@ up/upgrade <dir> [...other] #stopEarly, an sub : command. ${fn}
     const code = generateZshAutoCompletion(ins.conf!.command)
 
     expect(code).toMatchFileSnapshot(`shell/completion.zsh`)
+  })
+
+  it('should support alnum as command name', () => {
+    const fn = vi.fn()
+
+    const ins = sliver`
+@manual @autocompletion
+
+o2_ts [dir], A library for create command line interface quickly. ${fn}
+`
+
+    expect(ins.conf?.command.name).toBe('o2_ts')
+  })
+
+  it('should support "-_" character as command parameters', () => {
+    const fn = vi.fn()
+
+    const ins = sliver`
+@manual @autocompletion
+
+o2ts [param_cool-name], A library for create command line interface quickly. ${fn}
+`
+
+    expect(ins.conf?.command.parameters?.at(0)?.name).toBe('param_cool-name')
   })
 })

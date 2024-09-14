@@ -5,7 +5,7 @@ import { sliver, type ActionParsedArgs } from '../src'
 const ins = sliver`
 v1.0.0 @help @autocompletion
 
-Silver [@type:type], is a library for create command line interface quickly. ${fn}
+Silver [@type:param-name], is a library for create command line interface quickly. ${fn}
 
 -t --test @test:t1, Test autocompletion.
 

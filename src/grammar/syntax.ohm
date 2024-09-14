@@ -30,10 +30,10 @@ Silver {
   CommandParameterDefaultValue = ":" defaultValue
 
   CommandParameterType = atFlag ":"
-  CommandParameterName = word
+  CommandParameterName = letter ("_" | "-" | alnum)*
 
   atFlag = "@" word
   hashFlag = "#" word
   description = (~"\n" any)+
-  word = letter alnum*
+  word = letter ("_" | alnum)*
 }

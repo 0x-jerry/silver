@@ -32,7 +32,7 @@ export interface SilverActionDict<T> extends BaseActionDict<T> {
   CommandParameter?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   CommandParameterDefaultValue?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   CommandParameterType?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
-  CommandParameterName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  CommandParameterName?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
   atFlag?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   hashFlag?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   description?: (this: NonterminalNode, arg0: IterationNode) => T;
