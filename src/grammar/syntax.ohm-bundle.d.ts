@@ -36,7 +36,7 @@ export interface SilverActionDict<T> extends BaseActionDict<T> {
   atFlag?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   hashFlag?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   description?: (this: NonterminalNode, arg0: IterationNode) => T;
-  word?: (this: NonterminalNode, arg0: IterationNode) => T;
+  word?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
 }
 
 export interface SilverSemantics extends Semantics {

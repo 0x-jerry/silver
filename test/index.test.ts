@@ -10,7 +10,7 @@ describe('silver', () => {
     const ins = sliver`
 @manual @autocompletion
 
-commandName [dir], A library for create command line interface quickly. ${fn}
+command2Name [dir], A library for create command line interface quickly. ${fn}
 
 -s --string @string:cool, An string option with default value.
 -n --number @number:123, an number option with default value, and it's a global option.

@@ -35,5 +35,5 @@ Silver {
   atFlag = "@" word
   hashFlag = "#" word
   description = (~"\n" any)+
-  word = letter+
+  word = letter alnum*
 }

@@ -83,7 +83,7 @@ exports[`silver > should parse cli description 1`] = `
     ],
     "description": "A library for create command line interface quickly. ",
     "flags": [],
-    "name": "commandName",
+    "name": "command2Name",
     "options": [
       {
         "alias": "s",
