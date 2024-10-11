@@ -4,7 +4,7 @@ exports[`test help message > should print main help message 1`] = `
 [
   "[35mxx[39m[2m/v1.0.0[22m A library for create command line interface quickly.
 
-[1mUsage: [35mxx[39m <command> [...flags] [@type:type][22m
+[1mUsage: [35mxx[39m <command> [...options] [@type:type][22m
 
 [1mCommands:[22m
 
@@ -23,7 +23,7 @@ exports[`test help message > should print sub command help message 1`] = `
 [
   "[35mupgrade[39m[2m(up)[22m[2m/v1.0.0[22m an sub command.
 
-[1mUsage: xx [35mupgrade[39m[2m(up)[22m[1m  [...flags] <@test:dir> [...other][22m
+[1mUsage: xx [35mupgrade[39m[2m(up)[22m[1m  [...options] <@test:dir> [...other][22m
 
 [1mOptions:[22m
 
