@@ -15,7 +15,7 @@ export function generateHelpMsg(conf: Command, program: Program) {
   const programCommandName =
     program.command === conf ? commandName : `${program.command.name} ${commandName}`
   const argsHelpMsg = conf.parameters?.map((n) => parameterDescription(n)).join(' ')
-  const usage = `Usage: ${programCommandName} ${hasCommand} [...flags] ${argsHelpMsg}`.trim()
+  const usage = `Usage: ${programCommandName} ${hasCommand} [...options] ${argsHelpMsg}`.trim()
 
   msgs.push(pc.bold(usage), '')
 
