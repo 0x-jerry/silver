@@ -53,7 +53,7 @@ sub, test command. ${fn}
     expect(fn).toBeCalledTimes(1)
   })
 
-  it('should generate zsh code', () => {
+  it('should generate zsh code', async () => {
     const defaultCustom = 'a2'
     const fn = vi.fn()
 
@@ -77,7 +77,7 @@ up/upgrade <dir> [...other] #stopEarly, an sub : command. ${fn}
 
     const code = generateZshAutoCompletion(ins.conf!.command)
 
-    expect(code).toMatchFileSnapshot(`shell/completion.zsh`)
+    await expect(code).toMatchFileSnapshot(`shell/completion.zsh`)
   })
 
   it('should support alnum as command name', () => {
