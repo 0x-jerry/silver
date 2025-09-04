@@ -1,11 +1,11 @@
 #!/usr/bin/env tsx
 
-import { sliver, type ActionParsedArgs } from '../src'
+import { sliver } from '../../src'
 
 const ins = sliver`
 v1.0.0 @help @autocompletion
 
-Silver [@type:param-name], is a library for create command line interface quickly. ${fn}
+xx [@type:param-name], is a library for create command line interface quickly. ${fn}
 
 -t --test @test:t1, Test autocompletion.
 
@@ -23,9 +23,10 @@ ins.type('type', () => [...ins.typeMapper.keys()])
  *
  * @param opt
  */
-function fn(_params: string[], opt: ActionParsedArgs) {
+function fn(_params, opt) {
   console.log(JSON.stringify(opt, null, 2))
 }
-function upFn(_params: string[], opt: ActionParsedArgs) {
+
+function upFn(_params, opt) {
   console.log('update action', _params)
 }

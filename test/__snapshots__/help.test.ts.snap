@@ -2,33 +2,33 @@
 
 exports[`test help message > should print main help message 1`] = `
 [
-  "[35mxx[39m[2m/v1.0.0[22m A library for create command line interface quickly.
+  "xx/v1.0.0 A library for create command line interface quickly.
 
-[1mUsage: [35mxx[39m <command> [...options] [@type:type][22m
+Usage: xx <command> [...options] [@type:type]
 
-[1mCommands:[22m
+Commands:
 
-[35mupgrade[39m[2m(up)[22m [2m <@test:dir> [...other] [22m an sub command.                 
-[35mcompletion[39m  [2m [type] [22m                 Generate autocompletion for zsh.
+upgrade(up)  <@test:dir> [...other]  an sub command.                 
+completion   [type]                  Generate autocompletion for zsh.
 
-[1mOptions:[22m
+Options:
 
-[2m-t[22m [36m--test[39m [2m @test:t1 [22m Test autocompletion.        
-[2m-h[22m [36m--help[39m [2m @bool [22m    Print help text for command.
+-t --test  @test:t1  Test autocompletion.        
+-h --help  @bool     Print help text for command.
 ",
 ]
 `;
 
 exports[`test help message > should print sub command help message 1`] = `
 [
-  "[35mupgrade[39m[2m(up)[22m[2m/v1.0.0[22m an sub command.
+  "upgrade(up)/v1.0.0 an sub command.
 
-[1mUsage: xx [35mupgrade[39m[2m(up)[22m[1m  [...options] <@test:dir> [...other][22m
+Usage: xx upgrade(up)  [...options] <@test:dir> [...other]
 
-[1mOptions:[22m
+Options:
 
-[2m-s[22m [36m--string[39m [2m @string:default [22m sub command option.
-[2m[22m   [36m--small[39m  [2m @bool [22m           other option.      
+-s --string  @string:default  sub command option.
+   --small   @bool            other option.      
 ",
 ]
 `;
