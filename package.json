@@ -27,19 +27,20 @@
     "release": "x-release"
   },
   "devDependencies": {
-    "@0x-jerry/x-release": "^2.2.2",
-    "@ohm-js/cli": "^2.0.0",
+    "@0x-jerry/x-release": "^2.4.0",
+    "@biomejs/biome": "^2.2.2",
+    "@ohm-js/cli": "^2.0.1",
     "@types/minimist": "^1.2.5",
-    "@types/node": "^22.13.8",
-    "@vitest/coverage-v8": "^3.0.7",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
-    "vitest": "^3.0.7"
+    "@types/node": "^24.3.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@0x-jerry/utils": "^4.2.2",
+    "@0x-jerry/utils": "^5.0.0",
     "minimist": "^1.2.8",
-    "ohm-js": "^17.1.0",
+    "ohm-js": "^17.2.1",
     "picocolors": "^1.1.1"
   }
 }
