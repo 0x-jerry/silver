@@ -1,5 +1,5 @@
 import { isString } from '@0x-jerry/utils'
-import { normalizeStr, generateZshAutoCompletion } from '../completion/zsh'
+import { generateZshAutoCompletion, normalizeStr } from '../completion/zsh'
 import type { Sliver } from '../core'
 import { parseCliProgram } from '../parser'
 
@@ -29,8 +29,8 @@ completion [type], Generate autocompletion for zsh.
           return isString(item)
             ? normalizeStr(item)
             : item.desc
-            ? `${normalizeStr(item.label)}\\:${item.desc}`
-            : normalizeStr(item.label)
+              ? `${normalizeStr(item.label)}\\:${item.desc}`
+              : normalizeStr(item.label)
         })
         .join('\n')
       process.stdout.write(s)

@@ -1,17 +1,17 @@
+import { sleep, toValue, type Value } from '@0x-jerry/utils'
+import minimist from 'minimist'
+import { createCompletionCommand } from './builtins/completionCommand'
+import { generateHelpMsg } from './builtins/helpOption'
 import { parseCliProgram } from './parser'
 import {
   type ActionParsedArgs,
-  type Program,
   type Command,
-  type CompletionType,
   CommandFlag,
+  type CompletionType,
+  type Program,
   ProgramFlag,
 } from './types'
-import minimist from 'minimist'
-import { isType, builtinType } from './utils'
-import { sleep, toValue, type Value } from '@0x-jerry/utils'
-import { generateHelpMsg } from './builtins/helpOption'
-import { createCompletionCommand } from './builtins/completionCommand'
+import { builtinType, isType } from './utils'
 
 export class Sliver {
   conf?: Program
@@ -20,18 +20,15 @@ export class Sliver {
 
   parse(raw: TemplateStringsArray, ...tokens: any[]) {
     this.conf = parseCliProgram(raw, ...tokens)
+    // add help option
+    this.conf.command.options ||= []
 
-    {
-      // add help option
-      this.conf.command.options ||= []
-
-      this.conf.command.options.push({
-        name: 'help',
-        alias: 'h',
-        type: 'bool',
-        description: 'Print help text for command.',
-      })
-    }
+    this.conf.command.options.push({
+      name: 'help',
+      alias: 'h',
+      type: 'bool',
+      description: 'Print help text for command.',
+    })
 
     if (this.conf.flags?.includes(ProgramFlag.Autocompletion)) {
       const { cmd, action } = createCompletionCommand(this)

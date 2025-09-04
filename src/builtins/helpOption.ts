@@ -1,6 +1,6 @@
 import { textTableToString } from '@0x-jerry/utils'
-import type { CmdParameter, Command, Program } from '../types'
 import pc from 'picocolors'
+import type { CmdParameter, Command, Program } from '../types'
 
 export function generateHelpMsg(conf: Command, program: Program) {
   const msgs: string[] = []

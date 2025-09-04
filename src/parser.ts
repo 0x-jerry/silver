@@ -1,6 +1,6 @@
 import { isPrimitive } from '@0x-jerry/utils'
-import { type Program, type CmdAction, type Command } from './types'
 import { parseProgram } from './grammar'
+import type { CmdAction, Command, Program } from './types'
 
 let id = 0
 
@@ -34,7 +34,7 @@ export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): Pr
 
     const tokenId = actionIdMapper.get(token)
 
-    return pre + cur + (tokenId ? `${tokenId}` : token ?? '')
+    return pre + cur + (tokenId ? `${tokenId}` : (token ?? ''))
   }, '')
 
   const conf = parseProgram(finalStr)

@@ -82,20 +82,18 @@ export function generateZshAutoCompletion(globalConf: Command) {
   function genCommands() {
     const options = genGlobalOptions()
 
-    const names = (globalConf.commands || [])
-      .map((cmd) => {
-        const codes: string[] = []
-        const d = `${normalizeStr(cmd.name)}\\:${JSON.stringify(cmd.description || '')}`
+    const names = (globalConf.commands || []).flatMap((cmd) => {
+      const codes: string[] = []
+      const d = `${normalizeStr(cmd.name)}\\:${JSON.stringify(cmd.description || '')}`
+      codes.push(d)
+
+      if (cmd.alias) {
+        const d = `${normalizeStr(cmd.alias)}\\:${JSON.stringify(cmd.description || '')}`
         codes.push(d)
+      }
 
-        if (cmd.alias) {
-          const d = `${normalizeStr(cmd.alias)}\\:${JSON.stringify(cmd.description || '')}`
-          codes.push(d)
-        }
-
-        return codes
-      })
-      .flat()
+      return codes
+    })
 
     const firstType = getOptionType(globalConf.parameters?.at(0)?.type)
 
@@ -108,7 +106,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
     const firstCompletion = createFn(
       ['_', globalConf.name, 'commands_or_params'],
-      [...commandsCode]
+      [...commandsCode],
     )
 
     const params = generateParams(globalConf.parameters?.slice(1))
@@ -134,8 +132,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
       `case $line[1] in`,
       ...(globalConf.commands || [])
         //
-        ?.map((command) => _genSubCommand(globalConf.name, command))
-        .flat(),
+        .flatMap((command) => _genSubCommand(globalConf.name, command)),
       '*)',
       [
         //
@@ -221,8 +218,8 @@ function generateOptions(options?: CmdOption[]): string[] {
     const name = hasAlias
       ? `{-${opt.alias},--${opt.name}}`
       : opt.name
-      ? `--${opt.name}`
-      : `-${opt.alias}`
+        ? `--${opt.name}`
+        : `-${opt.alias}`
 
     if (hasAlias) {
       codes.push(`${name}'${desc}${type}'`)
