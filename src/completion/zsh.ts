@@ -52,9 +52,8 @@ export function generateZshAutoCompletion(globalConf: Command) {
   function genMainProgram() {
     const codes = [
       `zstyle ':completion:*:*:${program}:*' group-name ''`,
-      `zstyle ':completion:*:*:${program}-grouped:*' group-name ''`,
-      `zstyle ':completion:*:descriptions' format '%F{green}-- %d --%f'`,
-      `zstyle ':completion:*:*:${program}-grouped:*' format '%F{green}-- %d --%f'`,
+      `zstyle ':completion:*:*:${program}:*' descriptions 'yes'`,
+      `zstyle ':completion:*:*:${program}:*' format '%F{green}-- %d --%f'`,
       '',
       `local program=${program}`,
       `typeset -A opt_args`,
