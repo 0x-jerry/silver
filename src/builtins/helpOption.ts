@@ -11,11 +11,11 @@ export function generateHelpMsg(conf: Command, program: Program) {
   const commandDescription = `${commandName}${pc.dim(commandVersion)} ${conf.description}`
   msgs.push(commandDescription, '')
 
-  const hasCommand = conf.commands?.length ? '<command>' : ''
+  const hasSubCommands = conf.commands?.length ? '<sub-command>' : ''
   const programCommandName =
     program.command === conf ? commandName : `${program.command.name} ${commandName}`
   const argsHelpMsg = conf.parameters?.map((n) => parameterDescription(n)).join(' ')
-  const usage = `Usage: ${programCommandName} ${hasCommand} [...options] ${argsHelpMsg}`.trim()
+  const usage = `Usage: ${programCommandName} ${hasSubCommands} [...options] ${argsHelpMsg}`.trim()
 
   msgs.push(pc.bold(usage), '')
 
@@ -53,9 +53,9 @@ export function generateHelpMsg(conf: Command, program: Program) {
 }
 
 function parameterDescription(parameter: CmdParameter) {
-  const { required = false, handleRestAll, name, type, defaultValue } = parameter
+  const { required = false, handleRestAll, name, defaultValue } = parameter
 
-  const _name = [type ? `@${type}` : '', name, defaultValue].filter(Boolean).join(':')
+  const _name = [name, defaultValue].filter(Boolean).join(':')
 
   if (required) {
     return handleRestAll ? `<...${_name}>` : `<${_name}>`
