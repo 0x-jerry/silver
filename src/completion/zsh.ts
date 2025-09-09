@@ -100,14 +100,17 @@ export function generateZshAutoCompletion(globalConf: Command) {
       return codes
     })
 
-    const firstType = getOptionType(globalConf.parameters?.at(0)?.type)
+    const firstArgType = globalConf.parameters?.at(0)?.type
+    const firstArgTypeCode = firstArgType ? `:${firstArgType}:${getOptionType(firstArgType)}` : ''
 
-    const subCommandsCode = warpLines([
-      //
-      '_alternative',
-      `':sub-commands:((${names.join(' ')}))'`,
-      `': :${firstType}'`,
-    ])
+    const subCommandsCode = warpLines(
+      [
+        //
+        '_alternative',
+        `':sub-commands:((${names.join(' ')}))'`,
+        firstArgTypeCode,
+      ].filter(Boolean),
+    )
 
     const firstCompletion = createFn(
       ['_', globalConf.name, 'commands_or_params'],
