@@ -25,7 +25,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
     [
       `local scripts_list`,
       `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion "$1"))`,
-      `scripts="scripts:scripts:(($scripts_list))"`,
+      `scripts="scripts:$1:(($scripts_list))"`,
       `_alternative "$scripts"`,
     ],
     `}`,
@@ -50,15 +50,20 @@ export function generateZshAutoCompletion(globalConf: Command) {
   }
 
   function genMainProgram() {
-    const argumentsCode = warpLines([
-      `_arguments -s`,
-      //
-      `'1: :->cmd'`,
-      `'*: :->args'`,
-    ])
-
     const codes = [
-      ...argumentsCode,
+      `zstyle ':completion:*:*:${program}:*' group-name ''`,
+      `zstyle ':completion:*:*:${program}-grouped:*' group-name ''`,
+      `zstyle ':completion:*:descriptions' format '%F{green}-- %d --%f'`,
+      `zstyle ':completion:*:*:${program}-grouped:*' format '%F{green}-- %d --%f'`,
+      '',
+      `local program=${program}`,
+      `typeset -A opt_args`,
+      `local curcontext="$curcontext" state line context`,
+      '',
+      `_arguments -s \\`,
+      `   '1: :->cmd' \\`,
+      `   '*: :->args' &&`,
+      `   ret=0`,
       '',
       `case $state in`,
       `cmd)`,
@@ -97,16 +102,16 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
     const firstType = getOptionType(globalConf.parameters?.at(0)?.type)
 
-    const commandsCode = warpLines([
+    const subCommandsCode = warpLines([
       //
       '_alternative',
-      `'commands:commands:((${names.join(' ')}))'`,
+      `':sub-commands:((${names.join(' ')}))'`,
       `': :${firstType}'`,
     ])
 
     const firstCompletion = createFn(
       ['_', globalConf.name, 'commands_or_params'],
-      [...commandsCode],
+      [...subCommandsCode],
     )
 
     const params = generateParams(globalConf.parameters?.slice(1))
@@ -195,64 +200,105 @@ export function generateZshAutoCompletion(globalConf: Command) {
   function genGlobalOptions() {
     return generateOptions(globalConf.options)
   }
-}
 
-function generateOptions(options?: CmdOption[]): string[] {
-  const codes: string[] = []
+  function generateOptions(options?: CmdOption[]): string[] {
+    const codes: string[] = []
 
-  if (!options) {
+    if (!options) {
+      return codes
+    }
+
+    for (const opt of options) {
+      const defaultValueDescription =
+        opt.defaultValue != null ? ` @default is ${opt.defaultValue}` : ''
+
+      const desc = `[${opt.description}${defaultValueDescription}]`
+
+      const hasAlias = opt.name && opt.alias
+
+      let type = getOptionType(opt.type)
+      type = type ? `: :${type}` : ''
+
+      const name = hasAlias
+        ? `{-${opt.alias},--${opt.name}}`
+        : opt.name
+          ? `--${opt.name}`
+          : `-${opt.alias}`
+
+      if (hasAlias) {
+        codes.push(`${name}'${desc}${type}'`)
+      } else {
+        codes.push(`'${name}${desc}${type}'`)
+      }
+    }
+
     return codes
   }
 
-  for (const opt of options) {
-    const defaultValueDescription =
-      opt.defaultValue != null ? ` @default is ${opt.defaultValue}` : ''
+  function generateParams(params: CmdParameter[] = []): string[] {
+    const codes = params.map((item) => {
+      const type = getOptionType(item.type)
 
-    const desc = `[${opt.description}${defaultValueDescription}]`
+      return `'${item.handleRestAll ? '*' : ''}: :${type}'`
+    })
 
-    const hasAlias = opt.name && opt.alias
-
-    let type = getOptionType(opt.type)
-    type = type ? `: :${type}` : ''
-
-    const name = hasAlias
-      ? `{-${opt.alias},--${opt.name}}`
-      : opt.name
-        ? `--${opt.name}`
-        : `-${opt.alias}`
-
-    if (hasAlias) {
-      codes.push(`${name}'${desc}${type}'`)
-    } else {
-      codes.push(`'${name}${desc}${type}'`)
-    }
+    return codes
   }
 
-  return codes
+  function getOptionType(type?: string) {
+    if (!type) return BuiltinType.File
+
+    const [primaryType, ...alternativeTypes] = type.split('|')
+    if (isBuiltinType(primaryType)) return ''
+
+    return genearteTypeCode(primaryType, alternativeTypes)
+  }
+
+  function getOptionTypeFromProgram(type?: string) {
+    if (!type) return BuiltinType.File
+
+    if (isBuiltinType(type)) return ''
+
+    return `{_get_type ${type}}`
+  }
+
+  function genearteTypeCode(primaryType: string, alternativeTypes: string[] = []) {
+    const hasAlternativeTypes = !!alternativeTypes.length
+
+    if (!hasAlternativeTypes) {
+      if (isNativeZshType(primaryType)) {
+        return `_alternative ':${getNativeTypeName(primaryType)}:${primaryType}'`
+      }
+      return getOptionTypeFromProgram(primaryType)
+    }
+
+    if (isNativeZshType(primaryType)) {
+      return [
+        //
+        `_alternative`,
+        ...[primaryType, ...alternativeTypes].map((t) => `':${getNativeTypeName(t)}:${t}'`),
+      ].join(' ')
+    }
+
+    return createFn(
+      ['_gen_option_type', primaryType, ...alternativeTypes],
+      [
+        `local scripts_list`,
+        `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion ${primaryType}))`,
+        `scripts="scripts:${primaryType}:(($scripts_list))"`,
+        `_alternative "$scripts" \\`,
+        alternativeTypes.map((t) => `':${getNativeTypeName(t)}:${t}'`).join(' \\'),
+      ],
+    )
+  }
 }
 
-function generateParams(params: CmdParameter[] = []): string[] {
-  const codes = params.map((item) => {
-    const type = getOptionType(item.type)
-
-    return `'${item.handleRestAll ? '*' : ''}: :${type}'`
-  })
-
-  return codes
-}
-
-function getOptionType(type?: string) {
-  if (!type) return BuiltinType.File
-
-  if (isBuiltinType(type)) return ''
-
-  if (type.startsWith('_')) return type
-
-  return `{_get_type ${type}}`
+function isNativeZshType(type: string) {
+  return type.startsWith('_')
 }
 
 function generateFnName(tokens: string[]) {
-  return '_' + tokens.join('_')
+  return `_${tokens.join('_')}`
 }
 
 function generateCode(lines: CodeLine[], indent = 0): string {
@@ -280,4 +326,9 @@ type CodeLine = string | CodeLine[]
 
 export function normalizeStr(item: string) {
   return item.replaceAll(':', '\\\\:')
+}
+
+function getNativeTypeName(type: string) {
+  // remove fist _ character, eg. _file => file
+  return type.slice(1)
 }

@@ -32,8 +32,8 @@ Silver {
   CommandParameterType = atFlag ":"
   CommandParameterName = letter ("_" | "-" | alnum)*
 
-  atFlag = "@" word
+  atFlag = "@" nonemptyListOf<word, "|">
   hashFlag = "#" word
   description = (~"\n" any)+
-  word = letter ("_" | alnum)*
+  word = ("_" | letter) ("_" | alnum)*
 }
