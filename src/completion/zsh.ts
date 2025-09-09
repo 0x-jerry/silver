@@ -21,7 +21,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
     //
     `#compdef ${program}`,
     '',
-    `_get_type() {`,
+    `_get_type_list() {`,
     [
       `local scripts_list`,
       `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion "$1"))`,
@@ -101,7 +101,9 @@ export function generateZshAutoCompletion(globalConf: Command) {
     })
 
     const firstArgType = globalConf.parameters?.at(0)?.type
-    const firstArgTypeCode = firstArgType ? `:${firstArgType}:${getOptionType(firstArgType)}` : ''
+    const firstArgTypeCode = firstArgType
+      ? `:${generateTypeName(firstArgType)}:${getOptionType(firstArgType)}`
+      : ''
 
     const subCommandsCode = warpLines(
       [
@@ -255,7 +257,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
     const [primaryType, ...alternativeTypes] = type.split('|')
     if (isBuiltinType(primaryType)) return ''
 
-    return genearteTypeCode(primaryType, alternativeTypes)
+    return genearteOptionTypeCode(primaryType, alternativeTypes)
   }
 
   function getOptionTypeFromProgram(type?: string) {
@@ -263,10 +265,10 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
     if (isBuiltinType(type)) return ''
 
-    return `{_get_type ${type}}`
+    return `{_get_type_list ${type}}`
   }
 
-  function genearteTypeCode(primaryType: string, alternativeTypes: string[] = []) {
+  function genearteOptionTypeCode(primaryType: string, alternativeTypes: string[] = []) {
     const hasAlternativeTypes = !!alternativeTypes.length
 
     if (!hasAlternativeTypes) {
@@ -294,7 +296,9 @@ export function generateZshAutoCompletion(globalConf: Command) {
       ]
     }
 
-    return createFn(['_gen_option_type', primaryType, ...alternativeTypes], codes)
+    const fnName = createFn(['_gen_option_type', primaryType, ...alternativeTypes], codes)
+
+    return `{${fnName}}`
   }
 }
 
@@ -334,5 +338,6 @@ export function normalizeStr(item: string) {
 }
 
 function generateTypeName(type: string) {
-  return isNativeZshType(type) ? type.slice(1) : type
+  const primaryType = type.split('|')[0]
+  return isNativeZshType(primaryType) ? primaryType.slice(1) : primaryType
 }

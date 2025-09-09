@@ -1,15 +1,23 @@
 #compdef xx
 
-_get_type() {
+_get_type_list() {
   local scripts_list
   IFS=$'\n' scripts_list=($(SHELL=zsh xx completion "$1"))
   scripts="scripts:$1:(($scripts_list))"
   _alternative "$scripts"
 }
 
+__gen_option_type_test__files() {
+  local scripts_list
+  IFS=$'\n' scripts_list=($(SHELL=zsh xx completion test))
+  scripts="scripts:test:(($scripts_list))"
+  _alternative "$scripts" \
+  ':files:_files'
+}
 ___xx_commands_or_params() {
   _alternative \
-  ':sub-commands:((upgrade\:"an sub : command. " up\:"an sub : command. " completion\:"Generate autocompletion for zsh."))'
+  ':sub-commands:((upgrade\:"an sub : command. " up\:"an sub : command. " completion\:"Generate autocompletion for zsh."))' \
+  :test:{__gen_option_type_test__files}
 }
 ___xx_commands() {
   _arguments -s \
@@ -17,7 +25,7 @@ ___xx_commands() {
   '*:files:_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123]' \
-  {-e,--enum}'[an custom option with default value. @default is a2]:custom:{_get_type custom}' \
+  {-e,--enum}'[an custom option with default value. @default is a2]:custom:{_get_type_list custom}' \
   {-b,--bool}'[an boolean option without default value.]' \
   {-o,--other}'[an option without specify a type will be a string.]: :_files' \
   {-h,--help}'[Print help text for command.]'
@@ -30,7 +38,7 @@ _xx_upgrade_option() {
   {-s,--string}'[sub command option. @default is default]' \
   '--small[other option.]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123]' \
-  {-e,--enum}'[an custom option with default value. @default is a2]:custom:{_get_type custom}' \
+  {-e,--enum}'[an custom option with default value. @default is a2]:custom:{_get_type_list custom}' \
   {-b,--bool}'[an boolean option without default value.]' \
   {-o,--other}'[an option without specify a type will be a string.]: :_files' \
   {-h,--help}'[Print help text for command.]'
@@ -44,7 +52,7 @@ _xx_completion_option() {
   '--uninstall[Uninstall autocompletion for zsh, not implement yet.]: :_files' \
   {-s,--string}'[An string option with default value. @default is cool]' \
   {-n,--number}'[an number option with default value, and it is a global option. @default is 123]' \
-  {-e,--enum}'[an custom option with default value. @default is a2]:custom:{_get_type custom}' \
+  {-e,--enum}'[an custom option with default value. @default is a2]:custom:{_get_type_list custom}' \
   {-b,--bool}'[an boolean option without default value.]' \
   {-o,--other}'[an option without specify a type will be a string.]: :_files' \
   {-h,--help}'[Print help text for command.]'

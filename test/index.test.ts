@@ -60,7 +60,7 @@ sub, test command. ${fn}
     const ins = sliver`
 @manual @autocompletion
 
-xx [dir], A library for create command line interface quickly. ${fn}
+xx [@test|_files:dir], A library for create command line interface quickly. ${fn}
 
 -s --string @string:cool, An string option with default value.
 -n --number @number:123, an number option with default value, and it is a global option.
