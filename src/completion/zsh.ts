@@ -9,40 +9,40 @@ import { isBuiltinType } from '../utils'
  * @param globalConf
  */
 export function generateZshAutoCompletion(globalConf: Command) {
-  const program = globalConf.name
+  const programName = globalConf.name
 
   const functions = new Map<string, CodeLine[]>()
 
-  const mainCodes: CodeLine[] = genMainProgram()
-
-  const mainFnName = createFn(program, mainCodes)
-
-  const lines: CodeLine[] = [
-    //
-    `#compdef ${program}`,
-    '',
-    `_get_type_list() {`,
+  const genTypeFnName = createFn(
+    ['gen_type_list'],
     [
       `local scripts_list`,
-      `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion "$1"))`,
+      `IFS=$'\\n' scripts_list=($(SHELL=zsh ${programName} completion "$1"))`,
       `scripts="scripts:$1:(($scripts_list))"`,
       `_alternative '$scripts'`,
     ],
-    `}`,
-    '',
+  )
+
+  const mainCodes: CodeLine[] = genMainProgram()
+
+  const mainFnName = createFn([], mainCodes)
+
+  const lines: CodeLine[] = [
+    //
+    `#compdef ${programName}`,
     ...[...functions.values()].flat(),
     '',
     `if ! command -v compinit >/dev/null; then`,
     [`autoload -U compinit && compinit`],
     `fi`,
     '',
-    `compdef ${mainFnName} ${program}`,
+    `compdef ${mainFnName} ${programName}`,
   ]
 
   return generateCode(lines)
 
   function createFn(name: Arrayable<string>, codes: CodeLine[]) {
-    const fnName = generateFnName(ensureArray(name))
+    const fnName = generateFnName([programName, ...ensureArray(name)])
 
     functions.set(fnName, [`${fnName}() {`, codes, `}`])
 
@@ -51,11 +51,11 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
   function genMainProgram() {
     const codes = [
-      `zstyle ':completion:*:*:${program}:*' group-name ''`,
-      `zstyle ':completion:*:*:${program}:*' descriptions 'yes'`,
-      `zstyle ':completion:*:*:${program}:*' format '%F{green}-- %d --%f'`,
+      `zstyle ':completion:*:*:${programName}:*' group-name ''`,
+      `zstyle ':completion:*:*:${programName}:*' descriptions 'yes'`,
+      `zstyle ':completion:*:*:${programName}:*' format '%F{green}-- %d --%f'`,
       '',
-      `local program=${program}`,
+      `local program=${programName}`,
       `typeset -A opt_args`,
       `local curcontext="$curcontext" state line context`,
       '',
@@ -113,10 +113,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
       ].filter(Boolean),
     )
 
-    const firstCompletion = createFn(
-      ['_', globalConf.name, 'commands_or_params'],
-      [...subCommandsCode],
-    )
+    const firstCompletion = createFn(['commands_or_params'], [...subCommandsCode])
 
     const params = generateParams(globalConf.parameters?.slice(1))
 
@@ -133,7 +130,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
       ...options,
     ])
 
-    return createFn(['_', globalConf.name, 'commands'], codes)
+    return createFn(['commands'], codes)
   }
 
   function genSubCommands() {
@@ -151,7 +148,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
       `esac`,
     ]
 
-    return createFn(['_', globalConf.name, 'sub_commands'], mainCodes)
+    return createFn(['sub_commands'], mainCodes)
 
     function _genSubCommand(parentName: string, command: Command) {
       const filteredOptions: CmdOption[] = command.options || []
@@ -264,7 +261,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
     if (isBuiltinType(type)) return ''
 
-    return `{_get_type_list ${type}}`
+    return `{${genTypeFnName} ${type}}`
   }
 
   function genearteOptionTypeCode(primaryType: string, alternativeTypes: string[] = []) {
@@ -288,14 +285,14 @@ export function generateZshAutoCompletion(globalConf: Command) {
     } else {
       codes = [
         `local scripts_list`,
-        `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion ${primaryType}))`,
+        `IFS=$'\\n' scripts_list=($(SHELL=zsh ${programName} completion ${primaryType}))`,
         `scripts="scripts:${primaryType}:(($scripts_list))"`,
         `_alternative "$scripts" \\`,
         alternativeTypes.map((t) => `':${generateTypeName(t)}:${t}'`).join(' \\'),
       ]
     }
 
-    const fnName = createFn(['_gen_option_type', primaryType, ...alternativeTypes], codes)
+    const fnName = createFn(['gen_option_type', primaryType, ...alternativeTypes], codes)
 
     return `{${fnName}}`
   }
