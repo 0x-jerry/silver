@@ -121,7 +121,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
     const handleRest = params.some((item) => item.startsWith("'*"))
       ? ''
-      : `'*: :${BuiltinType.File}'`
+      : `'*:${generateTypeName(BuiltinType.File)}:${BuiltinType.File}'`
 
     const codes = warpLines([
       //
@@ -174,7 +174,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
       const handleRest = params.some((item) => item.startsWith("'*"))
         ? []
-        : [`'*: :${BuiltinType.File}'`]
+        : [`'*:${generateTypeName(BuiltinType.File)}:${BuiltinType.File}'`]
 
       const codes = warpLines([
         //
@@ -220,7 +220,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
       const hasAlias = opt.name && opt.alias
 
       let type = getOptionType(opt.type)
-      type = type ? `: :${type}` : ''
+      type = type ? `:${opt.type ? generateTypeName(opt.type) : ' '}:${type}` : ''
 
       const name = hasAlias
         ? `{-${opt.alias},--${opt.name}}`
@@ -240,9 +240,10 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
   function generateParams(params: CmdParameter[] = []): string[] {
     const codes = params.map((item) => {
-      const type = getOptionType(item.type)
+      const type = item.type || BuiltinType.File
+      const typeCode = getOptionType(type)
 
-      return `'${item.handleRestAll ? '*' : ''}: :${type}'`
+      return `'${item.handleRestAll ? '*' : ''}:${generateTypeName(type)}:${typeCode}'`
     })
 
     return codes
@@ -270,29 +271,30 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
     if (!hasAlternativeTypes) {
       if (isNativeZshType(primaryType)) {
-        return `_alternative ':${getNativeTypeName(primaryType)}:${primaryType}'`
+        return primaryType
       }
+
       return getOptionTypeFromProgram(primaryType)
     }
 
+    let codes: CodeLine[] = []
     if (isNativeZshType(primaryType)) {
-      return [
+      codes = [
         //
         `_alternative`,
-        ...[primaryType, ...alternativeTypes].map((t) => `':${getNativeTypeName(t)}:${t}'`),
-      ].join(' ')
-    }
-
-    return createFn(
-      ['_gen_option_type', primaryType, ...alternativeTypes],
-      [
+        ...[primaryType, ...alternativeTypes].map((t) => `':${generateTypeName(t)}:${t}'`),
+      ]
+    } else {
+      codes = [
         `local scripts_list`,
         `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion ${primaryType}))`,
         `scripts="scripts:${primaryType}:(($scripts_list))"`,
         `_alternative "$scripts" \\`,
-        alternativeTypes.map((t) => `':${getNativeTypeName(t)}:${t}'`).join(' \\'),
-      ],
-    )
+        alternativeTypes.map((t) => `':${generateTypeName(t)}:${t}'`).join(' \\'),
+      ]
+    }
+
+    return createFn(['_gen_option_type', primaryType, ...alternativeTypes], codes)
   }
 }
 
@@ -331,7 +333,6 @@ export function normalizeStr(item: string) {
   return item.replaceAll(':', '\\\\:')
 }
 
-function getNativeTypeName(type: string) {
-  // remove fist _ character, eg. _file => file
-  return type.slice(1)
+function generateTypeName(type: string) {
+  return isNativeZshType(type) ? type.slice(1) : type
 }
