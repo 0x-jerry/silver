@@ -26,7 +26,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
       `local scripts_list`,
       `IFS=$'\\n' scripts_list=($(SHELL=zsh ${program} completion "$1"))`,
       `scripts="scripts:$1:(($scripts_list))"`,
-      `_alternative "$scripts"`,
+      `_alternative '$scripts'`,
     ],
     `}`,
     '',
@@ -102,7 +102,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
 
     const firstArgType = globalConf.parameters?.at(0)?.type
     const firstArgTypeCode = firstArgType
-      ? `:${generateTypeName(firstArgType)}:${getOptionType(firstArgType)}`
+      ? `':${generateTypeName(firstArgType)}:${getOptionType(firstArgType)}'`
       : ''
 
     const subCommandsCode = warpLines(

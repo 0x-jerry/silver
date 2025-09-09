@@ -4,7 +4,7 @@ _get_type_list() {
   local scripts_list
   IFS=$'\n' scripts_list=($(SHELL=zsh xx completion "$1"))
   scripts="scripts:$1:(($scripts_list))"
-  _alternative "$scripts"
+  _alternative '$scripts'
 }
 
 __gen_option_type_test__files() {
@@ -17,7 +17,7 @@ __gen_option_type_test__files() {
 ___xx_commands_or_params() {
   _alternative \
   ':sub-commands:((upgrade\:"an sub : command. " up\:"an sub : command. " completion\:"Generate autocompletion for zsh."))' \
-  :test:{__gen_option_type_test__files}
+  ':test:{__gen_option_type_test__files}'
 }
 ___xx_commands() {
   _arguments -s \
