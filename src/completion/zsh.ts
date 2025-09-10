@@ -1,6 +1,231 @@
-import { type Arrayable, ensureArray } from '@0x-jerry/utils'
-import { BuiltinType, type CmdOption, type CmdParameter, type Command } from '../types'
-import { isBuiltinType } from '../utils'
+import { type Arrayable, ensureArray, isString } from '@0x-jerry/utils'
+import type { CmdOption, Command } from '../types'
+
+/**
+ * refer: https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org#writing-your-own-completion-functions
+ */
+class ZshCodeGenerator {
+  _fns = new Map<string, CodeLine>()
+  _codes: CodeLine = []
+
+  constructor(public name: string) {}
+
+  createFn(name: Arrayable<string>, codes: CodeLine) {
+    const fnName = generateFnName([this.name, ...ensureArray(name)])
+
+    const finalCodes = [`${fnName}() {`, codes, `}`]
+
+    if (this._fns.has(fnName)) {
+      const c1 = generateCode(finalCodes)
+      const c2 = generateCode(this._fns.get(fnName) || [])
+      if (c1 !== c2) {
+        throw new Error(`Set different codes for function [${fnName}]\n${c1}\n${c2}`)
+      }
+
+      return fnName
+    }
+
+    this._fns.set(fnName, finalCodes)
+
+    return fnName
+  }
+
+  setMainFnCodes(codes: CodeLine) {
+    const programName = this.name
+
+    this._codes = [
+      `zstyle ':completion:*:*:${programName}:*' group-name ''`,
+      `zstyle ':completion:*:*:${programName}:*' descriptions 'yes'`,
+      `zstyle ':completion:*:*:${programName}:*' format '%F{green}-- %d --%f'`,
+      '',
+      `local program=${programName}`,
+      `typeset -A opt_args`,
+      '',
+      ...codes,
+    ]
+  }
+
+  generate() {
+    const mainFnName = this.createFn([], this._codes)
+
+    const lines: CodeLine = [
+      //
+      `#compdef ${this.name}`,
+      ...[...this._fns.values()].flat(),
+      '',
+      `if ! command -v compinit >/dev/null; then`,
+      [`autoload -U compinit && compinit`],
+      `fi`,
+      '',
+      `compdef ${mainFnName} ${this.name}`,
+    ]
+
+    return this._generateCode(lines)
+  }
+
+  _generateCode(lines: CodeLine, indent = 0): string {
+    const codes: string[] = []
+
+    for (const line of lines) {
+      if (typeof line === 'string') {
+        codes.push(' '.repeat(indent) + line)
+      } else {
+        const multiLines = generateCode(line, indent + 2)
+        codes.push(multiLines)
+      }
+    }
+
+    return codes.join('\n')
+  }
+
+  _generateAlternativeBranches(type: string) {
+    const types = type.split('|')
+
+    const codes: string[] = []
+
+    const branchesCode: string[] = []
+    let count = 0
+
+    for (const _type of types) {
+      if (isNativeZshType(_type)) {
+        branchesCode.push(`'${generateTypeName(_type)}:${generateTypeName(_type)}:${_type}'`)
+      } else {
+        const varName = `list_${count++}`
+        codes.push(
+          //
+          `local -a ${varName}`,
+          `IFS=$'\\n' ${varName}=($(SHELL=zsh ${this.name} completion ${_type}))`,
+        )
+
+        branchesCode.push(`'${_type}:${_type}:(($${varName}))'`)
+      }
+    }
+
+    return {
+      codes,
+      branchesCode,
+    }
+  }
+
+  generateAlternativeCode(opt: { type?: string; extraBranches?: string[] }): CodeLine {
+    const { type, extraBranches } = opt
+    if (!type && !extraBranches?.length) {
+      throw new Error(`Must include one type!`)
+    }
+
+    const alternativeCode = type ? this._generateAlternativeBranches(type) : undefined
+
+    const codes: CodeLine = [
+      ...(alternativeCode?.codes || []),
+      ...warpLines([
+        //
+        `_alternative`,
+        ...(extraBranches || []),
+        ...(alternativeCode?.branchesCode || []),
+      ]),
+    ]
+
+    return codes
+  }
+
+  generateAlternativeCodeFn(opt: {
+    type?: string
+    extraBranches?: string[]
+    namePrefixes?: Arrayable<string>
+  }): CodeLine {
+    const { type, extraBranches, namePrefixes } = opt
+
+    const names = [...(namePrefixes || []), type?.replaceAll('|', '_')].filter(isString)
+    if (!names) {
+      throw new Error(`Please set namePrefixes`)
+    }
+
+    const codes = this.generateAlternativeCode({ type, extraBranches })
+
+    return this.createFn(names, codes)
+  }
+}
+
+interface GenerateArgumentsOption {
+  branches: [string, null | CodeLine][]
+  params?: ParamOption[]
+}
+
+interface ParamOption {
+  label: string
+  code?: CodeLine
+}
+
+function generateArgumentsCode(opt: GenerateArgumentsOption) {
+  const { branches, params = [] } = opt
+  const argumentArgCodes: string[] = []
+
+  const caseCodes: CodeLine = []
+
+  let idx = 0
+  for (const [key, code] of branches) {
+    const caseVarName = code ? `cmd_${idx++}` : 'null'
+    argumentArgCodes.push(`  '${key}: :->${caseVarName}' \\`)
+
+    if (code) {
+      caseCodes.push(
+        //
+        `${caseVarName})`,
+        [
+          //
+          ...ensureArray(code),
+          ';;',
+        ],
+      )
+    }
+  }
+
+  // code => name
+  const nameFnMap: Record<string, string> = {}
+
+  argumentArgCodes.push(
+    ...params.map((param, idx) => {
+      if (param.code?.length) {
+        const codeStr = generateCode(param.code)
+        const caseVarName = nameFnMap[codeStr] ?? `param_${idx}`
+
+        if (!nameFnMap[codeStr]) {
+          nameFnMap[codeStr] = caseVarName
+          caseCodes.push(
+            //
+            `${caseVarName})`,
+            [
+              //
+              ...param.code,
+              ';;',
+            ],
+          )
+        }
+
+        return `  '${param.label}: :->${caseVarName}' \\`
+      } else {
+        return `  '${param.label}' \\`
+      }
+    }),
+  )
+
+  argumentArgCodes[argumentArgCodes.length - 1] = argumentArgCodes[
+    argumentArgCodes.length - 1
+  ].replace(/\\$/, '&&')
+
+  argumentArgCodes.push(`  ret=0`)
+
+  const codes: CodeLine = [
+    `_arguments -s -C \\`,
+    ...argumentArgCodes,
+    '',
+    `case $state in`,
+    ...caseCodes,
+    `esac`,
+  ]
+
+  return codes
+}
 
 /**
  *
@@ -9,292 +234,196 @@ import { isBuiltinType } from '../utils'
  * @param globalConf
  */
 export function generateZshAutoCompletion(globalConf: Command) {
-  const programName = globalConf.name
+  const g = new ZshCodeGenerator(globalConf.name)
 
-  const functions = new Map<string, CodeLine[]>()
+  const codes = _genCommandCode(g, globalConf)
+  g.setMainFnCodes(codes)
 
-  const genTypeFnName = createFn(
-    ['gen_type_list'],
-    [
-      `local scripts_list`,
-      `IFS=$'\\n' scripts_list=($(SHELL=zsh ${programName} completion "$1"))`,
-      `scripts="scripts:$1:(($scripts_list))"`,
-      `_alternative '$scripts'`,
-    ],
-  )
+  return g.generate()
+}
 
-  const mainCodes: CodeLine[] = genMainProgram()
+function _genCommandCode(g: ZshCodeGenerator, conf: Command): CodeLine {
+  const depth = calcCommandDepth(conf)
+  const hasSubCommands = !!conf.commands?.length
 
-  const mainFnName = createFn([], mainCodes)
-
-  const lines: CodeLine[] = [
-    //
-    `#compdef ${programName}`,
-    ...[...functions.values()].flat(),
-    '',
-    `if ! command -v compinit >/dev/null; then`,
-    [`autoload -U compinit && compinit`],
-    `fi`,
-    '',
-    `compdef ${mainFnName} ${programName}`,
-  ]
-
-  return generateCode(lines)
-
-  function createFn(name: Arrayable<string>, codes: CodeLine[]) {
-    const fnName = generateFnName([programName, ...ensureArray(name)])
-
-    functions.set(fnName, [`${fnName}() {`, codes, `}`])
-
-    return fnName
+  if (hasSubCommands) {
+    return generateArgumentsCode({
+      branches: [
+        ...generateSkipArgumentsBranches(depth - 1),
+        [depth.toString(), _generateCommandCode()],
+        ['*', generateSubCommandsBranch()],
+        ..._generateArgumentsBranches(conf, 1),
+      ],
+    })
   }
 
-  function genMainProgram() {
-    const codes = [
-      `zstyle ':completion:*:*:${programName}:*' group-name ''`,
-      `zstyle ':completion:*:*:${programName}:*' descriptions 'yes'`,
-      `zstyle ':completion:*:*:${programName}:*' format '%F{green}-- %d --%f'`,
-      '',
-      `local program=${programName}`,
-      `typeset -A opt_args`,
-      `local curcontext="$curcontext" state line context`,
-      '',
-      `_arguments -s \\`,
-      `   '1: :->cmd' \\`,
-      `   '*: :->args' &&`,
-      `   ret=0`,
-      '',
-      `case $state in`,
-      `cmd)`,
-      [
-        //
-        genCommands(),
-        `;;`,
-      ],
-      `args)`,
-      [
-        //
-        genSubCommands(),
-        `;;`,
-      ],
-      `esac`,
-    ]
+  return generateArgumentsCode({
+    branches: [...generateSkipArgumentsBranches(depth - 1), ..._generateArgumentsBranches(conf)],
+    params: generateOptions(g, conf),
+  })
 
-    return codes
+  function _generateArgumentsBranches(conf: Command, offset = 0) {
+    return (conf.parameters || []).slice(offset).map((parameter, idx) => {
+      const name = parameter.handleRestAll ? '*' : (idx + depth + 2 * offset).toString()
+      const type = parameter.type
+
+      if (!type) {
+        return [name, null] as [string, CodeLine | null]
+      }
+
+      const code = g.generateAlternativeCodeFn({ type })
+
+      return [name, code] as [string, CodeLine | null]
+    })
   }
 
-  function genCommands() {
-    const options = genGlobalOptions()
-
-    const names = (globalConf.commands || []).flatMap((cmd) => {
+  function _generateCommandCode() {
+    const subCommandDescriptions = (conf.commands || []).flatMap((cmd) => {
       const codes: string[] = []
-      const d = `${normalizeStr(cmd.name)}\\:${JSON.stringify(cmd.description || '')}`
+      const d = `${escapeStr(cmd.name)}\\:${JSON.stringify(cmd.description || '')}`
       codes.push(d)
 
       if (cmd.alias) {
-        const d = `${normalizeStr(cmd.alias)}\\:${JSON.stringify(cmd.description || '')}`
+        const d = `${escapeStr(cmd.alias)}\\:${JSON.stringify(cmd.description || '')}`
         codes.push(d)
       }
 
       return codes
     })
 
-    const firstArgType = globalConf.parameters?.at(0)?.type
-    const firstArgTypeCode = firstArgType
-      ? `':${generateTypeName(firstArgType)}:${getOptionType(firstArgType)}'`
-      : ''
-
-    const subCommandsCode = warpLines(
-      [
-        //
-        '_alternative',
-        `':sub-commands:((${names.join(' ')}))'`,
-        firstArgTypeCode,
-      ].filter(Boolean),
-    )
-
-    const firstCompletion = createFn(['commands_or_params'], [...subCommandsCode])
-
-    const params = generateParams(globalConf.parameters?.slice(1))
-
-    const handleRest = params.some((item) => item.startsWith("'*"))
-      ? ''
-      : `'*:${generateTypeName(BuiltinType.File)}:${BuiltinType.File}'`
-
-    const codes = warpLines([
-      //
-      `_arguments -s`,
-      `': :{${firstCompletion}}'`,
-      ...params,
-      handleRest,
-      ...options,
-    ])
-
-    return createFn(['commands'], codes)
+    return generateArgumentsCode({
+      branches: [
+        [
+          '*',
+          g.generateAlternativeCodeFn({
+            type: conf.parameters?.at(0)?.type,
+            extraBranches: [`'sub-commands:sub-commands:((${subCommandDescriptions.join(' ')}))'`],
+            namePrefixes: [
+              ...getCommandPrefixes(conf),
+              conf.parameters?.at(0)?.type?.replaceAll('|', '_') || '',
+            ],
+          }),
+        ],
+      ],
+      params: generateOptions(g, conf),
+    })
   }
 
-  function genSubCommands() {
-    const mainCodes = [
-      `case $line[1] in`,
-      ...(globalConf.commands || [])
+  function generateSubCommandsBranch(): CodeLine {
+    const secondArg = conf.parameters?.at(1)
+
+    const fallbackBranchCode = secondArg?.type
+      ? generateArgumentsCode({
+          branches: [
+            [
+              '*',
+              g.generateAlternativeCodeFn({
+                type: secondArg?.type,
+                namePrefixes: getCommandPrefixes(conf),
+              }),
+            ],
+          ],
+          params: generateOptions(g, conf),
+        })
+      : []
+
+    const codes = [
+      `case $line[${depth}] in`,
+      ...(conf.commands || [])
         //
-        .flatMap((command) => _genSubCommand(globalConf.name, command)),
+        .flatMap((command) => [
+          //
+          `${[command.alias, command.name].filter(isString).join('|')})`,
+          [
+            //
+            ..._genCommandCode(g, command),
+            ';;',
+          ],
+        ]),
       '*)',
       [
         //
-        genCommands(),
+        ...fallbackBranchCode,
         ';;',
       ],
       `esac`,
     ]
 
-    return createFn(['sub_commands'], mainCodes)
+    return conf.commands?.length ? codes : [fallbackBranchCode]
+  }
+}
 
-    function _genSubCommand(parentName: string, command: Command) {
-      const filteredOptions: CmdOption[] = command.options || []
+function generateSkipArgumentsBranches(depth: number) {
+  return Array(depth)
+    .fill(0)
+    .map((_, idx) => [(idx + 1).toString(), null] as [string, CodeLine | null])
+}
 
-      globalConf.options?.forEach((opt) => {
-        const hit = filteredOptions.find((item) => {
-          const sameName = item.name && item.name === opt.name
-          const sameAlias = item.alias && item.alias === opt.alias
+function getCommandPrefixes(conf: Command) {
+  const names: string[] = []
 
-          return sameAlias || sameName
-        })
+  let _conf: Command | undefined = conf
 
-        if (!hit) {
-          filteredOptions.push(opt)
-        }
+  while (_conf) {
+    names.push(_conf.name)
+    _conf = _conf.parent
+  }
+
+  return names
+}
+
+function generateOptions(g: ZshCodeGenerator, conf: Command): ParamOption[] {
+  const options: CmdOption[] = _getAllParentOptions(conf)
+  const params: ParamOption[] = []
+
+  if (!options) {
+    return params
+  }
+
+  for (const opt of options) {
+    const defaultValueDescription =
+      opt.defaultValue != null ? ` @default is ${opt.defaultValue}` : ''
+
+    const desc = `[${opt.description}${defaultValueDescription}]`
+
+    const typeCode = opt.type ? g.generateAlternativeCodeFn({ type: opt.type }) : undefined
+
+    if (opt.name) {
+      params.push({
+        label: `--${opt.name}${desc}`,
+        code: typeCode ? [typeCode] : undefined,
       })
+    }
 
-      const options = generateOptions(filteredOptions)
-
-      const params = generateParams(command.parameters)
-
-      const handleRest = params.some((item) => item.startsWith("'*"))
-        ? []
-        : [`'*:${generateTypeName(BuiltinType.File)}:${BuiltinType.File}'`]
-
-      const codes = warpLines([
-        //
-        `_arguments -s`,
-        `'1: :->null'`,
-        ...handleRest,
-        ...params,
-        ...options,
-      ])
-
-      const fnName = createFn([parentName, command.name, 'option'], codes)
-
-      const nameWithAlias = [
-        command.alias && command.alias !== command.name ? command.alias : '',
-        command.name,
-      ]
-
-      return [
-        `${nameWithAlias.filter(Boolean).join('|')})`,
-        //
-        [fnName, `;;`],
-      ]
+    if (opt.alias) {
+      params.push({
+        label: `-${opt.alias}${desc}`,
+        code: typeCode ? [typeCode] : undefined,
+      })
     }
   }
 
-  function genGlobalOptions() {
-    return generateOptions(globalConf.options)
-  }
+  return params
+}
 
-  function generateOptions(options?: CmdOption[]): string[] {
-    const codes: string[] = []
+function _getAllParentOptions(conf: Command) {
+  const options: CmdOption[] = []
+  _visitCommandChain(conf, (cmd) => {
+    const notExists = cmd.options?.filter(
+      (o) => !options.find((opt) => opt.name === o.name || opt.alias === o.alias),
+    )
 
-    if (!options) {
-      return codes
-    }
+    options.push(...(notExists || []))
+  })
 
-    for (const opt of options) {
-      const defaultValueDescription =
-        opt.defaultValue != null ? ` @default is ${opt.defaultValue}` : ''
+  return options
+}
 
-      const desc = `[${opt.description}${defaultValueDescription}]`
-
-      const hasAlias = opt.name && opt.alias
-
-      let type = getOptionType(opt.type)
-      type = type ? `:${opt.type ? generateTypeName(opt.type) : ' '}:${type}` : ''
-
-      const name = hasAlias
-        ? `{-${opt.alias},--${opt.name}}`
-        : opt.name
-          ? `--${opt.name}`
-          : `-${opt.alias}`
-
-      if (hasAlias) {
-        codes.push(`${name}'${desc}${type}'`)
-      } else {
-        codes.push(`'${name}${desc}${type}'`)
-      }
-    }
-
-    return codes
-  }
-
-  function generateParams(params: CmdParameter[] = []): string[] {
-    const codes = params.map((item) => {
-      const type = item.type || BuiltinType.File
-      const typeCode = getOptionType(type)
-
-      return `'${item.handleRestAll ? '*' : ''}:${generateTypeName(type)}:${typeCode}'`
-    })
-
-    return codes
-  }
-
-  function getOptionType(type?: string) {
-    if (!type) return BuiltinType.File
-
-    const [primaryType, ...alternativeTypes] = type.split('|')
-    if (isBuiltinType(primaryType)) return ''
-
-    return genearteOptionTypeCode(primaryType, alternativeTypes)
-  }
-
-  function getOptionTypeFromProgram(type?: string) {
-    if (!type) return BuiltinType.File
-
-    if (isBuiltinType(type)) return ''
-
-    return `{${genTypeFnName} ${type}}`
-  }
-
-  function genearteOptionTypeCode(primaryType: string, alternativeTypes: string[] = []) {
-    const hasAlternativeTypes = !!alternativeTypes.length
-
-    if (!hasAlternativeTypes) {
-      if (isNativeZshType(primaryType)) {
-        return primaryType
-      }
-
-      return getOptionTypeFromProgram(primaryType)
-    }
-
-    let codes: CodeLine[] = []
-    if (isNativeZshType(primaryType)) {
-      codes = [
-        //
-        `_alternative`,
-        ...[primaryType, ...alternativeTypes].map((t) => `':${generateTypeName(t)}:${t}'`),
-      ]
-    } else {
-      codes = [
-        `local scripts_list`,
-        `IFS=$'\\n' scripts_list=($(SHELL=zsh ${programName} completion ${primaryType}))`,
-        `scripts="scripts:${primaryType}:(($scripts_list))"`,
-        `_alternative "$scripts" \\`,
-        alternativeTypes.map((t) => `':${generateTypeName(t)}:${t}'`).join(' \\'),
-      ]
-    }
-
-    const fnName = createFn(['gen_option_type', primaryType, ...alternativeTypes], codes)
-
-    return `{${fnName}}`
+function _visitCommandChain(conf: Command, visitor: (conf: Command) => void) {
+  let _conf: Command | undefined = conf
+  while (_conf) {
+    visitor(_conf)
+    _conf = _conf.parent
   }
 }
 
@@ -306,7 +435,7 @@ function generateFnName(tokens: string[]) {
   return `_${tokens.join('_')}`
 }
 
-function generateCode(lines: CodeLine[], indent = 0): string {
+function generateCode(lines: CodeLine, indent = 0): string {
   const codes: string[] = []
 
   for (const line of lines) {
@@ -329,11 +458,22 @@ function warpLines(codes: string[]) {
 
 type CodeLine = string | CodeLine[]
 
-export function normalizeStr(item: string) {
-  return item.replaceAll(':', '\\\\:')
+export function escapeStr(item: string) {
+  return item.replaceAll(':', '\\:')
 }
 
 function generateTypeName(type: string) {
   const primaryType = type.split('|')[0]
   return isNativeZshType(primaryType) ? primaryType.slice(1) : primaryType
+}
+
+function calcCommandDepth(conf: Command) {
+  let depth = 0
+  let _conf: Command | undefined = conf
+
+  while (_conf) {
+    depth++
+    _conf = _conf.parent
+  }
+  return depth
 }

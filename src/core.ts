@@ -40,6 +40,8 @@ export class Sliver {
 
       this.conf.actions.set(cmd.action!, action)
     }
+
+    updateParentProp(this.conf.command)
   }
 
   async getCompletion(type: string) {
@@ -171,4 +173,11 @@ function parseArgv(argv: string[], program: Command) {
   args['--'] ||= []
 
   return args as ActionParsedArgs
+}
+
+function updateParentProp(conf: Command) {
+  conf.commands?.forEach((cmd) => {
+    cmd.parent = conf
+    updateParentProp(cmd)
+  })
 }

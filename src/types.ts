@@ -57,6 +57,8 @@ export interface Command {
   parameters?: CmdParameter[]
 
   commands?: Command[]
+
+  parent?: Command
 }
 
 export interface Program {

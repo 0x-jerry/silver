@@ -5,14 +5,14 @@ import { sliver } from '../../src'
 const ins = sliver`
 v1.0.0 @help @autocompletion
 
-xx [@test|_files:test], is a library for create command line interface quickly. ${fn}
+xx [@test|type|_files:test] [@test:a2] [@test:a3], is a library for create command line interface quickly. ${fn}
 
 -t --test @test|_files:t1, Test autocompletion.
 
-up/upgrade <@test|_files:dir> [...other] #stopEarly, an sub command. ${upFn}
+up/upgrade <@type|_files:dir> [...@_files:other] #stopEarly, an sub command. ${upFn}
 
 -s --string @string:default, sub command option.
---small @bool, other option.
+--small, other option.
 `
 
 ins.type('test', ['t1', 't2', 't3:dev'])

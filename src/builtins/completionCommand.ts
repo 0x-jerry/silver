@@ -1,5 +1,5 @@
 import { isString } from '@0x-jerry/utils'
-import { generateZshAutoCompletion, normalizeStr } from '../completion/zsh'
+import { escapeStr, generateZshAutoCompletion } from '../completion/zsh'
 import type { Sliver } from '../core'
 import { parseCliProgram } from '../parser'
 
@@ -27,10 +27,10 @@ completion [type], Generate autocompletion for zsh.
       const s = completions
         .map((item) => {
           return isString(item)
-            ? normalizeStr(item)
+            ? escapeStr(item)
             : item.desc
-              ? `${normalizeStr(item.label)}\\:${item.desc}`
-              : normalizeStr(item.label)
+              ? `${escapeStr(item.label)}\\:${item.desc}`
+              : escapeStr(item.label)
         })
         .join('\n')
       process.stdout.write(s)

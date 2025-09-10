@@ -1,4 +1,4 @@
-import { isPrimitive } from '@0x-jerry/utils'
+import { type Fn, isPrimitive } from '@0x-jerry/utils'
 import { parseProgram } from './grammar'
 import type { CmdAction, Command, Program } from './types'
 
@@ -10,9 +10,10 @@ const nextId = () => {
 
 const ActionTokenRE = /__#\d+#__\s*$/
 
+// biome-ignore lint/suspicious/noExplicitAny: must use
 export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): Program {
   const actionMapper = new Map<string, CmdAction>()
-  const actionIdMapper = new Map<Function, string>()
+  const actionIdMapper = new Map<Fn, string>()
 
   tokens.forEach((token) => {
     if (isPrimitive(token)) {
