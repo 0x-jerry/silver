@@ -93,10 +93,11 @@ _xx_completion() {
     ;;
   esac
 }
-_xx__type__test__files() {
+_xx__type__first_arg_xx_test__files() {
   local -a list_0
   IFS=$'\n' list_0=($(SHELL=zsh xx completion test))
   _alternative \
+  'sub-commands:sub-commands:((upgrade\:"an sub : command. " up\:"an sub : command. " completion\:"Generate autocompletion for zsh."))' \
   'test:test:(($list_0))' \
   'files:files:_files'
 }
@@ -119,7 +120,7 @@ _xx_xx() {
   
   case $state in
   cmd_0)
-    _xx__type__test__files
+    _xx__type__first_arg_xx_test__files
     ;;
   param_0)
     _xx__type__string
@@ -143,15 +144,23 @@ _xx() {
   local program=xx
   typeset -A opt_args
   
-  case $line[1] in
-  upgrade|up)
-    _xx_upgrade
-    ;;
-  completion)
-    _xx_completion
-    ;;
-  *)
-    _xx_xx
+  _arguments -s -C \
+    '*: :->cmd_0' &&
+    ret=0
+  
+  case $state in
+  cmd_0)
+    case $line[1] in
+    upgrade|up)
+      _xx_upgrade
+      ;;
+    completion)
+      _xx_completion
+      ;;
+    *)
+      _xx_xx
+      ;;
+    esac
     ;;
   esac
 }

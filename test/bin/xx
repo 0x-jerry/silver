@@ -5,19 +5,20 @@ import { sliver } from '../../src'
 const ins = sliver`
 v1.0.0 @help @autocompletion
 
-xx [@test|type|_files:test] [@test:a2] [@test:a3], is a library for create command line interface quickly. ${fn}
+xx [@xx|_files:test] [@xx:a2] [...@xx|_files:files], is a library for create command line interface quickly. ${fn}
 
--t --test @test|_files:t1, Test autocompletion.
+-t --test @arg|_files:t1, Test autocompletion.
 
-up/upgrade <@type|_files:dir> [...@_files:other] #stopEarly, an sub command. ${upFn}
+up/upgrade <@up|_files:dir> [...@up|_files:other] #stopEarly, an sub command. ${upFn}
 
 -s --string @string:default, sub command option.
 --small, other option.
 `
 
-ins.type('test', ['t1', 't2', 't3:dev'])
+ins.type('xx', ['x1', 'x2', 'x3:dev'])
+ins.type('up', ['up1', 'up2', 'up3:dev'])
 
-ins.type('type', () => [...ins.typeMapper.keys()])
+ins.type('arg', () => [...ins.typeMapper.keys()])
 
 /**
  *

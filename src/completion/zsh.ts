@@ -245,7 +245,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
 function generateArgumentsBranches(g: ZshCodeGenerator, conf: Command, offset = 0) {
   const depth = calcCommandDepth(conf)
   return (conf.parameters || []).slice(offset).map((parameter, idx) => {
-    const name = parameter.handleRestAll ? '*' : (idx + depth + 2 * offset).toString()
+    const name = parameter.handleRestAll ? '*' : (idx + depth + offset).toString()
     const type = parameter.type
 
     if (!type) {
@@ -302,7 +302,7 @@ function _genCommandCodeByLine(g: ZshCodeGenerator, conf: Command): CodeLine[] {
   const depth = calcCommandDepth(conf)
 
   if (!conf.commands?.length) {
-    return _genCurrentCommandCode()
+    return _genCurrentCommandCode(g, conf)
   }
 
   const caseBranches = conf.commands.flatMap((subCmd) => {
@@ -322,25 +322,56 @@ function _genCommandCodeByLine(g: ZshCodeGenerator, conf: Command): CodeLine[] {
     '*)',
     [
       // fallback
-      ..._genCurrentCommandCode(),
+      ..._genCurrentCommandCode(g, conf),
 
       ';;',
     ],
     `esac`,
   ]
 
-  return codes
+  return generateArgumentsCode({
+    branches: [['*', codes]],
+  })
+}
+function _genCurrentCommandCode(g: ZshCodeGenerator, conf: Command): CodeLine[] {
+  const depth = calcCommandDepth(conf)
+  const hasSubCommands = conf.commands?.length
 
-  function _genCurrentCommandCode(): CodeLine[] {
-    const codes = generateArgumentsCode({
-      branches: [
-        ...generateSkipArgumentsBranches(depth - 1),
-        ...generateArgumentsBranches(g, conf),
-      ],
-      params: generateOptions(g, conf),
+  const codes = generateArgumentsCode({
+    branches: hasSubCommands
+      ? [
+          ...generateSkipArgumentsBranches(depth - 1),
+          [depth.toString(), _generateFirstArgWithSubCommands()],
+          ...generateArgumentsBranches(g, conf, 1),
+        ]
+      : [
+          //
+          ...generateSkipArgumentsBranches(depth - 1),
+          ...generateArgumentsBranches(g, conf),
+        ],
+    params: generateOptions(g, conf),
+  })
+
+  return [g.createFn([conf.name], codes)]
+  function _generateFirstArgWithSubCommands() {
+    const subCommandDescriptions = (conf.commands || []).flatMap((cmd) => {
+      const codes: string[] = []
+      const d = `${escapeStr(cmd.name)}\\:${JSON.stringify(cmd.description || '')}`
+      codes.push(d)
+
+      if (cmd.alias) {
+        const d = `${escapeStr(cmd.alias)}\\:${JSON.stringify(cmd.description || '')}`
+        codes.push(d)
+      }
+
+      return codes
     })
 
-    return [g.createFn([conf.name], codes)]
+    return g.generateAlternativeCodeFn({
+      type: conf.parameters?.at(0)?.type,
+      extraBranches: [`'sub-commands:sub-commands:((${subCommandDescriptions.join(' ')}))'`],
+      namePrefixes: ['first_arg', ...getCommandPrefixes(conf)],
+    })
   }
 }
 
@@ -414,4 +445,17 @@ function calcCommandDepth(conf: Command) {
     _conf = _conf.parent
   }
   return depth
+}
+
+function getCommandPrefixes(conf: Command) {
+  const names: string[] = []
+
+  let _conf: Command | undefined = conf
+
+  while (_conf) {
+    names.push(_conf.name)
+    _conf = _conf.parent
+  }
+
+  return names
 }
