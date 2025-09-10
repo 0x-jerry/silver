@@ -11,7 +11,7 @@ class ZshCodeGenerator {
   constructor(public name: string) {}
 
   createFn(name: Arrayable<string>, codes: CodeLine) {
-    const fnName = generateFnName([this.name, ...ensureArray(name)])
+    const fnName = generateFnName([this.name, ...ensureArray(name)]).replaceAll('|', '_')
 
     const finalCodes = [`${fnName}() {`, codes, `}`]
 
@@ -135,14 +135,14 @@ class ZshCodeGenerator {
   }): CodeLine {
     const { type, extraBranches, namePrefixes } = opt
 
-    const names = [...(namePrefixes || []), type?.replaceAll('|', '_')].filter(isString)
+    const names = [...(namePrefixes || []), type].filter(isString)
     if (!names) {
       throw new Error(`Please set namePrefixes`)
     }
 
     const codes = this.generateAlternativeCode({ type, extraBranches })
 
-    return this.createFn(names, codes)
+    return this.createFn(['_type_', ...names], codes)
   }
 }
 
@@ -236,140 +236,32 @@ function generateArgumentsCode(opt: GenerateArgumentsOption) {
 export function generateZshAutoCompletion(globalConf: Command) {
   const g = new ZshCodeGenerator(globalConf.name)
 
-  const codes = _genCommandCode(g, globalConf)
+  const codes = _genCommandCodeByLine(g, globalConf)
   g.setMainFnCodes(codes)
 
   return g.generate()
 }
 
-function _genCommandCode(g: ZshCodeGenerator, conf: Command): CodeLine {
+function generateArgumentsBranches(g: ZshCodeGenerator, conf: Command, offset = 0) {
   const depth = calcCommandDepth(conf)
-  const hasSubCommands = !!conf.commands?.length
+  return (conf.parameters || []).slice(offset).map((parameter, idx) => {
+    const name = parameter.handleRestAll ? '*' : (idx + depth + 2 * offset).toString()
+    const type = parameter.type
 
-  if (hasSubCommands) {
-    return generateArgumentsCode({
-      branches: [
-        ...generateSkipArgumentsBranches(depth - 1),
-        [depth.toString(), _generateCommandCode()],
-        ['*', generateSubCommandsBranch()],
-        ..._generateArgumentsBranches(conf, 1),
-      ],
-    })
-  }
+    if (!type) {
+      return [name, null] as [string, CodeLine | null]
+    }
 
-  return generateArgumentsCode({
-    branches: [...generateSkipArgumentsBranches(depth - 1), ..._generateArgumentsBranches(conf)],
-    params: generateOptions(g, conf),
+    const code = g.generateAlternativeCodeFn({ type })
+
+    return [name, code] as [string, CodeLine | null]
   })
-
-  function _generateArgumentsBranches(conf: Command, offset = 0) {
-    return (conf.parameters || []).slice(offset).map((parameter, idx) => {
-      const name = parameter.handleRestAll ? '*' : (idx + depth + 2 * offset).toString()
-      const type = parameter.type
-
-      if (!type) {
-        return [name, null] as [string, CodeLine | null]
-      }
-
-      const code = g.generateAlternativeCodeFn({ type })
-
-      return [name, code] as [string, CodeLine | null]
-    })
-  }
-
-  function _generateCommandCode() {
-    const subCommandDescriptions = (conf.commands || []).flatMap((cmd) => {
-      const codes: string[] = []
-      const d = `${escapeStr(cmd.name)}\\:${JSON.stringify(cmd.description || '')}`
-      codes.push(d)
-
-      if (cmd.alias) {
-        const d = `${escapeStr(cmd.alias)}\\:${JSON.stringify(cmd.description || '')}`
-        codes.push(d)
-      }
-
-      return codes
-    })
-
-    return generateArgumentsCode({
-      branches: [
-        [
-          '*',
-          g.generateAlternativeCodeFn({
-            type: conf.parameters?.at(0)?.type,
-            extraBranches: [`'sub-commands:sub-commands:((${subCommandDescriptions.join(' ')}))'`],
-            namePrefixes: [
-              ...getCommandPrefixes(conf),
-              conf.parameters?.at(0)?.type?.replaceAll('|', '_') || '',
-            ],
-          }),
-        ],
-      ],
-      params: generateOptions(g, conf),
-    })
-  }
-
-  function generateSubCommandsBranch(): CodeLine {
-    const secondArg = conf.parameters?.at(1)
-
-    const fallbackBranchCode = secondArg?.type
-      ? generateArgumentsCode({
-          branches: [
-            [
-              '*',
-              g.generateAlternativeCodeFn({
-                type: secondArg?.type,
-                namePrefixes: getCommandPrefixes(conf),
-              }),
-            ],
-          ],
-          params: generateOptions(g, conf),
-        })
-      : []
-
-    const codes = [
-      `case $line[${depth}] in`,
-      ...(conf.commands || [])
-        //
-        .flatMap((command) => [
-          //
-          `${[command.alias, command.name].filter(isString).join('|')})`,
-          [
-            //
-            ..._genCommandCode(g, command),
-            ';;',
-          ],
-        ]),
-      '*)',
-      [
-        //
-        ...fallbackBranchCode,
-        ';;',
-      ],
-      `esac`,
-    ]
-
-    return conf.commands?.length ? codes : [fallbackBranchCode]
-  }
 }
 
 function generateSkipArgumentsBranches(depth: number) {
   return Array(depth)
     .fill(0)
     .map((_, idx) => [(idx + 1).toString(), null] as [string, CodeLine | null])
-}
-
-function getCommandPrefixes(conf: Command) {
-  const names: string[] = []
-
-  let _conf: Command | undefined = conf
-
-  while (_conf) {
-    names.push(_conf.name)
-    _conf = _conf.parent
-  }
-
-  return names
 }
 
 function generateOptions(g: ZshCodeGenerator, conf: Command): ParamOption[] {
@@ -404,6 +296,52 @@ function generateOptions(g: ZshCodeGenerator, conf: Command): ParamOption[] {
   }
 
   return params
+}
+
+function _genCommandCodeByLine(g: ZshCodeGenerator, conf: Command): CodeLine[] {
+  const depth = calcCommandDepth(conf)
+
+  if (!conf.commands?.length) {
+    return _genCurrentCommandCode()
+  }
+
+  const caseBranches = conf.commands.flatMap((subCmd) => {
+    return [
+      `${[subCmd.name, subCmd.alias].filter(isString).join('|')})`,
+      [
+        //
+        ..._genCommandCodeByLine(g, subCmd),
+        ';;',
+      ],
+    ]
+  })
+
+  const codes: CodeLine[] = [
+    `case $line[${depth}] in`,
+    ...caseBranches,
+    '*)',
+    [
+      // fallback
+      ..._genCurrentCommandCode(),
+
+      ';;',
+    ],
+    `esac`,
+  ]
+
+  return codes
+
+  function _genCurrentCommandCode(): CodeLine[] {
+    const codes = generateArgumentsCode({
+      branches: [
+        ...generateSkipArgumentsBranches(depth - 1),
+        ...generateArgumentsBranches(g, conf),
+      ],
+      params: generateOptions(g, conf),
+    })
+
+    return [g.createFn([conf.name], codes)]
+  }
 }
 
 function _getAllParentOptions(conf: Command) {

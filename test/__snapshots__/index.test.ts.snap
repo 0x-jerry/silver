@@ -48,6 +48,7 @@ exports[`silver > should parse cli description 1`] = `
             "type": undefined,
           },
         ],
+        "parent": [Circular],
       },
       {
         "action": "completion",
@@ -79,6 +80,7 @@ exports[`silver > should parse cli description 1`] = `
             "type": undefined,
           },
         ],
+        "parent": [Circular],
       },
     ],
     "description": "A library for create command line interface quickly. ",
