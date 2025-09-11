@@ -165,7 +165,7 @@ function generateArgumentsCode(opt: GenerateArgumentsOption) {
   let idx = 0
   for (const [key, code] of branches) {
     const caseVarName = code ? `cmd_${idx++}` : 'null'
-    argumentArgCodes.push(`  '${key}: :->${caseVarName}' \\`)
+    argumentArgCodes.push(`  '${key}: :->${caseVarName}'`)
 
     if (code) {
       caseCodes.push(
@@ -202,22 +202,17 @@ function generateArgumentsCode(opt: GenerateArgumentsOption) {
           )
         }
 
-        return `  '${param.label}: :->${caseVarName}' \\`
+        return `  '${param.label}: :->${caseVarName}'`
       } else {
-        return `  '${param.label}' \\`
+        return `  '${param.label}'`
       }
     }),
   )
 
-  argumentArgCodes[argumentArgCodes.length - 1] = argumentArgCodes[
-    argumentArgCodes.length - 1
-  ].replace(/\\$/, '&&')
-
-  argumentArgCodes.push(`  ret=0`)
+  argumentArgCodes.push(`  && ret=0`)
 
   const codes: CodeLine = [
-    `_arguments -s -C \\`,
-    ...argumentArgCodes,
+    ...warpLines([`_arguments -s -C`, ...argumentArgCodes]),
     '',
     `case $state in`,
     ...caseCodes,

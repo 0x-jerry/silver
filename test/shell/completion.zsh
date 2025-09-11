@@ -40,8 +40,8 @@ _xx_upgrade() {
     '--other[an option without specify a type will be a string.]' \
     '-o[an option without specify a type will be a string.]' \
     '--help[Print help text for command.]: :->param_2' \
-    '-h[Print help text for command.]: :->param_2' &&
-    ret=0
+    '-h[Print help text for command.]: :->param_2' \
+    && ret=0
   
   case $state in
   param_0)
@@ -75,8 +75,8 @@ _xx_completion() {
     '--other[an option without specify a type will be a string.]' \
     '-o[an option without specify a type will be a string.]' \
     '--help[Print help text for command.]: :->param_8' \
-    '-h[Print help text for command.]: :->param_8' &&
-    ret=0
+    '-h[Print help text for command.]: :->param_8' \
+    && ret=0
   
   case $state in
   param_2)
@@ -115,8 +115,8 @@ _xx_xx() {
     '--other[an option without specify a type will be a string.]' \
     '-o[an option without specify a type will be a string.]' \
     '--help[Print help text for command.]: :->param_6' \
-    '-h[Print help text for command.]: :->param_6' &&
-    ret=0
+    '-h[Print help text for command.]: :->param_6' \
+    && ret=0
   
   case $state in
   cmd_0)
@@ -145,8 +145,8 @@ _xx() {
   typeset -A opt_args
   
   _arguments -s -C \
-    '*: :->cmd_0' &&
-    ret=0
+    '*: :->cmd_0' \
+    && ret=0
   
   case $state in
   cmd_0)
