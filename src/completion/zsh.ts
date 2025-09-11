@@ -237,7 +237,7 @@ export function generateZshAutoCompletion(globalConf: Command) {
   return g.generate()
 }
 
-function generateArgumentsBranches(g: ZshCodeGenerator, conf: Command, offset = 0) {
+function _generateArgumentsBranches(g: ZshCodeGenerator, conf: Command, offset = 0) {
   const depth = calcCommandDepth(conf)
   return (conf.parameters || []).slice(offset).map((parameter, idx) => {
     const name = parameter.handleRestAll ? '*' : (idx + depth + offset).toString()
@@ -253,13 +253,13 @@ function generateArgumentsBranches(g: ZshCodeGenerator, conf: Command, offset = 
   })
 }
 
-function generateSkipArgumentsBranches(depth: number) {
+function _generateSkipArgumentsBranches(depth: number) {
   return Array(depth)
     .fill(0)
     .map((_, idx) => [(idx + 1).toString(), null] as [string, CodeLine | null])
 }
 
-function generateOptions(g: ZshCodeGenerator, conf: Command): ParamOption[] {
+function _generateOptionsForArguments(g: ZshCodeGenerator, conf: Command): ParamOption[] {
   const options: CmdOption[] = _getAllParentOptions(conf)
   const params: ParamOption[] = []
 
@@ -335,16 +335,16 @@ function _genCurrentCommandCode(g: ZshCodeGenerator, conf: Command): CodeLine[] 
   const codes = generateArgumentsCode({
     branches: hasSubCommands
       ? [
-          ...generateSkipArgumentsBranches(depth - 1),
+          ..._generateSkipArgumentsBranches(depth - 1),
           [depth.toString(), _generateFirstArgWithSubCommands()],
-          ...generateArgumentsBranches(g, conf, 1),
+          ..._generateArgumentsBranches(g, conf, 1),
         ]
       : [
           //
-          ...generateSkipArgumentsBranches(depth - 1),
-          ...generateArgumentsBranches(g, conf),
+          ..._generateSkipArgumentsBranches(depth - 1),
+          ..._generateArgumentsBranches(g, conf),
         ],
-    params: generateOptions(g, conf),
+    params: _generateOptionsForArguments(g, conf),
   })
 
   return [g.createFn([conf.name], codes)]
@@ -433,24 +433,14 @@ function generateTypeName(type: string) {
 
 function calcCommandDepth(conf: Command) {
   let depth = 0
-  let _conf: Command | undefined = conf
+  _visitCommandChain(conf, () => depth++)
 
-  while (_conf) {
-    depth++
-    _conf = _conf.parent
-  }
   return depth
 }
 
 function getCommandPrefixes(conf: Command) {
   const names: string[] = []
 
-  let _conf: Command | undefined = conf
-
-  while (_conf) {
-    names.push(_conf.name)
-    _conf = _conf.parent
-  }
-
+  _visitCommandChain(conf, (c) => names.push(c.name))
   return names
 }
