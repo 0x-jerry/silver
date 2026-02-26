@@ -14,14 +14,12 @@ exports[`syntax > parse program 1`] = `
         "options": [
           {
             "alias": "s",
-            "defaultValue": "default",
             "description": "sub command option.",
             "name": "string",
             "type": "string",
           },
           {
             "alias": "",
-            "defaultValue": undefined,
             "description": "other option.",
             "name": "small",
             "type": "bool",
@@ -29,14 +27,12 @@ exports[`syntax > parse program 1`] = `
         ],
         "parameters": [
           {
-            "defaultValue": undefined,
             "handleRestAll": false,
             "name": "dir",
             "required": true,
             "type": "test",
           },
           {
-            "defaultValue": undefined,
             "handleRestAll": true,
             "name": "other",
             "type": undefined,
@@ -50,17 +46,27 @@ exports[`syntax > parse program 1`] = `
     "options": [
       {
         "alias": "t",
-        "defaultValue": "t1",
         "description": "Test autocompletion.",
         "name": "test",
         "type": "test",
       },
+      {
+        "alias": "lo",
+        "description": "Long option name",
+        "name": "lang-option",
+        "type": "string",
+      },
+      {
+        "alias": "b",
+        "description": "Omit type",
+        "name": "bool",
+        "type": undefined,
+      },
     ],
     "parameters": [
       {
-        "defaultValue": "t1",
         "handleRestAll": false,
-        "name": "type",
+        "name": "name-name",
         "type": "type",
       },
     ],

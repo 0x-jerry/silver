@@ -9,7 +9,6 @@ export interface CmdOption {
   alias?: string
 
   type?: string
-  defaultValue?: string | boolean | number
 
   description?: string
 
@@ -32,7 +31,6 @@ export interface CmdParameter {
   name: string
   required?: boolean
   type?: string
-  defaultValue?: string | boolean | number
   handleRestAll?: boolean
 }
 

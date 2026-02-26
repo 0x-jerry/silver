@@ -1,0 +1,14 @@
+v1.0.0 @help @autocompletion
+
+xx [@type:name-name], A library for create command line interface quickly.
+
+-t --test @test, Test autocompletion.
+
+-lo --lang-option @string, Long option name
+
+-b --bool, Omit type
+
+up/upgrade <@test:dir> [...other] #stopEarly, an sub command.
+
+-s --string @string, sub command option.
+--small @bool, other option.

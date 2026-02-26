@@ -3,12 +3,11 @@ import grammar from './syntax.ohm-bundle'
 
 interface OptionType {
   name: string
-  defaultValue?: string
 }
 
 const semantics = grammar.createSemantics()
 
-semantics.addOperation<any>('e', {
+semantics.addOperation<unknown>('e', {
   _iter(...children) {
     return children.map((child) => child.e())
   },
@@ -59,43 +58,24 @@ semantics.addOperation<any>('e', {
   CommandParameter(arg0) {
     return arg0.e()
   },
-  CommandParameter_optional(
-    _l_parenthesis,
-    handleRestFlag,
-    type,
-    name,
-    defaultValue,
-    _r_parenthesis
-  ) {
+  CommandParameter_optional(_l_parenthesis, handleRestFlag, type, name, _r_parenthesis) {
     const parameter: CmdParameter = {
       name: name.sourceString,
       handleRestAll: !!handleRestFlag.sourceString,
       type: type.e().at(0),
-      defaultValue: defaultValue.e().at(0),
     }
 
     return parameter
   },
-  CommandParameter_required(
-    _l_parenthesis,
-    handleRestFlag,
-    type,
-    name,
-    defaultValue,
-    _r_parenthesis
-  ) {
+  CommandParameter_required(_l_parenthesis, handleRestFlag, type, name, _r_parenthesis) {
     const parameter: CmdParameter = {
       required: true,
       name: name.sourceString,
       handleRestAll: !!handleRestFlag.sourceString,
       type: type.e().at(0),
-      defaultValue: defaultValue.e().at(0),
     }
 
     return parameter
-  },
-  CommandParameterDefaultValue(_, value) {
-    return value.sourceString
   },
   CommandParameterType(typeFlag, _) {
     return typeFlag.e()
@@ -116,23 +96,12 @@ semantics.addOperation<any>('e', {
       name: name.sourceString.slice(2),
       alias: shortName.sourceString.slice(1),
       type: _type?.name,
-      defaultValue: _type?.defaultValue,
       description: description.sourceString,
     }
 
     return option
   },
-  OptionType(arg0) {
-    return arg0.e()
-  },
-  OptionType_default(name, _, defaultValue) {
-    const optionType: OptionType = {
-      name: name.sourceString.slice(1),
-      defaultValue: defaultValue.sourceString,
-    }
-    return optionType
-  },
-  OptionType_optional(name) {
+  OptionType(name) {
     const optionType: OptionType = {
       name: name.sourceString.slice(1),
     }
@@ -144,7 +113,7 @@ semantics.addOperation<any>('e', {
   atFlag(_, name) {
     return name.sourceString
   },
-  version(arg0, arg1, arg2, arg3, arg4, arg5) {
+  version(_arg0, _arg1, _arg2, _arg3, _arg4, _arg5) {
     return this.sourceString
   },
 })

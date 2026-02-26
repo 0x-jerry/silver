@@ -4,7 +4,6 @@ import { sliver } from '../src/core'
 
 describe('silver', () => {
   it('should parse cli description', () => {
-    const defaultCustom = 'a2'
     const fn = vi.fn()
 
     const ins = sliver`
@@ -12,17 +11,17 @@ describe('silver', () => {
 
 commandName [dir], A library for create command line interface quickly. ${fn}
 
--s --string @string:cool, An string option with default value.
--n --number @number:123, an number option with default value, and it's a global option.
--e --enum @custom:${defaultCustom}, an custom option with default value.
+-s --string @string, An string option with default value.
+-n --number @number, an number option with default value, and it's a global option.
+-e --enum @custom, an custom option with default value.
 
 -b --bool @bool, an boolean option without default value.
 -o --other, an option without specify a type will be a string.
 
 up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
 
--s --string @string:default, sub command option.
---small @bool:true, other option.
+-s --string @string, sub command option.
+--small @bool, other option.
 `
 
     expect(ins.conf).toMatchSnapshot()
@@ -54,7 +53,6 @@ sub, test command. ${fn}
   })
 
   it('should generate zsh code', async () => {
-    const defaultCustom = 'a2'
     const fn = vi.fn()
 
     const ins = sliver`
@@ -62,16 +60,16 @@ sub, test command. ${fn}
 
 xx [@test|_files:dir], A library for create command line interface quickly. ${fn}
 
--s --string @string:cool, An string option with default value.
--n --number @number:123, an number option with default value, and it is a global option.
--e --enum @custom:${defaultCustom}, an custom option with default value.
+-s --string @string, An string option with default value.
+-n --number @number, an number option with default value, and it is a global option.
+-e --enum @custom, an custom option with default value.
 
 -b --bool @bool, an boolean option without default value.
 -o --other, an option without specify a type will be a string.
 
 up/upgrade <dir> [...other] #stopEarly, an sub : command. ${fn}
 
--s --string @string:default, sub command option.
+-s --string @string, sub command option.
 --small @bool, other option.
 `
 

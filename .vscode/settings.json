@@ -5,5 +5,13 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "always"
-  }
+  },
+  "ohm-js.validator": [
+    {
+      "grammar": "src/grammar/syntax.ohm",
+      "match": [
+        "**/*.cli"
+      ]
+    }
+  ]
 }

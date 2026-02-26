@@ -5,15 +5,11 @@ Silver {
 
   Option = optionShortName? optionName OptionType? "," description
 
-  optionShortName = "-" letter
+  optionShortName = "-" letter alnum*
 
-  optionName = "--" letter+
+  optionName = "--" letter (alnum | "-")*
 
-  OptionType
-    = atFlag ":" defaultValue  -- default
-    | atFlag                   -- optional
-
-  defaultValue = (letter | digit)+
+  OptionType = atFlag
 
   Command = CommandDefinition Option*
 
@@ -24,10 +20,8 @@ Silver {
   CommandName = word
 
   CommandParameter
-    = "[" "..."? CommandParameterType? CommandParameterName CommandParameterDefaultValue? "]"  -- optional
-    | "<" "..."? CommandParameterType? CommandParameterName CommandParameterDefaultValue? ">"  -- required
-
-  CommandParameterDefaultValue = ":" defaultValue
+    = "[" "..."? CommandParameterType? CommandParameterName "]"  -- optional
+    | "<" "..."? CommandParameterType? CommandParameterName ">"  -- required
 
   CommandParameterType = atFlag ":"
   CommandParameterName = letter ("_" | "-" | alnum)*

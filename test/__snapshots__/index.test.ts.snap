@@ -20,14 +20,12 @@ exports[`silver > should parse cli description 1`] = `
         "options": [
           {
             "alias": "s",
-            "defaultValue": "default",
             "description": "sub command option.",
             "name": "string",
             "type": "string",
           },
           {
             "alias": "",
-            "defaultValue": "true",
             "description": "other option.",
             "name": "small",
             "type": "bool",
@@ -35,14 +33,12 @@ exports[`silver > should parse cli description 1`] = `
         ],
         "parameters": [
           {
-            "defaultValue": undefined,
             "handleRestAll": false,
             "name": "dir",
             "required": true,
             "type": undefined,
           },
           {
-            "defaultValue": undefined,
             "handleRestAll": true,
             "name": "other",
             "type": undefined,
@@ -59,14 +55,12 @@ exports[`silver > should parse cli description 1`] = `
         "options": [
           {
             "alias": "",
-            "defaultValue": undefined,
             "description": "Install autocompletion for zsh, not implement yet.",
             "name": "install",
             "type": undefined,
           },
           {
             "alias": "",
-            "defaultValue": undefined,
             "description": "Uninstall autocompletion for zsh, not implement yet.",
             "name": "uninstall",
             "type": undefined,
@@ -74,7 +68,6 @@ exports[`silver > should parse cli description 1`] = `
         ],
         "parameters": [
           {
-            "defaultValue": undefined,
             "handleRestAll": false,
             "name": "type",
             "type": undefined,
@@ -89,35 +82,30 @@ exports[`silver > should parse cli description 1`] = `
     "options": [
       {
         "alias": "s",
-        "defaultValue": "cool",
         "description": "An string option with default value.",
         "name": "string",
         "type": "string",
       },
       {
         "alias": "n",
-        "defaultValue": "123",
         "description": "an number option with default value, and it's a global option.",
         "name": "number",
         "type": "number",
       },
       {
         "alias": "e",
-        "defaultValue": "a2",
         "description": "an custom option with default value.",
         "name": "enum",
         "type": "custom",
       },
       {
         "alias": "b",
-        "defaultValue": undefined,
         "description": "an boolean option without default value.",
         "name": "bool",
         "type": "bool",
       },
       {
         "alias": "o",
-        "defaultValue": undefined,
         "description": "an option without specify a type will be a string.",
         "name": "other",
         "type": undefined,
@@ -131,7 +119,6 @@ exports[`silver > should parse cli description 1`] = `
     ],
     "parameters": [
       {
-        "defaultValue": undefined,
         "handleRestAll": false,
         "name": "dir",
         "type": undefined,

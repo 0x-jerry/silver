@@ -28,13 +28,13 @@ _xx_upgrade() {
     '1: :->null' \
     '2: :->null' \
     '*: :->null' \
-    '--string[sub command option. @default is default]: :->param_0' \
-    '-s[sub command option. @default is default]: :->param_0' \
+    '--string[sub command option.]: :->param_0' \
+    '-s[sub command option.]: :->param_0' \
     '--small[other option.]: :->param_2' \
-    '--number[an number option with default value, and it is a global option. @default is 123]: :->param_3' \
-    '-n[an number option with default value, and it is a global option. @default is 123]: :->param_3' \
-    '--enum[an custom option with default value. @default is a2]: :->param_5' \
-    '-e[an custom option with default value. @default is a2]: :->param_5' \
+    '--number[an number option with default value, and it is a global option.]: :->param_3' \
+    '-n[an number option with default value, and it is a global option.]: :->param_3' \
+    '--enum[an custom option with default value.]: :->param_5' \
+    '-e[an custom option with default value.]: :->param_5' \
     '--bool[an boolean option without default value.]: :->param_2' \
     '-b[an boolean option without default value.]: :->param_2' \
     '--other[an option without specify a type will be a string.]' \
@@ -64,12 +64,12 @@ _xx_completion() {
     '2: :->null' \
     '--install[Install autocompletion for zsh, not implement yet.]' \
     '--uninstall[Uninstall autocompletion for zsh, not implement yet.]' \
-    '--string[An string option with default value. @default is cool]: :->param_2' \
-    '-s[An string option with default value. @default is cool]: :->param_2' \
-    '--number[an number option with default value, and it is a global option. @default is 123]: :->param_4' \
-    '-n[an number option with default value, and it is a global option. @default is 123]: :->param_4' \
-    '--enum[an custom option with default value. @default is a2]: :->param_6' \
-    '-e[an custom option with default value. @default is a2]: :->param_6' \
+    '--string[An string option with default value.]: :->param_2' \
+    '-s[An string option with default value.]: :->param_2' \
+    '--number[an number option with default value, and it is a global option.]: :->param_4' \
+    '-n[an number option with default value, and it is a global option.]: :->param_4' \
+    '--enum[an custom option with default value.]: :->param_6' \
+    '-e[an custom option with default value.]: :->param_6' \
     '--bool[an boolean option without default value.]: :->param_8' \
     '-b[an boolean option without default value.]: :->param_8' \
     '--other[an option without specify a type will be a string.]' \
@@ -104,12 +104,12 @@ _xx__type__first_arg_xx_test__files() {
 _xx_xx() {
   _arguments -s -C \
     '1: :->cmd_0' \
-    '--string[An string option with default value. @default is cool]: :->param_0' \
-    '-s[An string option with default value. @default is cool]: :->param_0' \
-    '--number[an number option with default value, and it is a global option. @default is 123]: :->param_2' \
-    '-n[an number option with default value, and it is a global option. @default is 123]: :->param_2' \
-    '--enum[an custom option with default value. @default is a2]: :->param_4' \
-    '-e[an custom option with default value. @default is a2]: :->param_4' \
+    '--string[An string option with default value.]: :->param_0' \
+    '-s[An string option with default value.]: :->param_0' \
+    '--number[an number option with default value, and it is a global option.]: :->param_2' \
+    '-n[an number option with default value, and it is a global option.]: :->param_2' \
+    '--enum[an custom option with default value.]: :->param_4' \
+    '-e[an custom option with default value.]: :->param_4' \
     '--bool[an boolean option without default value.]: :->param_6' \
     '-b[an boolean option without default value.]: :->param_6' \
     '--other[an option without specify a type will be a string.]' \

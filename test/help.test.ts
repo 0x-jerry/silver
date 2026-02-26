@@ -7,11 +7,11 @@ v1.0.0 @autocompletion @manual
 
 xx [@type:type], A library for create command line interface quickly.
 
--t --test @test:t1, Test autocompletion.
+-t --test @test, Test autocompletion.
 
 up/upgrade <@test:dir> [...other] #stopEarly, an sub command.
 
--s --string @string:default, sub command option.
+-s --string @string, sub command option.
 --small @bool, other option.
 `
 

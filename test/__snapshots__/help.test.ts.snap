@@ -13,8 +13,8 @@ exports[`test help message > should print main help message 1`] = `
 
 [1mOptions:[22m
 
-[2m-t[22m [36m--test[39m [2m @test:t1 [22m Test autocompletion.        
-[2m-h[22m [36m--help[39m [2m @bool [22m    Print help text for command.
+[2m-t[22m [36m--test[39m [2m @test [22m Test autocompletion.        
+[2m-h[22m [36m--help[39m [2m @bool [22m Print help text for command.
 ",
 ]
 `;
@@ -27,8 +27,8 @@ exports[`test help message > should print sub command help message 1`] = `
 
 [1mOptions:[22m
 
-[2m-s[22m [36m--string[39m [2m @string:default [22m sub command option.
-[2m[22m   [36m--small[39m  [2m @bool [22m           other option.      
+[2m-s[22m [36m--string[39m [2m @string [22m sub command option.
+[2m[22m   [36m--small[39m  [2m @bool [22m   other option.      
 ",
 ]
 `;
