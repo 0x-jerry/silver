@@ -2,21 +2,32 @@
   "name": "@0x-jerry/silver",
   "version": "2.0.0",
   "description": "Let writing CLI like writing document.",
-  "main": "dist/index.mjs",
-  "typings": "dist/index.d.mts",
-  "type": "module",
+  "homepage": "https://github.com/0x-jerry/silver#readme",
+  "bugs": {
+    "url": "https://github.com/0x-jerry/silver/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0x-jerry/silver.git"
+  },
   "license": "MIT",
   "author": "0x-jerry <x.jerry.wang@gmail.com>",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
   },
+  "typings": "dist/index.d.mts",
+  "directories": {
+    "test": "test"
+  },
   "files": [
     "dist"
   ],
-  "engines": {
-    "node": ">= 18"
-  },
   "scripts": {
     "check": "tsc --noEmit",
     "test": "vitest run",
@@ -27,6 +38,12 @@
     "prepublishOnly": "npm run build",
     "release": "x-release"
   },
+  "dependencies": {
+    "@0x-jerry/utils": "^6.5.0",
+    "minimist": "^1.2.8",
+    "ohm-js": "^17.5.0",
+    "picocolors": "^1.1.1"
+  },
   "devDependencies": {
     "@0x-jerry/x-release": "^3.0.5",
     "@ohm-js/cli": "^2.0.1",
@@ -35,12 +52,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "tsdown": "^0.22.4",
     "typescript": "^6.0.0",
-    "vitest": "^4.1.10"
-  },
-  "dependencies": {
-    "@0x-jerry/utils": "^6.5.0",
-    "minimist": "^1.2.8",
-    "ohm-js": "^17.5.0",
-    "picocolors": "^1.1.1"
+    "vitest": "^4.1.10",
+    "@types/bun": "latest"
   }
 }
