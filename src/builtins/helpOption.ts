@@ -38,8 +38,7 @@ export function generateHelpMsg(conf: Command, program: Program) {
     const options = conf.options.map((item) => {
       const names = [pc.dim(item.alias ? `-${item.alias}` : ''), pc.cyan(`--${item.name}`)]
 
-      const optType =
-        [item.type && `@${item.type}`, item.defaultValue].filter(Boolean).join(':') || '  '
+      const optType = [item.type && `@${item.type}`].filter(Boolean).join(':') || '  '
 
       return [...names, pc.dim(` ${optType} `), item.description]
     })
@@ -53,15 +52,13 @@ export function generateHelpMsg(conf: Command, program: Program) {
 }
 
 function parameterDescription(parameter: CmdParameter) {
-  const { required = false, handleRestAll, name, defaultValue } = parameter
-
-  const _name = [name, defaultValue].filter(Boolean).join(':')
+  const { required = false, handleRestAll, name } = parameter
 
   if (required) {
-    return handleRestAll ? `<...${_name}>` : `<${_name}>`
+    return handleRestAll ? `<...${name}>` : `<${name}>`
   }
 
-  return handleRestAll ? `[...${_name}]` : `[${_name}]`
+  return handleRestAll ? `[...${name}]` : `[${name}]`
 }
 
 function getCommandName(cmd: Command) {

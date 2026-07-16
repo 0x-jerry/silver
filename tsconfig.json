@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "outDir": "dist",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "node"],
   },
-  "include": ["src", "test"]
+  "include": ["src", "test"],
 }

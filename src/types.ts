@@ -2,7 +2,7 @@
  *
  * `#flag` syntax is not support yet.
  *
- * @example -o --option @type:defaultValue #flag, description
+ * @example -o --option @type #flag, description
  */
 export interface CmdOption {
   name?: string

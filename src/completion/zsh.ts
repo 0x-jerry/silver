@@ -268,10 +268,7 @@ function _generateOptionsForArguments(g: ZshCodeGenerator, conf: Command): Param
   }
 
   for (const opt of options) {
-    const defaultValueDescription =
-      opt.defaultValue != null ? ` @default is ${opt.defaultValue}` : ''
-
-    const desc = `[${opt.description}${defaultValueDescription}]`
+    const desc = `[${opt.description}]`
 
     const typeCode = opt.type ? g.generateAlternativeCodeFn({ type: opt.type }) : undefined
 

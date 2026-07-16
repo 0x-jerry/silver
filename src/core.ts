@@ -1,4 +1,4 @@
-import { sleep, toValue, type Value } from '@0x-jerry/utils'
+import { sleep, toValue, type AsyncFactory } from '@0x-jerry/utils'
 import minimist from 'minimist'
 import { createCompletionCommand } from './builtins/completionCommand'
 import { generateHelpMsg } from './builtins/helpOption'
@@ -16,7 +16,7 @@ import { builtinType, isType } from './utils'
 export class Sliver {
   conf?: Program
 
-  typeMapper = new Map<string, Value<CompletionType | Promise<CompletionType>>>()
+  typeMapper = new Map<string, AsyncFactory<CompletionType>>()
 
   parse(raw: TemplateStringsArray, ...tokens: any[]) {
     this.conf = parseCliProgram(raw, ...tokens)
@@ -50,7 +50,7 @@ export class Sliver {
     return (await toValue(value)) || []
   }
 
-  type(name: string, getType: Value<CompletionType | Promise<CompletionType>>) {
+  type(name: string, getType: AsyncFactory<CompletionType>) {
     this.typeMapper.set(name, getType)
 
     return this
@@ -151,13 +151,6 @@ function parseArgv(argv: string[], program: Command) {
   for (const opt of program.options || []) {
     if (opt.alias && opt.name) {
       config.alias[opt.name] = opt.alias
-    }
-
-    if (opt.defaultValue != null) {
-      const nameOrAlias = opt.name || opt.alias
-      if (nameOrAlias) {
-        config.default[nameOrAlias] = opt.defaultValue
-      }
     }
 
     if (isType(opt.type!, builtinType.boolean)) {
