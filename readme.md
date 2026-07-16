@@ -44,7 +44,7 @@ function upgradeAction([dir], options) {
 
 ## Syntax Detail
 
-Please see [syntax.ohm](./src/grammar//syntax.ohm).
+Please see [syntax.ohm](./src/grammar/syntax.ohm).
 
 ## Thanks
 
