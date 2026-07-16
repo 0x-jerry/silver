@@ -2,8 +2,8 @@
   "name": "@0x-jerry/silver",
   "version": "1.2.4",
   "description": "Let writing CLI like writing document.",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "main": "dist/index.mjs",
+  "typings": "dist/index.d.mts",
   "type": "module",
   "license": "MIT",
   "author": "0x-jerry <x.jerry.wang@gmail.com>",
@@ -22,25 +22,24 @@
     "test:watch": "vitest",
     "g:ohm": "ohm generateBundles --withTypes --esm src/**/*.ohm",
     "test:coverage": "vitest run --coverage",
-    "build": "tsup src/index.ts --format esm --dts --clean",
+    "build": "tsdown src/index.ts --format esm --dts --clean",
     "prepublishOnly": "npm run build",
     "release": "x-release"
   },
   "devDependencies": {
-    "@0x-jerry/x-release": "^2.4.0",
-    "@biomejs/biome": "^2.2.2",
+    "@0x-jerry/x-release": "^3.0.5",
     "@ohm-js/cli": "^2.0.1",
     "@types/minimist": "^1.2.5",
-    "@types/node": "^24.3.1",
-    "@vitest/coverage-v8": "^3.2.4",
-    "tsup": "^8.5.0",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "@types/node": "^26.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "tsdown": "^0.22.4",
+    "typescript": "^6.0.0",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@0x-jerry/utils": "^5.0.0",
+    "@0x-jerry/utils": "^6.5.0",
     "minimist": "^1.2.8",
-    "ohm-js": "^17.2.1",
+    "ohm-js": "^17.5.0",
     "picocolors": "^1.1.1"
   }
 }
