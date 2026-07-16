@@ -28,7 +28,7 @@ export function generateHelpMsg(conf: Command, program: Program) {
       return [getCommandName(item), pc.dim(` ${cmdArgsHelpMsg} `), item.description]
     })
 
-    const s = textTableToString(commands)
+    const s = textTableToString(commands, { headLine: '' })
     msgs.push(s, '')
   }
 
@@ -43,7 +43,7 @@ export function generateHelpMsg(conf: Command, program: Program) {
       return [...names, pc.dim(` ${optType} `), item.description]
     })
 
-    const s = textTableToString(options)
+    const s = textTableToString(options, { headLine: '' })
 
     msgs.push(s, '')
   }

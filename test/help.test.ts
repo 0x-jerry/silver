@@ -3,11 +3,11 @@ import { sliver } from '../src'
 
 describe('test help message', () => {
   const ins = sliver`
-v1.0.0 @autocompletion @manual
+v1.0.0 @autocomplete @manual
 
 xx [@type:type], A library for create command line interface quickly.
 
--t --test @test, Test autocompletion.
+-t --test @test, Test autocomplete.
 
 up/upgrade <@test:dir> [...other] #stopEarly, an sub command.
 

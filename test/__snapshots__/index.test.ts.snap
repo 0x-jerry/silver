@@ -3,8 +3,8 @@
 exports[`silver > should parse cli description 1`] = `
 {
   "actions": Map {
-    "__#0#__" => [MockFunction spy],
-    "completion" => [Function],
+    "__#0#__" => [MockFunction],
+    undefined => [Function],
   },
   "command": {
     "action": "__#0#__",
@@ -47,23 +47,16 @@ exports[`silver > should parse cli description 1`] = `
         "parent": [Circular],
       },
       {
-        "action": "completion",
         "commands": [],
-        "description": "Generate autocompletion for zsh.",
+        "description": "Generate autocomplete for zsh.",
         "flags": [],
-        "name": "completion",
+        "name": "complete",
         "options": [
           {
             "alias": "",
-            "description": "Install autocompletion for zsh, not implement yet.",
-            "name": "install",
-            "type": undefined,
-          },
-          {
-            "alias": "",
-            "description": "Uninstall autocompletion for zsh, not implement yet.",
-            "name": "uninstall",
-            "type": undefined,
+            "description": "Shell script to generate, only support zsh.",
+            "name": "shell",
+            "type": "shell",
           },
         ],
         "parameters": [
@@ -127,7 +120,7 @@ exports[`silver > should parse cli description 1`] = `
   },
   "flags": [
     "manual",
-    "autocompletion",
+    "autocomplete",
   ],
   "version": undefined,
 }

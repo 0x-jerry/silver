@@ -1,8 +1,8 @@
-v1.0.0 @help @autocompletion
+v1.0.0 @help @autocomplete
 
 xx [@type:name-name], A library for create command line interface quickly.
 
--t --test @test, Test autocompletion.
+-t --test @test, Test autocomplete.
 
 -lo --lang-option @string, Long option name
 

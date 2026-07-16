@@ -1,6 +1,6 @@
 import { sleep, toValue, type AsyncFactory } from '@0x-jerry/utils'
 import minimist from 'minimist'
-import { createCompletionCommand } from './builtins/completionCommand'
+import { createCompleteCommand } from './builtins/completeCommand'
 import { generateHelpMsg } from './builtins/helpOption'
 import { parseCliProgram } from './parser'
 import {
@@ -30,8 +30,8 @@ export class Sliver {
       description: 'Print help text for command.',
     })
 
-    if (this.conf.flags?.includes(ProgramFlag.Autocompletion)) {
-      const { cmd, action } = createCompletionCommand(this)
+    if (this.conf.flags?.includes(ProgramFlag.Autocomplete)) {
+      const { cmd, action } = createCompleteCommand(this)
 
       this.conf.command.commands ||= []
       this.conf.command.commands.push(cmd)
@@ -98,13 +98,13 @@ export class Sliver {
 @example
 ```ts
 import { silver } from '@0x-jerry/silver'
-// \@autocompletion will enable completion subcommand to generate autocomplete script
+// \@autocomplete will enable completion subcommand to generate autocomplete script
 const ins = sliver`
-v1.0.0 \@autocompletion
+v1.0.0 \@autocomplete
 
 Silver [@type:type], let you writing CLI like writing document. ${defaultAction}
 
--t --test \@test:defaultValue, Test autocompletion.
+-t --test \@test:defaultValue, Test autocomplete.
 
 up/upgrade <@test:dir> [...other] #stopEarly, an sub command. ${upgradeAction}
 

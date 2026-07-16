@@ -3,11 +3,11 @@
 import { sliver } from '../../src'
 
 const ins = sliver`
-v1.0.0 @help @autocompletion
+v1.0.0 @help @autocomplete
 
 xx [@xx|_files:test] [@xx:a2] [...@xx|_files:files], is a library for create command line interface quickly. ${fn}
 
--t --test @arg|_files, Test autocompletion.
+-t --test @arg|_files, Test autocomplete.
 
 up/upgrade <@up|_files:dir> [...@up|_files:other] #stopEarly, an sub command. ${upFn}
 

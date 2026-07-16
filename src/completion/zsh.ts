@@ -1,5 +1,6 @@
 import { type Arrayable, ensureArray, isString } from '@0x-jerry/utils'
 import type { CmdOption, Command } from '../types'
+import { generateCompleteCommandString } from '../builtins/completeCommand'
 
 /**
  * refer: https://github.com/zsh-users/zsh-completions/blob/master/zsh-completions-howto.org#writing-your-own-completion-functions
@@ -94,7 +95,7 @@ class ZshCodeGenerator {
         codes.push(
           //
           `local -a ${varName}`,
-          `IFS=$'\\n' ${varName}=($(SHELL=zsh ${this.name} completion ${_type}))`,
+          `IFS=$'\\n' ${varName}=($(SHELL=zsh ${generateCompleteCommandString(this.name, _type)}))`,
         )
 
         branchesCode.push(`'${_type}:${_type}:(($${varName}))'`)
@@ -228,7 +229,7 @@ function generateArgumentsCode(opt: GenerateArgumentsOption) {
  *
  * @param globalConf
  */
-export function generateZshAutoCompletion(globalConf: Command) {
+export function generateZshAutoComplete(globalConf: Command) {
   const g = new ZshCodeGenerator(globalConf.name)
 
   const codes = _genCommandCodeByLine(g, globalConf)

@@ -46,7 +46,7 @@ exports[`syntax > parse program 1`] = `
     "options": [
       {
         "alias": "t",
-        "description": "Test autocompletion.",
+        "description": "Test autocomplete.",
         "name": "test",
         "type": "test",
       },
@@ -73,7 +73,7 @@ exports[`syntax > parse program 1`] = `
   },
   "flags": [
     "help",
-    "autocompletion",
+    "autocomplete",
   ],
   "version": "v1.0.0",
 }

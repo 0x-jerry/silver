@@ -100,9 +100,9 @@ export enum ProgramFlag {
   Manual = 'manual',
 
   /**
-   * Add `completion` sub command
+   * Add `complete` sub command
    */
-  Autocompletion = 'autocompletion',
+  Autocomplete = 'autocomplete',
 }
 
 export enum OptionFlag {}

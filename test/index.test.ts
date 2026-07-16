@@ -1,5 +1,5 @@
 import { sleep } from '@0x-jerry/utils'
-import { generateZshAutoCompletion } from '../src/completion/zsh'
+import { generateZshAutoComplete } from '../src/completion/zsh'
 import { sliver } from '../src/core'
 
 describe('silver', () => {
@@ -7,7 +7,7 @@ describe('silver', () => {
     const fn = vi.fn()
 
     const ins = sliver`
-@manual @autocompletion
+@manual @autocomplete
 
 commandName [dir], A library for create command line interface quickly. ${fn}
 
@@ -56,7 +56,7 @@ sub, test command. ${fn}
     const fn = vi.fn()
 
     const ins = sliver`
-@manual @autocompletion
+@manual @autocomplete
 
 xx [@test|_files:dir], A library for create command line interface quickly. ${fn}
 
@@ -73,7 +73,7 @@ up/upgrade <dir> [...other] #stopEarly, an sub : command. ${fn}
 --small @bool, other option.
 `
 
-    const code = generateZshAutoCompletion(ins.conf!.command)
+    const code = generateZshAutoComplete(ins.conf!.command)
 
     await expect(code).toMatchFileSnapshot(`shell/completion.zsh`)
   })
@@ -82,7 +82,7 @@ up/upgrade <dir> [...other] #stopEarly, an sub : command. ${fn}
     const fn = vi.fn()
 
     const ins = sliver`
-@manual @autocompletion
+@manual @autocomplete
 
 o2_ts [dir], A library for create command line interface quickly. ${fn}
 `
@@ -94,7 +94,7 @@ o2_ts [dir], A library for create command line interface quickly. ${fn}
     const fn = vi.fn()
 
     const ins = sliver`
-@manual @autocompletion
+@manual @autocomplete
 
 o2ts [param_cool-name], A library for create command line interface quickly. ${fn}
 `

@@ -1,25 +1,25 @@
 #compdef xx
 _xx__type__string() {
   local -a list_0
-  IFS=$'\n' list_0=($(SHELL=zsh xx completion string))
+  IFS=$'\n' list_0=($(SHELL=zsh xx complete string))
   _alternative \
   'string:string:(($list_0))'
 }
 _xx__type__bool() {
   local -a list_0
-  IFS=$'\n' list_0=($(SHELL=zsh xx completion bool))
+  IFS=$'\n' list_0=($(SHELL=zsh xx complete bool))
   _alternative \
   'bool:bool:(($list_0))'
 }
 _xx__type__number() {
   local -a list_0
-  IFS=$'\n' list_0=($(SHELL=zsh xx completion number))
+  IFS=$'\n' list_0=($(SHELL=zsh xx complete number))
   _alternative \
   'number:number:(($list_0))'
 }
 _xx__type__custom() {
   local -a list_0
-  IFS=$'\n' list_0=($(SHELL=zsh xx completion custom))
+  IFS=$'\n' list_0=($(SHELL=zsh xx complete custom))
   _alternative \
   'custom:custom:(($list_0))'
 }
@@ -58,46 +58,54 @@ _xx_upgrade() {
     ;;
   esac
 }
-_xx_completion() {
+_xx__type__shell() {
+  local -a list_0
+  IFS=$'\n' list_0=($(SHELL=zsh xx complete shell))
+  _alternative \
+  'shell:shell:(($list_0))'
+}
+_xx_complete() {
   _arguments -s -C \
     '1: :->null' \
     '2: :->null' \
-    '--install[Install autocompletion for zsh, not implement yet.]' \
-    '--uninstall[Uninstall autocompletion for zsh, not implement yet.]' \
-    '--string[An string option with default value.]: :->param_2' \
-    '-s[An string option with default value.]: :->param_2' \
-    '--number[an number option with default value, and it is a global option.]: :->param_4' \
-    '-n[an number option with default value, and it is a global option.]: :->param_4' \
-    '--enum[an custom option with default value.]: :->param_6' \
-    '-e[an custom option with default value.]: :->param_6' \
-    '--bool[an boolean option without default value.]: :->param_8' \
-    '-b[an boolean option without default value.]: :->param_8' \
+    '--shell[Shell script to generate, only support zsh.]: :->param_0' \
+    '--string[An string option with default value.]: :->param_1' \
+    '-s[An string option with default value.]: :->param_1' \
+    '--number[an number option with default value, and it is a global option.]: :->param_3' \
+    '-n[an number option with default value, and it is a global option.]: :->param_3' \
+    '--enum[an custom option with default value.]: :->param_5' \
+    '-e[an custom option with default value.]: :->param_5' \
+    '--bool[an boolean option without default value.]: :->param_7' \
+    '-b[an boolean option without default value.]: :->param_7' \
     '--other[an option without specify a type will be a string.]' \
     '-o[an option without specify a type will be a string.]' \
-    '--help[Print help text for command.]: :->param_8' \
-    '-h[Print help text for command.]: :->param_8' \
+    '--help[Print help text for command.]: :->param_7' \
+    '-h[Print help text for command.]: :->param_7' \
     && ret=0
   
   case $state in
-  param_2)
+  param_0)
+    _xx__type__shell
+    ;;
+  param_1)
     _xx__type__string
     ;;
-  param_4)
+  param_3)
     _xx__type__number
     ;;
-  param_6)
+  param_5)
     _xx__type__custom
     ;;
-  param_8)
+  param_7)
     _xx__type__bool
     ;;
   esac
 }
 _xx__type__first_arg_xx_test__files() {
   local -a list_0
-  IFS=$'\n' list_0=($(SHELL=zsh xx completion test))
+  IFS=$'\n' list_0=($(SHELL=zsh xx complete test))
   _alternative \
-  'sub-commands:sub-commands:((upgrade\:"an sub : command. " up\:"an sub : command. " completion\:"Generate autocompletion for zsh."))' \
+  'sub-commands:sub-commands:((upgrade\:"an sub : command. " up\:"an sub : command. " complete\:"Generate autocomplete for zsh."))' \
   'test:test:(($list_0))' \
   'files:files:_files'
 }
@@ -154,8 +162,8 @@ _xx() {
     upgrade|up)
       _xx_upgrade
       ;;
-    completion)
-      _xx_completion
+    complete)
+      _xx_complete
       ;;
     *)
       _xx_xx
