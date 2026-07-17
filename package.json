@@ -1,6 +1,6 @@
 {
   "name": "@0x-jerry/silver",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Let writing CLI like writing document.",
   "homepage": "https://github.com/0x-jerry/silver#readme",
   "bugs": {
