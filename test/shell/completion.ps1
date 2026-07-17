@@ -58,7 +58,7 @@ filter __xx_escapeStringWithSpecialChars {
             ($PSVersionTable.PsVersion -lt [version]'7.3.0' -and -not [ExperimentalFeature]::IsEnabled("PSNativeCommandArgumentPassing")) -or
             (($PSVersionTable.PsVersion -ge [version]'7.3.0' -or [ExperimentalFeature]::IsEnabled("PSNativeCommandArgumentPassing")) -and
               $PSNativeCommandArgumentPassing -eq 'Legacy')) {
-             $RequestComp="$RequestComp" + ' `"'"
+             $RequestComp="$RequestComp" + ' `"'
         } else {
              $RequestComp = "$RequestComp" + ' ""'
         }
