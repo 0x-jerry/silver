@@ -34,25 +34,27 @@
     "test:watch": "vitest",
     "g:ohm": "ohm generateBundles --withTypes --esm src/**/*.ohm",
     "test:coverage": "vitest run --coverage",
-    "build": "tsdown src/index.ts --format esm --dts --clean",
+    "build": "tsdown",
     "prepublishOnly": "npm run build",
     "release": "x-release"
   },
   "dependencies": {
     "@0x-jerry/utils": "^6.5.0",
     "minimist": "^1.2.8",
+    "mustache": "^4.2.0",
     "ohm-js": "^17.5.0",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
     "@0x-jerry/x-release": "^3.0.5",
     "@ohm-js/cli": "^2.0.1",
+    "@types/bun": "latest",
     "@types/minimist": "^1.2.5",
+    "@types/mustache": "^4.2.6",
     "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^4.1.10",
     "tsdown": "^0.22.4",
     "typescript": "^6.0.0",
-    "vitest": "^4.1.10",
-    "@types/bun": "latest"
+    "vitest": "^4.1.10"
   }
 }

@@ -1,27 +1,27 @@
-#compdef xx
-compdef _xx xx
+#compdef {{name}}
+compdef _{{name}} {{name}}
 
-# zsh completion for xx -*- shell-script -*-
+# zsh completion for {{name}} -*- shell-script -*-
 
-__xx_debug() {
+__{{name}}_debug() {
     local file="$BASH_COMP_DEBUG_FILE"
     if [[ -n ${file} ]]; then
         echo "$*" >> "${file}"
     fi
 }
 
-_xx() {
+_{{name}}() {
     local lastParam lastChar flagPrefix requestComp out comp
 
-    __xx_debug "\n========= starting completion logic =========="
-    __xx_debug "CURRENT: ${CURRENT}, words[*]: ${words[*]}"
+    __{{name}}_debug "\n========= starting completion logic =========="
+    __{{name}}_debug "CURRENT: ${CURRENT}, words[*]: ${words[*]}"
 
     words=( "${=words[1,CURRENT]}" )
-    __xx_debug "Truncated words[*]: ${words[*]},"
+    __{{name}}_debug "Truncated words[*]: ${words[*]},"
 
     lastParam=${words[-1]}
     lastChar=${lastParam[-1]}
-    __xx_debug "lastParam: ${lastParam}, lastChar: ${lastChar}"
+    __{{name}}_debug "lastParam: ${lastParam}, lastChar: ${lastChar}"
 
     setopt local_options BASH_REMATCH
     if [[ "${lastParam}" =~ '-.*=' ]]; then
@@ -30,18 +30,18 @@ _xx() {
 
     local -a args_to_quote=("${(@)words[2,-1]}")
     if [ "${lastChar}" = "" ] && [ "${args_to_quote[-1]}" != "" ]; then
-        __xx_debug "Adding extra empty parameter"
+        __{{name}}_debug "Adding extra empty parameter"
         args_to_quote+=("")
     fi
 
     local quoted_args=("${(@q)args_to_quote}")
 
-    requestComp="xx complete -- ${quoted_args[*]}"
+    requestComp="{{execCmd}} complete -- ${quoted_args[*]}"
 
-    __xx_debug "About to call: eval ${requestComp}"
+    __{{name}}_debug "About to call: eval ${requestComp}"
 
     out=$(eval ${requestComp} 2>/dev/null)
-    __xx_debug "completion output: ${out}"
+    __{{name}}_debug "completion output: ${out}"
 
     local -a all_completions
     local current_group=""
@@ -54,7 +54,7 @@ _xx() {
             (( group_idx++ ))
             group_names+=("${current_group}")
             eval "local -a group_${group_idx}"
-            __xx_debug "Found group: ${current_group} (idx=${group_idx})"
+            __{{name}}_debug "Found group: ${current_group} (idx=${group_idx})"
             continue
         fi
 
@@ -64,7 +64,7 @@ _xx() {
             local tab="$(printf '\t')"
             comp=${comp//$tab/:}
 
-            __xx_debug "Adding completion: ${comp}"
+            __{{name}}_debug "Adding completion: ${comp}"
 
             if [[ ${group_idx} -ge 0 ]]; then
                 eval "group_${group_idx}+=(\"\${comp}\")"
@@ -77,8 +77,8 @@ _xx() {
     local has_described=0
 
     if [[ ${#group_names[@]} -gt 0 ]]; then
-        zstyle ':completion:*:*:xx:*' group-name ''
-        zstyle ':completion:*:*:xx:*:descriptions' format '%B-- %d --%b'
+        zstyle ':completion:*:*:{{name}}:*' group-name ''
+        zstyle ':completion:*:*:{{name}}:*:descriptions' format '%B-- %d --%b'
 
         local i
         for (( i=0; i<=group_idx; i++ )); do
@@ -87,14 +87,14 @@ _xx() {
             tag_name=${tag_name// /-}
 
             if [[ "${group_name}" == "_files" ]]; then
-                __xx_debug "Adding file completion"
+                __{{name}}_debug "Adding file completion"
                 _wanted files expl 'files' _files ${flagPrefix}
                 has_described=1
                 continue
             fi
 
             if [[ "${group_name}" == "_dirs" ]]; then
-                __xx_debug "Adding directory completion"
+                __{{name}}_debug "Adding directory completion"
                 _wanted directories expl 'directories' _files -/ ${flagPrefix}
                 has_described=1
                 continue
@@ -104,7 +104,7 @@ _xx() {
             eval "cur_group=(\"\${group_${i}[@]}\")"
 
             if [[ ${#cur_group[@]} -gt 0 ]]; then
-                __xx_debug "Describing group: ${group_name} (${#cur_group[@]} items)"
+                __{{name}}_debug "Describing group: ${group_name} (${#cur_group[@]} items)"
                 _describe -t "${tag_name}" "${group_name}" cur_group -Q ${flagPrefix}
                 has_described=1
             fi
@@ -121,6 +121,6 @@ _xx() {
     fi
 }
 
-if [ "${funcstack[1]}" = "_xx" ]; then
-    _xx
+if [ "${funcstack[1]}" = "_{{name}}" ]; then
+    _{{name}}
 fi

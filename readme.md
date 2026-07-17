@@ -14,10 +14,11 @@ Example:
 
 ```ts
 import { silver } from '@0x-jerry/silver'
+
 // @autocomplete will enable `completion` subcommand to generate autocomplete script
 // autocomplete only support zsh for now, and need to install manually
 // Manual install: you need to append `source <(silver completion)` to `.zshrc`
-const ins = sliver`
+const ins = silver`
 v1.0.0 @autocomplete
 
 Silver, let you writing CLI like writing document. ${defaultAction}

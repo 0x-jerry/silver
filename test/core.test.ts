@@ -1,12 +1,12 @@
 import { sleep } from '@0x-jerry/utils'
-import { generateZshAutoComplete } from '../src/completion/zsh'
-import { sliver } from '../src/core'
+import { generateZshRelay, generatePowerShellRelay } from '../src/completion/shells/index'
+import { silver } from '../src/core'
 
 describe('silver', () => {
   it('should parse cli description', () => {
     const fn = vi.fn()
 
-    const ins = sliver`
+    const ins = silver`
 @manual @autocomplete
 
 commandName [dir], A library for create command line interface quickly. ${fn}
@@ -30,18 +30,18 @@ up/upgrade <dir> [...other] #stopEarly, an sub command. ${fn}
   it('should execute by default', async () => {
     const fn = vi.fn()
 
-    sliver`
+    const _ = silver`
 x [dir], Test. ${fn}
 `
 
     await sleep()
-    expect(fn).toBeCalledTimes(1)
+    expect(fn).toHaveBeenCalledTimes(1)
   })
 
   it('should execute sub command', async () => {
     const fn = vi.fn()
 
-    const ins = sliver`
+    const ins = silver`
 x [dir], Test.
 
 sub, test command. ${fn}
@@ -49,13 +49,13 @@ sub, test command. ${fn}
 
     ins.execute(['sub', 'test'])
 
-    expect(fn).toBeCalledTimes(1)
+    expect(fn).toHaveBeenCalledTimes(1)
   })
 
-  it('should generate zsh code', async () => {
+  it('should generate zsh relay script', async () => {
     const fn = vi.fn()
 
-    const ins = sliver`
+    const ins = silver`
 @manual @autocomplete
 
 xx [@test|_files:dir], A library for create command line interface quickly. ${fn}
@@ -73,15 +73,21 @@ up/upgrade <dir> [...other] #stopEarly, an sub : command. ${fn}
 --small @bool, other option.
 `
 
-    const code = generateZshAutoComplete(ins.conf!.command)
+    const code = generateZshRelay(ins.conf!.command.name, ins.conf!.command.name)
 
     await expect(code).toMatchFileSnapshot(`shell/completion.zsh`)
+  })
+
+  it('should generate powershell relay script', async () => {
+    const code = generatePowerShellRelay('xx', 'xx')
+
+    await expect(code).toMatchFileSnapshot(`shell/completion.ps1`)
   })
 
   it('should support alnum as command name', () => {
     const fn = vi.fn()
 
-    const ins = sliver`
+    const ins = silver`
 @manual @autocomplete
 
 o2_ts [dir], A library for create command line interface quickly. ${fn}
@@ -93,7 +99,7 @@ o2_ts [dir], A library for create command line interface quickly. ${fn}
   it('should support "-_" character as command parameters', () => {
     const fn = vi.fn()
 
-    const ins = sliver`
+    const ins = silver`
 @manual @autocomplete
 
 o2ts [param_cool-name], A library for create command line interface quickly. ${fn}

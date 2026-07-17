@@ -111,6 +111,13 @@ export type CompletionValue = string | { label: string; desc?: string }
 
 export type CompletionType = Array<CompletionValue>
 
-export enum BuiltinType {
-  File = '_files',
+export interface CompletionGroup {
+  name: string
+  values: CompletionType
 }
+
+export interface CompletionResult {
+  groups: CompletionGroup[]
+}
+
+

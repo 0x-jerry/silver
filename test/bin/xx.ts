@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 
-import { sliver } from '../../src'
+import { silver } from '../../src'
 
-const ins = sliver`
+const ins = silver`
 v1.0.0 @help @autocomplete
 
 xx [@xx|_files:test] [@xx:a2] [...@xx|_files:files], is a library for create command line interface quickly. ${fn}
@@ -10,6 +10,8 @@ xx [@xx|_files:test] [@xx:a2] [...@xx|_files:files], is a library for create com
 -t --test @arg|_files, Test autocomplete.
 
 up/upgrade <@up|_files:dir> [...@up|_files:other] #stopEarly, an sub command. ${upFn}
+
+down, test.
 
 -s --string @string, sub command option.
 --small, other option.

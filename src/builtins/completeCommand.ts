@@ -1,52 +1,58 @@
-import { isString } from '@0x-jerry/utils'
-import { escapeStr, generateZshAutoComplete } from '../completion/zsh'
-import type { Sliver } from '../core'
 import { parseCliProgram } from '../parser'
+import type { Silver } from '../core'
+import { runCompletion, formatOutput } from '../completion/engine'
+import { generateZshRelay, generatePowerShellRelay } from '../completion/shells/index'
 
 export const COMPLETE_COMMAND_NAME = 'complete'
 
-export function createCompleteCommand(ins: Sliver) {
+export function createCompleteCommand(ins: Silver) {
   const conf = parseCliProgram`
-${COMPLETE_COMMAND_NAME} [type], Generate autocomplete for zsh.
---shell @shell, Shell script to generate, only support zsh.
+${COMPLETE_COMMAND_NAME} [@shell:shell] [...args] #stopEarly, Generate shell completion script or handle completion requests.
   `
 
-  ins.type('shell', ['zsh'])
+  ins.type('shell', ['zsh', 'powershell'])
+
+  conf.command.action = '__complete__'
 
   return {
     cmd: conf.command,
     action,
   }
 
-  async function action(params: string[], opt: { shell?: boolean }) {
-    if (opt.shell) {
-      const zshCode = generateZshAutoComplete(ins.conf!.command)
+  async function action(params: string[]) {
+    const [shell] = params
 
-      console.log(zshCode)
+    if (shell) {
+      const rootName = ins.conf!.command.name
+
+      switch (shell) {
+        case 'zsh':
+          console.log(generateZshRelay(rootName, rootName))
+          break
+        case 'powershell':
+          console.log(generatePowerShellRelay(rootName, rootName))
+          break
+        default:
+          console.error(`Unsupported shell: ${shell}`)
+          console.error('Supported shells: zsh, powershell')
+          break
+      }
       return
     }
 
-    const [type] = params
-
-    if (!type) {
-      return
-    }
-
-    const completions = await ins.getCompletion(type)
-
-    const s = completions
-      .map((item) => {
-        return isString(item)
-          ? escapeStr(item)
-          : item.desc
-            ? `${escapeStr(item.label)}\\:${item.desc}`
-            : escapeStr(item.label)
-      })
-      .join('\n')
-    process.stdout.write(s)
+    const rawArgs = extractRawCompletionArgs(process.argv)
+    const output = await runCompletion(ins, rawArgs)
+    process.stdout.write(formatOutput(output))
   }
 }
 
-export function generateCompleteCommandString(rootCmdName: string, type: string) {
-  return `${rootCmdName} ${COMPLETE_COMMAND_NAME} ${type}`
+function extractRawCompletionArgs(argv: string[]): string[] {
+  const completeIdx = argv.indexOf(COMPLETE_COMMAND_NAME)
+  if (completeIdx === -1) return []
+
+  const afterComplete = argv.slice(completeIdx + 1)
+  const separatorIdx = afterComplete.indexOf('--')
+
+  if (separatorIdx === -1) return afterComplete
+  return afterComplete.slice(separatorIdx + 1)
 }

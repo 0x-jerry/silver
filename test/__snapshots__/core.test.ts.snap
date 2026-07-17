@@ -4,7 +4,7 @@ exports[`silver > should parse cli description 1`] = `
 {
   "actions": Map {
     "__#0#__" => [MockFunction],
-    undefined => [Function],
+    "__complete__" => [Function],
   },
   "command": {
     "action": "__#0#__",
@@ -47,22 +47,23 @@ exports[`silver > should parse cli description 1`] = `
         "parent": [Circular],
       },
       {
+        "action": "__complete__",
         "commands": [],
-        "description": "Generate autocomplete for zsh.",
-        "flags": [],
-        "name": "complete",
-        "options": [
-          {
-            "alias": "",
-            "description": "Shell script to generate, only support zsh.",
-            "name": "shell",
-            "type": "shell",
-          },
+        "description": "Generate shell completion script or handle completion requests.",
+        "flags": [
+          "stopEarly",
         ],
+        "name": "complete",
+        "options": [],
         "parameters": [
           {
             "handleRestAll": false,
-            "name": "type",
+            "name": "shell",
+            "type": "shell",
+          },
+          {
+            "handleRestAll": true,
+            "name": "args",
             "type": undefined,
           },
         ],

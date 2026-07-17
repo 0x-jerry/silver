@@ -3,11 +3,7 @@ import { parseProgram } from './grammar'
 import type { CmdAction, Command, Program } from './types'
 
 let id = 0
-
-const nextId = () => {
-  return `__#${id++}#__`
-}
-
+const nextId = () => `__#${id++}#__`
 const ActionTokenRE = /__#\d+#__\s*$/
 
 // biome-ignore lint/suspicious/noExplicitAny: must use

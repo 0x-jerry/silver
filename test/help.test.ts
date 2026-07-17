@@ -1,8 +1,8 @@
 import type { MockInstance } from 'vitest'
-import { sliver } from '../src'
+import { silver } from '../src'
 
 describe('test help message', () => {
-  const ins = sliver`
+  const ins = silver`
 v1.0.0 @autocomplete @manual
 
 xx [@type:type], A library for create command line interface quickly.

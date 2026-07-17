@@ -13,7 +13,7 @@ import {
 } from './types'
 import { builtinType, isType } from './utils'
 
-export class Sliver {
+export class Silver {
   conf?: Program
 
   typeMapper = new Map<string, AsyncFactory<CompletionType>>()
@@ -89,7 +89,8 @@ export class Sliver {
 
     // todo, validate required parameters and options
 
-    const action = this.conf.actions?.get(command.action!)
+    if (!command.action) return
+    const action = this.conf.actions?.get(command.action)
     action?.(args._, args)
   }
 }
@@ -99,7 +100,7 @@ export class Sliver {
 ```ts
 import { silver } from '@0x-jerry/silver'
 // \@autocomplete will enable completion subcommand to generate autocomplete script
-const ins = sliver`
+const ins = silver`
 v1.0.0 \@autocomplete
 
 Silver [@type:type], let you writing CLI like writing document. ${defaultAction}
@@ -124,8 +125,8 @@ function upgradeAction([dir], options) {
 }
 ```
  */
-export function sliver(raw: TemplateStringsArray, ...tokens: any[]) {
-  const ins = new Sliver()
+export function silver(raw: TemplateStringsArray, ...tokens: any[]) {
+  const ins = new Silver()
 
   ins.parse(raw, ...tokens)
 
