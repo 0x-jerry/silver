@@ -51,9 +51,13 @@ export function parseCliProgram(raw: TemplateStringsArray, ...tokens: any[]): Pr
       return
     }
 
-    command.description = command.description.replace(ActionTokenRE, (key) => {
+    // Trim before regex to handle trailing whitespace safely
+    const trimmedDesc = command.description.trimEnd()
+    const newDesc = trimmedDesc.replace(ActionTokenRE, (key) => {
       command.action = key
       return ''
     })
+
+    command.description = newDesc.trim()
   }
 }

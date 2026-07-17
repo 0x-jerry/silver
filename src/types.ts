@@ -11,15 +11,6 @@ export interface CmdOption {
   type?: string
 
   description?: string
-
-  /**
-   * Not support
-   *
-   * @todo implement it
-   *
-   * {@link OptionFlag}
-   */
-  flags?: string[]
 }
 
 /**

@@ -1,4 +1,4 @@
-import { sleep, toValue, type AsyncFactory } from '@0x-jerry/utils'
+import { toValue, type AsyncFactory } from '@0x-jerry/utils'
 import minimist from 'minimist'
 import { createCompleteCommand } from './builtins/completeCommand'
 import { generateHelpMsg } from './builtins/helpOption'
@@ -31,6 +31,14 @@ export class Silver {
     })
 
     if (this.conf.flags?.includes(ProgramFlag.Autocomplete)) {
+      // Check for collision with existing 'complete' command
+      const existingComplete = this.conf.command.commands?.find(
+        (cmd) => cmd.name === 'complete' || cmd.alias === 'complete'
+      )
+      if (existingComplete) {
+        console.warn('Warning: A command named "complete" already exists. Autocomplete will override it.')
+      }
+
       const { cmd, action } = createCompleteCommand(this)
 
       this.conf.command.commands ||= []
@@ -59,35 +67,51 @@ export class Silver {
   execute(argv: string[]) {
     if (!this.conf) return
 
-    // get all sub command names
-    const commandMapper = this.conf.command.commands?.reduce((names, item) => {
-      names.set(item.name, item)
-
-      if (item.alias) {
-        names.set(item.alias, item)
-      }
-
-      return names
-    }, new Map<string, Command>())
-
+    // Resolve nested subcommands
     let command = this.conf.command
+    let currentArgv = argv
 
-    // if it is a sub command
-    if (commandMapper?.has(argv[0])) {
-      command = commandMapper.get(argv[0])!
-      argv = argv.slice(1)
+    while (currentArgv.length > 0) {
+      const subCommand = command.commands?.find(
+        (cmd) => cmd.name === currentArgv[0] || cmd.alias === currentArgv[0]
+      )
+
+      if (subCommand) {
+        command = subCommand
+        currentArgv = currentArgv.slice(1)
+      } else {
+        break
+      }
     }
 
-    const args = parseArgv(argv, command)
+    const args = parseArgv(currentArgv, command)
 
     if (args.help || args.h) {
       // force to print help message
       console.log(generateHelpMsg(command, this.conf))
-
       return
     }
 
-    // todo, validate required parameters and options
+    // Validate required parameters
+    const params = command.parameters || []
+    const positionalArgs = args._
+
+    for (let i = 0; i < params.length; i++) {
+      const param = params[i]
+
+      if (param.required && !param.handleRestAll) {
+        if (positionalArgs[i] === undefined) {
+          console.error(`Error: Missing required parameter: <${param.name}>`)
+          console.log(generateHelpMsg(command, this.conf))
+          return
+        }
+      }
+
+      // For rest parameters, we don't need to validate as they collect remaining args
+      if (param.handleRestAll) {
+        break
+      }
+    }
 
     if (!command.action) return
     const action = this.conf.actions?.get(command.action)
@@ -131,7 +155,9 @@ export function silver(raw: TemplateStringsArray, ...tokens: any[]) {
   ins.parse(raw, ...tokens)
 
   if (!ins.conf?.flags?.includes(ProgramFlag.Manual)) {
-    sleep().then(() => {
+    // Use queueMicrotask for more predictable execution than sleep()
+    // This ensures type registrations happen before execution
+    queueMicrotask(() => {
       const argv = process.argv.slice(2)
       ins.execute(argv)
     })

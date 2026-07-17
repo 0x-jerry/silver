@@ -12,7 +12,7 @@ exports[`silver > should parse cli description 1`] = `
       {
         "action": "__#0#__",
         "alias": "up",
-        "description": "an sub command. ",
+        "description": "an sub command.",
         "flags": [
           "stopEarly",
         ],
@@ -70,7 +70,7 @@ exports[`silver > should parse cli description 1`] = `
         "parent": [Circular],
       },
     ],
-    "description": "A library for create command line interface quickly. ",
+    "description": "A library for create command line interface quickly.",
     "flags": [],
     "name": "commandName",
     "options": [
