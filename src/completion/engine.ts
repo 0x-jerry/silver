@@ -1,5 +1,5 @@
 import type { Silver } from '../core'
-import type { CmdOption, Command, CompletionType } from '../types'
+import type { CmdOption, Command } from '../types'
 import { BuiltinType } from './builtinTypes'
 
 export interface CompletionGroup {
@@ -19,23 +19,27 @@ interface CompletionContext {
   getType: (type: string) => Promise<CompletionType>
 }
 
+type CompletionType = Array<string | { label: string; desc?: string }>
+
+// --- Entry points ---
+
 export async function runCompletion(
   ins: Silver,
   argv: string[],
 ): Promise<CompletionOutput> {
+  if (!ins.conf) return { groups: [] }
+
   const completing = argv.length > 0 && argv[argv.length - 1] === ''
-  if (completing) {
-    argv = argv.slice(0, -1)
-  }
+  if (completing) argv = argv.slice(0, -1)
 
   const current = argv[argv.length - 1] || ''
-  const { command, positionalArgs } = matchCommand(ins.conf!.command, argv)
+  const { command, positionalCount } = resolveCommand(ins.conf.command, argv)
 
   const ctx: CompletionContext = {
     command,
     completing,
     current,
-    positionalCount: positionalArgs.length,
+    positionalCount,
     getType: (type) => ins.getCompletion(type),
   }
 
@@ -50,59 +54,62 @@ export async function runCompletion(
   }
 }
 
-function matchCommand(
-  program: Command,
-  argv: string[],
-): { command: Command; positionalArgs: string[] } {
-  let command = program
-  const stripped = stripOptions(argv, command)
-  const positionalArgs: string[] = []
+export function formatOutput(output: CompletionOutput): string {
+  return output.groups
+    .flatMap((g) => [`##${g.name}`, ...g.values])
+    .join('\n')
+}
 
-  for (const arg of stripped) {
-    if (command.commands?.length) {
-      const sub = command.commands.find((c) => c.name === arg || c.alias === arg)
-      if (sub) {
-        command = sub
-        continue
-      }
+// --- Command resolution ---
+
+function resolveCommand(program: Command, argv: string[]) {
+  const positionalArgs = stripOptions(argv, program)
+  let command = program
+
+  for (const arg of positionalArgs) {
+    const sub = command.commands?.find((c) => c.name === arg || c.alias === arg)
+    if (sub) {
+      command = sub
+    } else {
+      return { command, positionalCount: positionalArgs.length }
     }
-    positionalArgs.push(arg)
   }
 
-  return { command, positionalArgs }
+  return { command, positionalCount: positionalArgs.length }
 }
 
 function stripOptions(argv: string[], command: Command): string[] {
   const result: string[] = []
-  let i = 0
-  while (i < argv.length) {
+  for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (arg.startsWith('-')) {
       const opt = findOption(command, arg)
-      if (opt && !isBooleanType(opt)) {
-        i++
-      }
+      if (opt && !isBooleanType(opt)) i++
     } else {
       result.push(arg)
     }
-    i++
   }
   return result
 }
 
-function findOption(command: Command, flag: string): CmdOption | undefined {
-  const cleanFlag = flag.replace(/=.*$/, '')
+// --- Option helpers ---
+
+function collectOptions(command: Command): CmdOption[] {
+  const options: CmdOption[] = []
   let cmd: Command | undefined = command
   while (cmd) {
-    const opt = cmd.options?.find((o) => {
-      if (o.name && cleanFlag === `--${o.name}`) return true
-      if (o.alias && cleanFlag === `-${o.alias}`) return true
-      return false
-    })
-    if (opt) return opt
+    if (cmd.options) options.push(...cmd.options)
     cmd = cmd.parent
   }
-  return undefined
+  return options
+}
+
+function findOption(command: Command, flag: string): CmdOption | undefined {
+  const cleanFlag = flag.replace(/=.*$/, '')
+  return collectOptions(command).find((o) =>
+    (o.name && cleanFlag === `--${o.name}`) ||
+    (o.alias && cleanFlag === `-${o.alias}`),
+  )
 }
 
 function isBooleanType(opt: CmdOption): boolean {
@@ -110,25 +117,25 @@ function isBooleanType(opt: CmdOption): boolean {
   return opt.type.split('|').some((t) => t === 'bool' || t === 'boolean')
 }
 
+// --- Completion ---
+
 async function completeFlags(ctx: CompletionContext): Promise<CompletionGroup[]> {
   const { command, completing, current, getType } = ctx
   const eqIdx = current.indexOf('=')
 
-  if (eqIdx === -1) {
-    if (completing) {
-      const opt = findOption(command, current)
-      if (opt && !isBooleanType(opt) && opt.type) {
-        return groupsFromType(opt.type, getType)
-      }
-    }
-    return [completeFlagNames(command)]
+  if (eqIdx !== -1) {
+    const opt = findOption(command, current.slice(0, eqIdx))
+    return opt?.type ? resolveTypeGroups(opt.type, getType, current.slice(0, eqIdx)) : []
   }
 
-  const flagPart = current.slice(0, eqIdx)
-  const opt = findOption(command, flagPart)
-  if (!opt?.type) return []
+  if (completing) {
+    const opt = findOption(command, current)
+    if (opt && !isBooleanType(opt) && opt.type) {
+      return resolveTypeGroups(opt.type, getType)
+    }
+  }
 
-  return groupsFromType(opt.type, getType, flagPart)
+  return [flagNamesGroup(command)]
 }
 
 async function completeNonFlags(ctx: CompletionContext): Promise<CompletionGroup[]> {
@@ -136,63 +143,52 @@ async function completeNonFlags(ctx: CompletionContext): Promise<CompletionGroup
   const groups: CompletionGroup[] = []
 
   if (command.commands?.length) {
-    groups.push(completeSubcommands(command))
+    groups.push(subcommandsGroup(command))
   }
 
-  const flagsGroup = completeFlagNames(command)
-  if (flagsGroup.values.length > 0) {
-    groups.push(flagsGroup)
-  }
+  const flags = flagNamesGroup(command)
+  if (flags.values.length > 0) groups.push(flags)
 
-  if (!completing) {
-    if (command.name === current || command.alias === current) {
-      return groups
-    }
-    if (command.commands?.some((c) => c.name.startsWith(current) || (c.alias && c.alias.startsWith(current)))) {
-      return groups
-    }
-  }
+  const isCompletingCommandWord =
+    !completing && (
+      current === command.name || current === command.alias ||
+      command.commands?.some((c) => c.name.startsWith(current) || c.alias?.startsWith(current))
+    )
 
-  const positionalGroups = await completePositional(ctx)
-  groups.push(...positionalGroups)
+  if (isCompletingCommandWord) return groups
 
+  groups.push(...await completePositional(ctx))
   return groups
 }
 
-function completeSubcommands(command: Command): CompletionGroup {
-  const values: string[] = []
-  for (const sub of command.commands || []) {
-    values.push(formatCompletion(sub.name, sub.description))
-    if (sub.alias) {
-      values.push(formatCompletion(sub.alias, sub.description))
-    }
-  }
+function subcommandsGroup(command: Command): CompletionGroup {
+  const values = (command.commands || []).flatMap((sub) => {
+    const entries = [formatItem(sub.name, sub.description)]
+    if (sub.alias) entries.push(formatItem(sub.alias, sub.description))
+    return entries
+  })
   return { name: 'commands', values }
 }
 
-function completeFlagNames(command: Command): CompletionGroup {
+function flagNamesGroup(command: Command): CompletionGroup {
   const flags: string[] = []
   const seen = new Set<string>()
-  let cmd: Command | undefined = command
 
-  while (cmd) {
-    for (const opt of cmd.options || []) {
-      if (opt.name) {
-        const flag = `--${opt.name}`
-        if (!seen.has(flag)) {
-          seen.add(flag)
-          flags.push(formatCompletion(flag, opt.description))
-        }
-      }
-      if (opt.alias) {
-        const flag = `-${opt.alias}`
-        if (!seen.has(flag)) {
-          seen.add(flag)
-          flags.push(formatCompletion(flag, opt.description))
-        }
+  for (const opt of collectOptions(command)) {
+    if (opt.name) {
+      const flag = `--${opt.name}`
+      if (!seen.has(flag)) {
+        seen.add(flag)
+        flags.push(formatItem(flag, opt.description))
       }
     }
-    cmd = cmd.parent
+    if (opt.alias) {
+      const flag = `-${opt.alias}`
+      if (!seen.has(flag)) {
+        seen.add(flag)
+        flags.push(formatItem(flag, opt.description))
+      }
+    }
   }
 
   return { name: 'options', values: flags }
@@ -204,79 +200,49 @@ async function completePositional(ctx: CompletionContext): Promise<CompletionGro
   if (params.length === 0) return []
 
   const idx = completing ? positionalCount : Math.max(0, positionalCount - 1)
+  const restIdx = params.findIndex((p) => p.handleRestAll)
+  const paramIdx = restIdx >= 0 && restIdx <= idx ? restIdx : idx
+  const param = params[paramIdx]
 
-  let paramIndex = -1
-  for (let i = 0; i < params.length; i++) {
-    if (params[i].handleRestAll || i === idx) {
-      paramIndex = i
-      break
-    }
-  }
-
-  const param = paramIndex >= 0 ? params[paramIndex] : undefined
-  if (!param?.type) return []
-
-  return groupsFromType(param.type, getType)
+  return param?.type ? resolveTypeGroups(param.type, getType) : []
 }
 
-async function groupsFromType(
+// --- Type resolution ---
+
+async function resolveTypeGroups(
   typeStr: string,
   getType: (type: string) => Promise<CompletionType>,
   prefix?: string,
 ): Promise<CompletionGroup[]> {
-  const types = typeStr.split('|')
+  const parts = typeStr.split('|')
+  const customTypes = parts.filter((t) => !t.startsWith('_'))
+  const builtinTypes = parts.filter((t) => t === BuiltinType.File || t === BuiltinType.Dir)
+
   const groups: CompletionGroup[] = []
 
-  const values = await resolveType(typeStr, getType)
-  if (values.length > 0) {
-    const mapped = prefix ? values.map((v) => `${prefix}=${v}`) : values
-    groups.push({ name: primaryTypeName(types), values: mapped })
+  if (customTypes.length > 0) {
+    const values: string[] = []
+    for (const type of customTypes) {
+      const items = await getType(type)
+      for (const item of items) {
+        const v = typeof item === 'string' ? item : formatItem(item.label, item.desc)
+        values.push(prefix ? `${prefix}=${v}` : v)
+      }
+    }
+    if (values.length > 0) {
+      groups.push({ name: customTypes[0], values })
+    }
   }
 
-  for (const type of types) {
-    if (type === BuiltinType.File || type === BuiltinType.Dir) {
-      groups.push({ name: type, values: [] })
-    }
+  for (const type of builtinTypes) {
+    groups.push({ name: type, values: [] })
   }
 
   return groups
 }
 
-function primaryTypeName(types: string[]): string {
-  for (const type of types) {
-    if (!type.startsWith('_')) return type
-  }
-  return types[0]
-}
+// --- Formatting ---
 
-async function resolveType(
-  typeStr: string,
-  getType: (type: string) => Promise<CompletionType>,
-): Promise<string[]> {
-  const values: string[] = []
-
-  for (const type of typeStr.split('|')) {
-    if (type.startsWith('_')) continue
-
-    const result = await getType(type)
-
-    for (const item of result) {
-      values.push(typeof item === 'string' ? item : formatCompletion(item.label, item.desc))
-    }
-  }
-
-  return values
-}
-
-function formatCompletion(value: string, description?: string): string {
+function formatItem(value: string, description?: string): string {
   return description ? `${value}\t${description}` : value
-}
-
-export function formatOutput(output: CompletionOutput): string {
-  const lines: string[] = []
-  for (const group of output.groups) {
-    lines.push(`##${group.name}`)
-    lines.push(...group.values)
-  }
-  return lines.join('\n')
 }
