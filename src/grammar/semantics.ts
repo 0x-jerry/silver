@@ -38,7 +38,7 @@ semantics.addOperation<unknown>('e', {
     const command: Command = {
       name: name.sourceString,
       alias: shortName.sourceString,
-      description: description.sourceString,
+      description: description.sourceString.trim(),
       flags: flags.e(),
       parameters: parameters.e(),
     }
@@ -48,7 +48,7 @@ semantics.addOperation<unknown>('e', {
   CommandDefinition_normal(name, parameters, flags, _, description) {
     const command: Command = {
       name: name.sourceString,
-      description: description.sourceString,
+      description: description.sourceString.trim(),
       flags: flags.e(),
       parameters: parameters.e(),
     }
@@ -96,7 +96,7 @@ semantics.addOperation<unknown>('e', {
       name: name.sourceString.slice(2),
       alias: shortName.sourceString.slice(1),
       type: _type?.name,
-      description: description.sourceString,
+      description: description.sourceString.trim(),
     }
 
     return option
