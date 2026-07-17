@@ -33,10 +33,15 @@ filter __{{name}}_escapeStringWithSpecialChars {
 
     $Program, $Arguments = $Command.Split(" ", 2)
 
-    $QuotedArgs = ($Arguments -split ' ' | ForEach-Object { "'" + ($_ -replace "'", "''") + "'" }) -join ' '
+    $QuotedArgs = ($Arguments -split ' ' | ForEach-Object {
+        if ($_ -eq '') {
+            return '""'
+        }
+        return "'" + ($_ -replace "'", "''") + "'"
+    }) -join ' '
     __{{name}}_debug "QuotedArgs: $QuotedArgs"
 
-    $RequestComp = "& {{execCmd}} complete -- $QuotedArgs"
+    $RequestComp = '& {{execCmd}} complete -- ' + $QuotedArgs
     __{{name}}_debug "RequestComp: $RequestComp"
 
     if ($WordToComplete -ne "" ) {
@@ -49,25 +54,18 @@ filter __{{name}}_escapeStringWithSpecialChars {
         __{{name}}_debug "Completing equal sign flag"
         $Flag, $WordToComplete = $WordToComplete.Split("=", 2)
     }
-    $HasTrailingEmptyArg = $QuotedArgs -match "(^| )''$"
+    $HasTrailingEmptyArg = $QuotedArgs -match '(^| )""$'
     __{{name}}_debug "HasTrailingEmptyArg: $HasTrailingEmptyArg"
 
     if ( $WordToComplete -eq "" -And ( -Not $IsEqualFlag ) -And ( -Not $HasTrailingEmptyArg )) {
         __{{name}}_debug "Adding extra empty parameter"
-        if ($PSVersionTable.PsVersion -lt [version]'7.2.0' -or
-            ($PSVersionTable.PsVersion -lt [version]'7.3.0' -and -not [ExperimentalFeature]::IsEnabled("PSNativeCommandArgumentPassing")) -or
-            (($PSVersionTable.PsVersion -ge [version]'7.3.0' -or [ExperimentalFeature]::IsEnabled("PSNativeCommandArgumentPassing")) -and
-              $PSNativeCommandArgumentPassing -eq 'Legacy')) {
-             $RequestComp="$RequestComp" + ' `"'
-        } else {
-             $RequestComp = "$RequestComp" + ' ""'
-        }
+        $RequestComp = $RequestComp + ' ""'
     }
 
     __{{name}}_debug "Calling $RequestComp"
     $env:ActiveHelp = 0
 
-    Invoke-Expression -OutVariable out "$RequestComp" 2>&1 | Out-Null
+    Invoke-Expression -OutVariable out $RequestComp 2>&1 | Out-Null
 
     $CurrentGroup = ""
     $AllValues = @()
@@ -76,6 +74,46 @@ filter __{{name}}_escapeStringWithSpecialChars {
         if ($_ -match '^##(.+)$') {
             $CurrentGroup = $Matches[1]
             __{{name}}_debug "Found group: $CurrentGroup"
+
+            # Handle built-in completion types
+            if ($CurrentGroup -eq '_files') {
+                __{{name}}_debug "Generating file completions for prefix: $WordToComplete"
+
+                $DirPrefix = ""
+                if ($WordToComplete -match '^(.*[/\\])(.*)$') {
+                    $DirPrefix = $Matches[1]
+                }
+
+                $BasePath = if ($DirPrefix) { $DirPrefix } else { "." }
+
+                # List directories (for navigation, like zsh's _files)
+                Get-ChildItem -Path $BasePath -Directory -Name -ErrorAction SilentlyContinue | ForEach-Object {
+                    $AllValues += @{ Name = "$DirPrefix$_\"; Description = " " }
+                }
+                # List files
+                Get-ChildItem -Path $BasePath -File -Name -ErrorAction SilentlyContinue | ForEach-Object {
+                    $AllValues += @{ Name = "$DirPrefix$_"; Description = " " }
+                }
+                $CurrentGroup = ""
+                return
+            }
+            if ($CurrentGroup -eq '_dirs') {
+                __{{name}}_debug "Generating directory completions for prefix: $WordToComplete"
+
+                $DirPrefix = ""
+                if ($WordToComplete -match '^(.*[/\\])(.*)$') {
+                    $DirPrefix = $Matches[1]
+                }
+
+                $BasePath = if ($DirPrefix) { $DirPrefix } else { "." }
+
+                Get-ChildItem -Path $BasePath -Directory -Name -ErrorAction SilentlyContinue | ForEach-Object {
+                    $AllValues += @{ Name = "$DirPrefix$_\"; Description = " " }
+                }
+                $CurrentGroup = ""
+                return
+            }
+
             return
         }
 
@@ -133,11 +171,22 @@ filter __{{name}}_escapeStringWithSpecialChars {
 
                 if ($Values.Length -eq 1) {
                     __{{name}}_debug "Only one completion left"
-                    [System.Management.Automation.CompletionResult]::new($($comp.Name | __{{name}}_escapeStringWithSpecialChars) + " ", "$($comp.Name)", 'ParameterValue', "$($comp.Description)")
+
+                    $EscapedName = $comp.Name | __{{name}}_escapeStringWithSpecialChars
+                    # Don't add trailing space when completing a directory (ends with \ or /)
+                    # so the user can press Tab again to navigate into it
+                    if ($EscapedName -match '[\\/]$') {
+                        $CompletionText = $EscapedName
+                    } else {
+                        $CompletionText = $EscapedName + " "
+                    }
+
+                    [System.Management.Automation.CompletionResult]::new($CompletionText, "$($comp.Name)", 'ParameterValue', "$($comp.Description)")
 
                 } else {
-                    while($comp.Name.Length -lt $Longest) {
-                        $comp.Name = $comp.Name + " "
+                    $DisplayName = $comp.Name
+                    while($DisplayName.Length -lt $Longest) {
+                        $DisplayName = $DisplayName + " "
                     }
 
                     if ($($comp.Description) -eq " " ) {
@@ -146,12 +195,18 @@ filter __{{name}}_escapeStringWithSpecialChars {
                         $Description = "  ($($comp.Description))"
                     }
 
-                    [System.Management.Automation.CompletionResult]::new("$($comp.Name)$Description", "$($comp.Name)$Description", 'ParameterValue', "$($comp.Description)")
+                    [System.Management.Automation.CompletionResult]::new("$DisplayName$Description", "$DisplayName$Description", 'ParameterValue', "$($comp.Description)")
                 }
              }
 
             "MenuComplete" {
-                [System.Management.Automation.CompletionResult]::new($($comp.Name | __{{name}}_escapeStringWithSpecialChars) + " ", "$($comp.Name)", 'ParameterValue', "$($comp.Description)")
+                $EscapedName = $comp.Name | __{{name}}_escapeStringWithSpecialChars
+                if ($EscapedName -match '[\\/]$') {
+                    $CompletionText = $EscapedName
+                } else {
+                    $CompletionText = $EscapedName + " "
+                }
+                [System.Management.Automation.CompletionResult]::new($CompletionText, "$($comp.Name)", 'ParameterValue', "$($comp.Description)")
             }
 
             Default {
